@@ -32,6 +32,10 @@ class Agent(BaseUser):
 class Country(BaseModel):
     name = models.CharField(max_length=255)
 
+    class Meta:
+        verbose_name = 'Country'
+        verbose_name_plural = 'Countries'
+
     def __str__(self):
         return self.name
 
@@ -41,6 +45,10 @@ class State(BaseModel):
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='states')
 
+    class Meta:
+        verbose_name = 'State'
+        verbose_name_plural = 'States'
+
     def __str__(self):
         return self.name
 
@@ -49,6 +57,10 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='cities')
+
+    class Meta:
+        verbose_name = 'City'
+        verbose_name_plural = 'Cities'
 
     def __str__(self):
         return self.name

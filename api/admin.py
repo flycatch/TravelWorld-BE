@@ -1,5 +1,5 @@
 from django.contrib import admin
-from api.models import Agent, User, City
+from api import models as api_models
 # Register your models here.
 
 
@@ -8,6 +8,41 @@ class AgentAdmin(admin.ModelAdmin):
     # list_filter = ("type", "status")
     list_editable = ("is_approved", "is_rejected")
 
-admin.site.register(User)
-admin.site.register(Agent, AgentAdmin)
-admin.site.register(City)
+
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ("name", "creator")
+
+
+class StateAdmin(admin.ModelAdmin):
+    list_display = ("name", "country", "creator")
+
+
+class CityAdmin(admin.ModelAdmin):
+    list_display = ("name", "state", "creator")
+
+
+class InclusionsAdmin(admin.ModelAdmin):
+    list_display = ("name", "creator")
+
+
+class ExclusionsAdmin(admin.ModelAdmin):
+    list_display = ("name", "creator")
+
+
+class ActivityAdmin(admin.ModelAdmin):
+    list_display = ("package", "name", "is_published", "is_rejected")
+
+
+class AttractionAdmin(admin.ModelAdmin):
+    list_display = ("title", "overview", "is_published", "created_by")
+
+
+admin.site.register(api_models.User)
+admin.site.register(api_models.Agent, AgentAdmin)
+admin.site.register(api_models.Country, CountryAdmin)
+admin.site.register(api_models.City, CityAdmin)
+admin.site.register(api_models.State, StateAdmin)
+admin.site.register(api_models.Inclusions, InclusionsAdmin)
+admin.site.register(api_models.Exclusions, ExclusionsAdmin)
+admin.site.register(api_models.Activity, ActivityAdmin)
+admin.site.register(api_models.Attraction, AttractionAdmin)

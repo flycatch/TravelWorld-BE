@@ -1,0 +1,37 @@
+# .gitignore
+
+# Ignore virtual environment
+venv/
+
+# Ignore database file
+db.sqlite3
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+# Ignore logs and other generated files
+logs/
+*.log
+*.pot
+*.pyo
+*.orig
+
+# Ignore local settings
+local_settings.py
+
+# Ignore environment-specific configuration
+.env
+.env.db
+
+# Ignore media and static files
+media/
+staticfiles/
+
+# Ignore temporary files and directories
+*.swp
+*~
+
+# Ignore system files
+.DS_Store
+Thumbs.db

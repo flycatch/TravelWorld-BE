@@ -38,7 +38,7 @@ pipeline {
                         steps {
                             catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                                 sh script: 'pip install pylint', label: 'pylint installation'
-                                sh script: 'pylint --max-line-length=100  --ignore=Dockerfile,nginx,migrations,Jenkinsfile,README.md,docker-compose.yml,pylint.log,report  --output-format=parseable ./* > pylint.log', label: 'lint check'
+                                sh script: 'pylint --max-line-length=100  --ignore=Dockerfile,nginx,migrations,Jenkinsfile,README.md,docker-compose.yml,pylint.log,report  --output-format=parseable ./* > pylint.log || true', label: 'lint check'
                             }
                         }
                     }

@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-kgx&9c0t4r03*y^h5uv+4hx@uob0wb)@$f6e5#8&!jv2qq@&v4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS')
-
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default=[], cast=lambda v: [s.strip() for s in v.split(',')])
+print(ALLOWED_HOSTS)
 
 # Application definition
 

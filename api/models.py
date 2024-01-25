@@ -69,12 +69,20 @@ class City(BaseModel):
 class TourType(BaseModel):
     name = models.CharField(max_length=255)
 
+    class Meta:
+        verbose_name = 'Tour Type'
+        verbose_name_plural = 'Tour Type'
+
     def __str__(self):
         return self.name
 
 
 class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Package Category'
+        verbose_name_plural = 'Package Category'
 
     def __str__(self):
         return self.name
@@ -107,6 +115,10 @@ class Package(BaseModel):
     is_published = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'Package'
+        verbose_name_plural = 'Packages'
+
     def __str__(self):
         return self.title
 
@@ -115,9 +127,17 @@ class ItineraryDay(BaseModel):
     day = models.CharField(max_length=255)
     plan = models.TextField(blank=True, default="")
 
+    class Meta:
+        verbose_name = 'Itinerary Day'
+        verbose_name_plural = 'Itinerary Day'
+
 
 class Inclusions(BaseModel):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Inclusions'
+        verbose_name_plural = 'Inclusions'
 
     def __str__(self):
         return self.name
@@ -125,6 +145,10 @@ class Inclusions(BaseModel):
 
 class Exclusions(BaseModel):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Exclusions'
+        verbose_name_plural = 'Exclusions'
 
     def __str__(self):
         return self.name
@@ -139,11 +163,19 @@ class Itinerary(BaseModel):
     inclusions = models.ManyToManyField(Inclusions, related_name='itineraries')
     exclusions = models.ManyToManyField(Exclusions, related_name='itineraries')
 
+    class Meta:
+        verbose_name = 'Itinerary'
+        verbose_name_plural = 'Itinerary'
+
 
 class HotelDetails(BaseModel):
     name = models.CharField(max_length=255)
     details = models.TextField(blank=True, default="")
     location_details = models.TextField(blank=True, default="")
+
+    class Meta:
+        verbose_name = 'Hotel Details'
+        verbose_name_plural = 'Hotel Details'
 
     def __str__(self):
         return self.name
@@ -152,9 +184,17 @@ class HotelDetails(BaseModel):
 class Guide(BaseModel):
     language = models.CharField(max_length=255)
 
+    class Meta:
+        verbose_name = 'Guide'
+        verbose_name_plural = 'Guide'
+
 
 class InformationActivities(BaseModel):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Information Activities'
+        verbose_name_plural = 'Information Activities'
 
     def __str__(self):
         return self.name
@@ -165,6 +205,10 @@ class ThingsToCarry(BaseModel):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Things To Carry'
+        verbose_name_plural = 'Things To Carry'
 
 
 class Informations(BaseModel):
@@ -184,9 +228,17 @@ class Informations(BaseModel):
         ThingsToCarry, related_name='informations')
     important_message = models.TextField(blank=True, default="")
 
+    class Meta:
+        verbose_name = 'Information'
+        verbose_name_plural = 'Informations'
+
 
 class Currency(BaseModel):
     name = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'Currency'
+        verbose_name_plural = 'Currency'
 
     def __str__(self):
         return self.name
@@ -217,6 +269,10 @@ class Pricing(BaseModel):
     group_commission = models.CharField(max_length=255, blank=True, null=True)
     group_agent_amount = models.FloatField(default=0.0, blank=True, null=True)
 
+    class Meta:
+        verbose_name = 'Pricing'
+        verbose_name_plural = 'Pricing'
+
 
 class TourCategory(BaseModel):
     CATEGORY_TYPE_CHOICE = [
@@ -232,6 +288,10 @@ class TourCategory(BaseModel):
     start_at = models.DateField()
     end_at = models.DateField()
 
+    class Meta:
+        verbose_name = 'Tour Category'
+        verbose_name_plural = 'Tour Categories'
+
 
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
@@ -239,15 +299,17 @@ class CancellationPolicy(BaseModel):
     category = models.CharField(max_length=255)
     amount_percent = models.CharField(max_length=255)
 
+    class Meta:
+        verbose_name = 'Cancellation Policy'
+        verbose_name_plural = 'Cancellation Policies'
 
-# class Faq(BaseModel):
-#     package = models.ForeignKey(
-#         Package, on_delete=models.CASCADE, related_name='faqs')
-#     question = models.CharField(max_length=255)
-#     answer = models.TextField(blank=True, default="")
 
 class FAQQuestion(models.Model):
     question = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = 'FAQQuestion'
+        verbose_name_plural = 'FAQQuestions'
 
     def __str__(self):
         return self.question
@@ -256,6 +318,10 @@ class FAQQuestion(models.Model):
 class FAQAnswer(models.Model):
     question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='answer')
     answer = models.TextField()
+
+    class Meta:
+        verbose_name = 'FAQAnswer'
+        verbose_name_plural = 'FAQAnswers'
 
 
 class Booking(BaseModel):
@@ -268,6 +334,10 @@ class Booking(BaseModel):
     infant = models.IntegerField()
     is_cancelled = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'Booking'
+        verbose_name_plural = 'Bookings'
+
 
 class Activity(BaseModel):
     package = models.ForeignKey(
@@ -275,6 +345,10 @@ class Activity(BaseModel):
     name = models.CharField(max_length=255)
     is_published = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Activity'
+        verbose_name_plural = 'Activities'
 
     def __str__(self):
         return self.name
@@ -289,6 +363,10 @@ class Attraction(BaseModel):
         upload_to='attraction_images/', null=True, default=None, blank=True)
     is_published = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'Attraction'
+        verbose_name_plural = 'Attractions'
+
     def __str__(self):
         return self.title
 
@@ -300,3 +378,7 @@ class UserReview(BaseModel):
         User, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField()
     review = models.TextField(blank=True, default="")
+
+    class Meta:
+        verbose_name = 'User Review'
+        verbose_name_plural = 'User Reviews'

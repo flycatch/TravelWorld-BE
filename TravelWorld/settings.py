@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from decouple import config
 
@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'rest_framework.authtoken',
-
+    'corsheaders',
+    
     'api',
 ]
 
@@ -61,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'TravelWorld.urls'
@@ -149,7 +152,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+# STATICFILES_DIRS = [os.path.join(BASE_DIR,'wearlay/static'),]
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -175,3 +179,18 @@ SWAGGER_SETTINGS = {
     'USE_SESSION_AUTH': False,
     'JSON_EDITOR': True,
 }
+
+CORS_ALLOW_ALL_ORIGINS=True
+CSRF_TRUSTED_ORIGINS = ['http://localhost:5005']
+
+CORS_ORIGIN_WHITELIST = ['http://localhost:5005']
+CORS_ORIGIN_REGEX_WHITELIST = ['http://localhost:5005']
+
+CORS_ALLOW_METHODS = [
+   'GET',
+   'POST',
+   'PUT',
+   'PATCH',
+   'DELETE',
+   'OPTIONS',
+]

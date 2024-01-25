@@ -4,37 +4,37 @@ from api import models as api_models
 
 
 class AgentAdmin(admin.ModelAdmin):
-    list_display = ("username", "first_name", "last_name", "email", "phone", "is_approved", "is_rejected")
+    list_display = ("id", "username", "first_name", "last_name", "email", "phone", "is_approved", "is_rejected")
     # list_filter = ("type", "status")
     list_editable = ("is_approved", "is_rejected")
 
 
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ("name", "creator")
+    list_display = ("id", "name",)
 
 
 class StateAdmin(admin.ModelAdmin):
-    list_display = ("name", "country", "creator")
+    list_display = ("id", "name", "country")
 
 
 class CityAdmin(admin.ModelAdmin):
-    list_display = ("name", "state", "creator")
+    list_display = ("id", "name", "state")
 
 
 class InclusionsAdmin(admin.ModelAdmin):
-    list_display = ("name", "creator")
+    list_display = ("id", "name",)
 
 
 class ExclusionsAdmin(admin.ModelAdmin):
-    list_display = ("name", "creator")
+    list_display = ("id", "name",)
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("package", "name", "is_published", "is_rejected")
+    list_display = ("id", "package", "name", "is_published", "is_rejected")
 
 
 class AttractionAdmin(admin.ModelAdmin):
-    list_display = ("title", "overview", "is_published", "created_by")
+    list_display = ("id", "title", "overview", "is_published", "created_by")
 
 
 admin.site.register(api_models.User)

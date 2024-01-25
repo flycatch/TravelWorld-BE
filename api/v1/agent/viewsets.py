@@ -37,29 +37,3 @@ class LoginViewSet(viewsets.ModelViewSet):
             'status': 'success', 'message': 'Login successful',
             'token': token.key}, status=status.HTTP_200_OK
             )
-
-# class AgentViewSet(viewsets.ModelViewSet):
-#     queryset = Agent.objects.all()
-#     serializer_class = AgentSerializer
-
-#     @action(detail=False, methods=['post'])
-#     def register(self, request):
-#         serializer = self.get_serializer(data=request.data)
-#         if serializer.is_valid():
-#             agent = serializer.save()
-#             return Response(AgentSerializer(agent).data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     @action(detail=False, methods=['post'])
-#     def login(self, request):
-#         serializer = AgentLoginSerializer(data=request.data)
-#         if serializer.is_valid():
-#             username = serializer.validated_data['username']
-#             password = serializer.validated_data['password']
-#             agent = authenticate(request, username=username, password=password)
-
-#             if agent:
-#                 login(request, agent)
-#                 return Response(AgentSerializer(agent).data, status=status.HTTP_200_OK)
-
-#         return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)

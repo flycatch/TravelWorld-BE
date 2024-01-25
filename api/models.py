@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from api.common.models import BaseModel, BaseUser
 # from api.common.library import encode
@@ -39,6 +40,12 @@ class Country(BaseModel):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        # Check for uniqueness of country name (case-insensitive)
+        country = Country.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+        if country.exists():
+            raise ValidationError({'name': f'Country with {self.name} already exists.'})
+
 
 class State(BaseModel):
     name = models.CharField(max_length=255)
@@ -52,6 +59,12 @@ class State(BaseModel):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        # Check for uniqueness of country name (case-insensitive)
+        state = State.objects.filter(name__iexact=self.name, country=self.country).exclude(pk=self.pk)
+        if state.exists():
+            raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
+
 
 class City(BaseModel):
     name = models.CharField(max_length=255)
@@ -64,6 +77,12 @@ class City(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        # Check for uniqueness of country name (case-insensitive)
+        city = City.objects.filter(name__iexact=self.name, state=self.state).exclude(pk=self.pk)
+        if city.exists():
+            raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
 
 
 class TourType(BaseModel):

@@ -17,22 +17,22 @@ class BaseModel(models.Model):
         updated_on(datetime): Last updated date of the object
     """
 
-    creator = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        default=None,
-        null=True,
-        blank=True,
-        related_name="creator_%(class)s_objects",
-        on_delete=models.SET_NULL,
-    )
-    updater = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        default=None,
-        null=True,
-        blank=True,
-        related_name="updater_%(class)s_objects",
-        on_delete=models.SET_NULL,
-    )
+    # creator = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     default=None,
+    #     null=True,
+    #     blank=True,
+    #     related_name="creator_%(class)s_objects",
+    #     on_delete=models.SET_NULL,
+    # )
+    # updater = models.ForeignKey(
+    #     settings.AUTH_USER_MODEL,
+    #     default=None,
+    #     null=True,
+    #     blank=True,
+    #     related_name="updater_%(class)s_objects",
+    #     on_delete=models.SET_NULL,
+    # )
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)
 

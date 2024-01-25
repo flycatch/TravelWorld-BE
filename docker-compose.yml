@@ -24,7 +24,7 @@ services:
       - static-volume:/app/static  
       - media-volume:/app/media  
     ports:
-      - 5005:80
+      - 5007:80
     depends_on:
       - backend
 

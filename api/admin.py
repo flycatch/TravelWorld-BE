@@ -8,11 +8,9 @@ class AgentAdmin(admin.ModelAdmin):
         ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('is_active', 'is_approved', 'is_rejected', 'user_permissions')}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
-        # Add your custom fieldsets here
     )
     
     list_display = ("id", "username", "first_name", "last_name", "email", "phone", "is_approved", "is_rejected")
-    # list_filter = ("type", "status")
     list_filter = ("is_approved", "is_rejected", "is_active")
     list_editable = ("is_approved", "is_rejected")
     search_fields = ("username", "first_name", "last_name", "email", "phone")
@@ -52,20 +50,26 @@ class CityAdmin(admin.ModelAdmin):
 
 class InclusionsAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "is_approved", "is_rejected",)
-    list_filter = ("name", "is_approved", "is_rejected",)
+    list_filter = ("is_approved", "is_rejected",)
     list_editable = ("is_approved", "is_rejected")
     search_fields = ("name",)
 
 
 class ExclusionsAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "is_approved", "is_rejected")
-    list_filter = ("name", "is_approved", "is_rejected",)
+    list_filter = ("is_approved", "is_rejected",)
     list_editable = ("is_approved", "is_rejected")
     search_fields = ("name",)
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("id", "package", "name", "is_published", "is_rejected")
+    list_display = ("name", "package", "agent_name", "is_active", "is_approved", "is_rejected",)
+    list_editable = ("is_active", "is_approved", "is_rejected")
+    list_filter = ("is_active", "is_approved", "is_rejected",)
+    search_fields = ("name", "package__agent__username")
+
+    def agent_name(self, obj):
+        return obj.package.agent
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -80,7 +84,7 @@ class PackageImageInline(admin.TabularInline):
 
 class AttractionAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "overview", "is_published",)
-    list_filter = ("title", "is_published",)
+    list_filter = ("is_published",)
     list_editable = ("is_published",)
     search_fields = ("title",)
 
@@ -92,7 +96,7 @@ class PackageAdmin(admin.ModelAdmin):
                     "city", "category", "min_members", "max_members", "duration_day",
                     "duration_hour", "pickup_point", "pickup_time", "drop_point",
                     "drop_time", "is_published", "is_approved", "is_rejected")
-    list_filter = ("agent", "title", "tour_type",  "country", "state", "category",
+    list_filter = ("tour_type",  "country", "state", "category",
                    "is_published", "is_approved", "is_rejected")
     list_editable = ("is_published", "is_approved", "is_rejected")
     search_fields = ("title", "agent", "country", "state")

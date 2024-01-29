@@ -378,7 +378,8 @@ class Activity(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)
-    is_published = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
     class Meta:

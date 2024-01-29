@@ -35,11 +35,17 @@ class CityAdmin(admin.ModelAdmin):
 
 
 class InclusionsAdmin(admin.ModelAdmin):
-    list_display = ("id", "name",)
+    list_display = ("id", "name", "is_approved", "is_rejected",)
+    list_filter = ("name", "is_approved", "is_rejected",)
+    list_editable = ("is_approved", "is_rejected")
+    search_fields = ("name",)
 
 
 class ExclusionsAdmin(admin.ModelAdmin):
-    list_display = ("id", "name",)
+    list_display = ("id", "name", "is_approved", "is_rejected")
+    list_filter = ("name", "is_approved", "is_rejected",)
+    list_editable = ("is_approved", "is_rejected")
+    search_fields = ("name",)
 
 
 class ActivityAdmin(admin.ModelAdmin):

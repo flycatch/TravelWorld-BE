@@ -153,6 +153,8 @@ class ItineraryDay(BaseModel):
 
 class Inclusions(BaseModel):
     name = models.CharField(max_length=255)
+    is_approved = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Inclusions'
@@ -164,6 +166,8 @@ class Inclusions(BaseModel):
 
 class Exclusions(BaseModel):
     name = models.CharField(max_length=255)
+    is_approved = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Exclusions'

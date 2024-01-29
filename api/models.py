@@ -18,9 +18,25 @@ class User(BaseUser):
 
 
 class Agent(BaseUser):
-    profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
-    is_approved = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+    STATUS_CHOICES = [
+        ('active', _('Active')),
+        ('inactive', _('Inactive')),
+    ]
+
+    profile_image = models.ImageField(upload_to='profile_images/agent/',null=True, blank=True)
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name=_('Stage'),
+    )
+    status = models.BooleanField()
+
 
     class Meta:
         verbose_name = 'Agent'
@@ -108,6 +124,12 @@ class PackageCategory(BaseModel):
 
 
 class Package(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='packages')
     title = models.CharField(max_length=255)
@@ -133,9 +155,13 @@ class Package(BaseModel):
     drop_point = models.CharField(max_length=255, blank=True, null=True)
     drop_time = models.DateTimeField()
 
-    is_published = models.BooleanField(default=False)
-    is_approved = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
 
     class Meta:
         verbose_name = 'Package'
@@ -164,10 +190,19 @@ class ItineraryDay(BaseModel):
 
 
 class Inclusions(BaseModel):
-    name = models.CharField(max_length=255, unique=True)
-    is_approved = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
 
+    name = models.CharField(max_length=255, unique=True)
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
     class Meta:
         verbose_name = 'Inclusions'
         verbose_name_plural = 'Inclusions'
@@ -177,10 +212,18 @@ class Inclusions(BaseModel):
 
 
 class Exclusions(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
     name = models.CharField(max_length=255, unique=True)
-    is_approved = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
-
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
     class Meta:
         verbose_name = 'Exclusions'
         verbose_name_plural = 'Exclusions'
@@ -375,13 +418,23 @@ class Booking(BaseModel):
 
 
 class Activity(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
-    is_approved = models.BooleanField(default=False)
-    is_rejected = models.BooleanField(default=False)
-
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
+    
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activities'
@@ -393,7 +446,7 @@ class Activity(BaseModel):
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
     overview = models.TextField(blank=True, default="")
-    is_published = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Attraction'

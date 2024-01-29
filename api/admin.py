@@ -1,22 +1,41 @@
 from django.contrib import admin
 from api import models as api_models
-# Register your models here.
+from django.contrib.auth.models import Group
+from rest_framework.authtoken.models import Token
+
+
+class CustomStatusFilter(admin.SimpleListFilter):
+    title = 'Status'
+    parameter_name = 'is_active'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('active', 'Active'),
+            ('inactive', 'Inactive'),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'active':
+            return queryset.filter(is_active=True)
+        elif self.value() == 'inactive':
+            return queryset.filter(is_active=False)
 
 
 class AgentAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
-        ('Permissions', {'fields': ('is_active', 'is_approved', 'is_rejected', 'user_permissions')}),
+        ('Permissions', {'fields': ('is_active', 'stage')}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
     
-    list_display = ("id", "username", "first_name", "last_name", "email", "phone", "is_approved", "is_rejected")
-    list_filter = ("is_approved", "is_rejected", "is_active")
-    list_editable = ("is_approved", "is_rejected")
+    list_display = ("username", "first_name", "last_name", "email", "phone", "is_active", "stage")
+    list_filter = (CustomStatusFilter, "stage")
+    list_editable = ("is_active", "stage",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
+
 
 class UserAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -26,8 +45,8 @@ class UserAdmin(admin.ModelAdmin):
         # Add your custom fieldsets here
     )
     
-    list_display = ("id", "username", "first_name", "last_name", "email", "phone", "is_active")
-    list_filter = ("is_active",)
+    list_display = ("username", "first_name", "last_name", "email", "phone", "is_active")
+    list_filter = (CustomStatusFilter,)
     list_editable = ("is_active",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
@@ -36,36 +55,36 @@ class UserAdmin(admin.ModelAdmin):
     
 
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ("id", "name",)
+    list_display = ("name",)
     search_fields = ("name",)
 
 
 class StateAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "country")
+    list_display = ("name", "country")
 
 
 class CityAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "state")
+    list_display = ("name", "state")
 
 
 class InclusionsAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "is_approved", "is_rejected",)
-    list_filter = ("is_approved", "is_rejected",)
-    list_editable = ("is_approved", "is_rejected")
+    list_display = ("name", "stage",)
+    list_filter = ("stage",)
+    list_editable = ("stage",)
     search_fields = ("name",)
 
 
 class ExclusionsAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "is_approved", "is_rejected")
-    list_filter = ("is_approved", "is_rejected",)
-    list_editable = ("is_approved", "is_rejected")
+    list_display = ("name", "stage")
+    list_filter = ("stage",)
+    list_editable = ("stage",)
     search_fields = ("name",)
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("name", "package", "agent_name", "is_active", "is_approved", "is_rejected",)
-    list_editable = ("is_active", "is_approved", "is_rejected")
-    list_filter = ("is_active", "is_approved", "is_rejected",)
+    list_display = ("name", "package", "agent_name", "is_active", "stage")
+    list_editable = ("is_active", "stage",)
+    list_filter = (CustomStatusFilter, "stage",)
     search_fields = ("name", "package__agent__username")
 
     def agent_name(self, obj):
@@ -83,40 +102,47 @@ class PackageImageInline(admin.TabularInline):
 
 
 class AttractionAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "overview", "is_published",)
-    list_filter = ("is_published",)
-    list_editable = ("is_published",)
+    list_display = ("title", "overview", "is_active",)
+    list_filter = (CustomStatusFilter,)
+    list_editable = ("is_active",)
     search_fields = ("title",)
 
     inlines = [AttractionImageInline]
 
 
 class PackageAdmin(admin.ModelAdmin):
-    list_display = ("id", "agent", "title", "tour_type", "country", "state",
+    list_display = ("agent", "title", "tour_type", "country", "state",
                     "city", "category", "min_members", "max_members", "duration_day",
                     "duration_hour", "pickup_point", "pickup_time", "drop_point",
-                    "drop_time", "is_published", "is_approved", "is_rejected")
+                    "drop_time", "is_active", "stage")
     list_filter = ("tour_type",  "country", "state", "category",
-                   "is_published", "is_approved", "is_rejected")
-    list_editable = ("is_published", "is_approved", "is_rejected")
+                   "is_active", "stage")
+    list_filter = (CustomStatusFilter, "stage")
     search_fields = ("title", "agent", "country", "state")
 
     inlines = [PackageImageInline]
 
     # def has_add_permission(self, request):
     #     return False
-    
+
+
+
+# Unregister model
+# admin.site.unregister(Token)
+admin.site.unregister(Group)
 
 admin.site.register(api_models.User, UserAdmin)
 admin.site.register(api_models.Agent, AgentAdmin)
-admin.site.register(api_models.Country, CountryAdmin)
-admin.site.register(api_models.City, CityAdmin)
-admin.site.register(api_models.State, StateAdmin)
-admin.site.register(api_models.Inclusions, InclusionsAdmin)
-admin.site.register(api_models.Exclusions, ExclusionsAdmin)
+
+admin.site.register(api_models.Package, PackageAdmin)
 admin.site.register(api_models.Activity, ActivityAdmin)
 admin.site.register(api_models.Attraction, AttractionAdmin)
-admin.site.register(api_models.Package, PackageAdmin)
+admin.site.register(api_models.Inclusions, InclusionsAdmin)
+admin.site.register(api_models.Exclusions, ExclusionsAdmin)
+
+admin.site.register(api_models.Country, CountryAdmin)
+admin.site.register(api_models.State, StateAdmin)
+admin.site.register(api_models.City, CityAdmin)
 
 admin.site.register(api_models.TourType)
 admin.site.register(api_models.PackageCategory)

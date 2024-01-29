@@ -6,21 +6,20 @@ from api.models import Agent
 
 
 @receiver(post_save, sender=Agent)
-def send_email_on_status_update(sender, instance, created, **kwargs):
-    if not created and instance.is_approved:  # Check if status was updated from False to True
-        subject = 'Welcome To TravelWorld'
-        message = f'Hi {instance.username}, Your application to TravelWorld is approved. You can login using our portal. Thank You'
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [instance.email]  # Add your email or recipient list here
+def send_email_on_stage_update(sender, instance, created, **kwargs):
+    if not created:
+        subject = ''
+        message = ''
+        if instance.stage == 'approved':
+            print(instance.stage)
+            subject = 'Welcome To TravelWorld'
+            message = f'Hi {instance.username}, Your application to TravelWorld is approved. You can log in using our portal. Thank You'
+        elif instance.stage == 'rejected':
+            subject = 'Application Rejected by TravelWorld'
+            message = f'Hi {instance.username}, Your application to TravelWorld is rejected. Please contact customer section. Thank You'
 
-        send_mail(subject, message, from_email, recipient_list)
+        if subject and message:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [instance.email]
 
-@receiver(post_save, sender=Agent)
-def send_email_on_status_update(sender, instance, created, **kwargs):
-    if not created and instance.is_rejected:  # Check if status was updated from False to True
-        subject = 'Application Rejected by TravelWorld'
-        message = f'Hi {instance.username}, Your application to TravelWorld is rejected. Please contact customer section. Thank You'
-        from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [instance.email]  # Add your email or recipient list here
-
-        send_mail(subject, message, from_email, recipient_list)
+            send_mail(subject, message, from_email, recipient_list)

@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 from api.common.library import encode
 
@@ -51,6 +52,10 @@ class BaseModel(models.Model):
 class BaseUser(AbstractUser):
     phone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(unique=True)
+
+    class Meta:
+        verbose_name = _('Base User')
+        verbose_name_plural = _('Base Users')
 
     def __str__(self):
         return self.username

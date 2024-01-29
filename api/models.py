@@ -15,7 +15,7 @@ class User(BaseUser):
 
     def __str__(self):
         return self.username
-    
+
 
 class Agent(BaseUser):
     profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
@@ -152,7 +152,7 @@ class ItineraryDay(BaseModel):
 
 
 class Inclusions(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     is_approved = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
@@ -165,7 +165,7 @@ class Inclusions(BaseModel):
 
 
 class Exclusions(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     is_approved = models.BooleanField(default=False)
     is_rejected = models.BooleanField(default=False)
 
@@ -192,7 +192,7 @@ class Itinerary(BaseModel):
 
 
 class HotelDetails(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     details = models.TextField(blank=True, default="")
     location_details = models.TextField(blank=True, default="")
 
@@ -205,7 +205,7 @@ class HotelDetails(BaseModel):
 
 
 class Guide(BaseModel):
-    language = models.CharField(max_length=255)
+    language = models.CharField(max_length=255, unique=True)
 
     class Meta:
         verbose_name = 'Guide'
@@ -213,7 +213,7 @@ class Guide(BaseModel):
 
 
 class InformationActivities(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     class Meta:
         verbose_name = 'Information Activities'
@@ -224,7 +224,7 @@ class InformationActivities(BaseModel):
 
 
 class ThingsToCarry(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.name
@@ -257,7 +257,7 @@ class Informations(BaseModel):
 
 
 class Currency(BaseModel):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
 
     class Meta:
         verbose_name = 'Currency'
@@ -378,12 +378,8 @@ class Activity(BaseModel):
 
 
 class Attraction(BaseModel):
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='attractions')
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     overview = models.TextField(blank=True, default="")
-    image = models.ImageField(
-        upload_to='attraction_images/', null=True, default=None, blank=True)
     is_published = models.BooleanField(default=False)
 
     class Meta:
@@ -393,6 +389,15 @@ class Attraction(BaseModel):
     def __str__(self):
         return self.title
 
+
+class AttractionImage(models.Model):
+    attraction = models.ForeignKey(
+        Attraction, on_delete=models.CASCADE, related_name='attracionimages')
+    image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.attraction.title}"
+    
 
 class UserReview(BaseModel):
     package = models.ForeignKey(

@@ -109,10 +109,10 @@ class PackageCategory(BaseModel):
 
 class Package(BaseModel):
     agent = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='packages')
+        Agent, on_delete=models.CASCADE, related_name='packages')
     title = models.CharField(max_length=255)
-    images = models.CharField(
-        max_length=255, blank=True, null=True)
+    # images = models.CharField(
+    #     max_length=255, blank=True, null=True)
     tour_type = models.ForeignKey(
         TourType, on_delete=models.CASCADE, related_name='packages')
     country = models.ForeignKey(
@@ -123,6 +123,7 @@ class Package(BaseModel):
         City, on_delete=models.CASCADE, related_name='packages')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='packages')
+    
     min_members = models.IntegerField()
     max_members = models.IntegerField()
     duration_day = models.IntegerField()
@@ -131,8 +132,10 @@ class Package(BaseModel):
     pickup_time = models.DateTimeField()
     drop_point = models.CharField(max_length=255, blank=True, null=True)
     drop_time = models.DateTimeField()
+
     is_published = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Package'
@@ -141,6 +144,15 @@ class Package(BaseModel):
     def __str__(self):
         return self.title
 
+
+class PackageImage(models.Model):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packageimages')
+    image = models.ImageField(upload_to='package_images/', null=True, default=None, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.package.title}"
+    
 
 class ItineraryDay(BaseModel):
     day = models.CharField(max_length=255)

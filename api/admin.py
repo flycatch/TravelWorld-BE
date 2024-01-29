@@ -73,6 +73,11 @@ class AttractionImageInline(admin.TabularInline):
     extra = 1
 
 
+class PackageImageInline(admin.TabularInline):
+    model = api_models.PackageImage
+    extra = 2
+
+
 class AttractionAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "overview", "is_published",)
     list_filter = ("title", "is_published",)
@@ -80,6 +85,23 @@ class AttractionAdmin(admin.ModelAdmin):
     search_fields = ("title",)
 
     inlines = [AttractionImageInline]
+
+
+class PackageAdmin(admin.ModelAdmin):
+    list_display = ("id", "agent", "title", "tour_type", "country", "state",
+                    "city", "category", "min_members", "max_members", "duration_day",
+                    "duration_hour", "pickup_point", "pickup_time", "drop_point",
+                    "drop_time", "is_published", "is_approved", "is_rejected")
+    list_filter = ("agent", "title", "tour_type",  "country", "state", "category",
+                   "is_published", "is_approved", "is_rejected")
+    list_editable = ("is_published", "is_approved", "is_rejected")
+    search_fields = ("title", "agent", "country", "state")
+
+    inlines = [PackageImageInline]
+
+    # def has_add_permission(self, request):
+    #     return False
+    
 
 admin.site.register(api_models.User, UserAdmin)
 admin.site.register(api_models.Agent, AgentAdmin)
@@ -90,3 +112,7 @@ admin.site.register(api_models.Inclusions, InclusionsAdmin)
 admin.site.register(api_models.Exclusions, ExclusionsAdmin)
 admin.site.register(api_models.Activity, ActivityAdmin)
 admin.site.register(api_models.Attraction, AttractionAdmin)
+admin.site.register(api_models.Package, PackageAdmin)
+
+admin.site.register(api_models.TourType)
+admin.site.register(api_models.PackageCategory)

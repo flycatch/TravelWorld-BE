@@ -36,7 +36,14 @@ class BaseModel(models.Model):
     # )
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)
-
+    is_active = models.BooleanField(
+        _("active"),
+        default=True,
+        help_text=_(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        ),
+    )
     class Meta:
         """Meta class for the above model."""
 
@@ -50,6 +57,8 @@ class BaseModel(models.Model):
 
 
 class BaseUser(AbstractUser):
+    first_name = models.CharField(_("First Name"), max_length=150, blank=True)
+    last_name = models.CharField(_("Last Name"), max_length=150, blank=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(unique=True)
 

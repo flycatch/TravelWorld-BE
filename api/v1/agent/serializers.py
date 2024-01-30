@@ -17,7 +17,7 @@ class AgentSerializer(serializers.ModelSerializer):
 
         model = Agent
         fields = [ "id", "username", "first_name",
-                  "last_name", "email", "phone", "password"]
+                  "last_name", "email", "phone", "password", "profile_image"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters
@@ -52,7 +52,14 @@ class AgentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data.get('password'))
         return super(AgentSerializer, self).create(validated_data)
-    
+
+    def update(self, instance, validated_data):
+        # Hash the password during the update
+        if 'password' in validated_data:
+            validated_data['password'] = make_password(validated_data['password'])
+
+        return super(AgentSerializer, self).update(instance, validated_data)
+
 
 class AgentLoginSerializer(serializers.Serializer):
     """Serializer for agent login."""

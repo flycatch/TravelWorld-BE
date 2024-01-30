@@ -9,33 +9,17 @@ from api import models as api_models
 
 admin.site.site_header = 'Explore World'
 
-class CustomStatusFilter(admin.SimpleListFilter):
-    title = 'Status'
-    parameter_name = 'is_active'
-
-    def lookups(self, request, model_admin):
-        return [
-            ('active', 'Active'),
-            ('inactive', 'Inactive'),
-        ]
-
-    def queryset(self, request, queryset):
-        if self.value() == 'active':
-            return queryset.filter(is_active=True)
-        elif self.value() == 'inactive':
-            return queryset.filter(is_active=False)
-
 
 class AgentAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
-        ('Permissions', {'fields': ('is_active', 'stage')}),
+        ('Permissions', {'fields': ('status', 'stage')}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
     
-    list_display = ("username", "first_name", "last_name", "email", "phone", "is_active", "stage")
-    list_filter = (CustomStatusFilter, "stage")
-    list_editable = ("is_active", "stage",)
+    list_display = ("username", "first_name", "last_name", "email", "phone", "status", "stage")
+    list_filter = ("status", "stage")
+    list_editable = ("status", "stage",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
     # def has_add_permission(self, request):
@@ -45,14 +29,14 @@ class AgentAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
-        ('Permissions', {'fields': ('is_active', 'user_permissions',)}),
+        ('Permissions', {'fields': ('status', 'user_permissions',)}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
         # Add your custom fieldsets here
     )
     
-    list_display = ("username", "first_name", "last_name", "email", "phone", "is_active")
-    list_filter = (CustomStatusFilter,)
-    list_editable = ("is_active",)
+    list_display = ("username", "first_name", "last_name", "email", "phone", "status")
+    list_filter = ("status",)
+    list_editable = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
     def has_add_permission(self, request):
@@ -87,9 +71,9 @@ class ExclusionsAdmin(admin.ModelAdmin):
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("name", "package", "get_agent", "is_active", "stage")
-    list_editable = ("is_active", "stage",)
-    list_filter = (CustomStatusFilter, "stage",)
+    list_display = ("name", "package", "get_agent", "status", "stage")
+    list_editable = ("status", "stage",)
+    list_filter = ("status", "stage",)
     search_fields = ("name", "package__agent__username")
 
     def get_agent(self, obj):
@@ -108,26 +92,33 @@ class PackageImageInline(admin.TabularInline):
     model = api_models.PackageImage
     extra = 2
 
+from django.template.defaultfilters import truncatewords
 
 class AttractionAdmin(admin.ModelAdmin):
-    list_display = ("title", "overview", "is_active",)
-    list_filter = (CustomStatusFilter,)
-    list_editable = ("is_active",)
+    list_display = ("title", "truncated_overview", "status",)
+    list_filter = ("status",)
+    list_editable = ("status",)
     search_fields = ("title",)
 
     inlines = [AttractionImageInline]
+
+    def truncated_overview(self, obj):
+        # Display truncated overview in the admin list view
+        return truncatewords(obj.overview, 120)
+
+    truncated_overview.short_description = 'Overview'
 
 
 class PackageAdmin(admin.ModelAdmin):
     list_display = ("agent", "title", "tour_type", "country", "state",
                     "city", "category", "duration_day",
                     "pickup_point", "pickup_time", "drop_point",
-                    "drop_time", "is_active", "stage")
+                    "drop_time", "status", "stage")
     list_filter = ("tour_type",  "country", "state", "category",
-                   "is_active", "stage")
-    list_filter = (CustomStatusFilter, "stage")
+                   "status", "stage")
+    list_filter = ("status", "stage")
     search_fields = ("title", "agent", "country", "state")
-    list_editable = ("is_active", "stage",)
+    list_editable = ("status", "stage",)
 
     inlines = [PackageImageInline]
 
@@ -154,5 +145,5 @@ admin.site.register(api_models.Country, CountryAdmin)
 admin.site.register(api_models.State, StateAdmin)
 admin.site.register(api_models.City, CityAdmin)
 
-admin.site.register(api_models.TourType)
-admin.site.register(api_models.PackageCategory)
+# admin.site.register(api_models.TourType)
+# admin.site.register(api_models.PackageCategory)

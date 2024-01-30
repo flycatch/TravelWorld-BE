@@ -18,6 +18,10 @@ class BaseModel(models.Model):
         updated_on(datetime): Last updated date of the object
     """
 
+    STATUS_CHOICES = [
+        ('active', _('Active')),
+        ('inactive', _('Inactive')),
+    ]
     # creator = models.ForeignKey(
     #     settings.AUTH_USER_MODEL,
     #     default=None,
@@ -36,13 +40,11 @@ class BaseModel(models.Model):
     # )
     updated_on = models.DateTimeField(auto_now=True)
     created_on = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(
-        _("active"),
-        default=True,
-        help_text=_(
-            "Designates whether this user should be treated as active. "
-            "Unselect this instead of deleting accounts."
-        ),
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='Status'
     )
     class Meta:
         """Meta class for the above model."""
@@ -57,11 +59,21 @@ class BaseModel(models.Model):
 
 
 class BaseUser(AbstractUser):
+    STATUS_CHOICES = [
+        ('active', _('Active')),
+        ('inactive', _('Inactive')),
+    ]
+    
     first_name = models.CharField(_("First Name"), max_length=150, blank=True)
     last_name = models.CharField(_("Last Name"), max_length=150, blank=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(unique=True)
-
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='active',
+        verbose_name='Status'
+    )
     class Meta:
         verbose_name = _('Base User')
         verbose_name_plural = _('Base Users')

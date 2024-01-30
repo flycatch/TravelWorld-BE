@@ -145,7 +145,7 @@ class Package(BaseModel):
     
     min_members = models.IntegerField()
     max_members = models.IntegerField()
-    duration_day = models.IntegerField(verbose_name='Duration')
+    duration_day = models.IntegerField(verbose_name='Duration Day')
     duration_hour = models.IntegerField()
     pickup_point = models.CharField(max_length=255, blank=True, null=True, 
                                     verbose_name='Pickup Point')

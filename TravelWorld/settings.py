@@ -32,6 +32,7 @@ ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default=[], cast=lambda v: [s.str
 
 INSTALLED_APPS = [
     'jazzmin',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,8 +44,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    
+
     'api',
+    'admin_reorder',
 ]
 
 REST_FRAMEWORK = {
@@ -62,6 +64,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'admin_reorder.middleware.ModelAdminReorder',
+
 
 ]
 
@@ -195,3 +199,19 @@ CORS_ALLOW_METHODS = [
    'DELETE',
    'OPTIONS',
 ]
+
+ADMIN_REORDER = (
+    
+    {'app': 'api', 
+     'models': ('Agent', 'User',),
+     'label': 'Users'},
+
+    {'app': 'api', 
+     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions'),
+     'label': 'Product'},
+
+    {'app': 'api', 
+     'models': ('api.Country', 'api.State', 'api.City',),
+     'label': 'Users'},
+    
+)

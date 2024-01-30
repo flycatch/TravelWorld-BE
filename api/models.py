@@ -23,10 +23,7 @@ class Agent(BaseUser):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
-    STATUS_CHOICES = [
-        ('active', _('Active')),
-        ('inactive', _('Inactive')),
-    ]
+
 
     profile_image = models.ImageField(upload_to='profile_images/agent/',null=True, blank=True)
     stage = models.CharField(
@@ -35,7 +32,6 @@ class Agent(BaseUser):
         default='pending',
         verbose_name=_('Stage'),
     )
-    status = models.BooleanField()
 
 
     class Meta:
@@ -136,7 +132,8 @@ class Package(BaseModel):
     # images = models.CharField(
     #     max_length=255, blank=True, null=True)
     tour_type = models.ForeignKey(
-        TourType, on_delete=models.CASCADE, related_name='packages')
+        TourType, on_delete=models.CASCADE,
+        related_name='packages',verbose_name='Tour Type')
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='packages')
     state = models.ForeignKey(
@@ -148,14 +145,15 @@ class Package(BaseModel):
     
     min_members = models.IntegerField()
     max_members = models.IntegerField()
-    duration_day = models.IntegerField()
+    duration_day = models.IntegerField(verbose_name='Duration')
     duration_hour = models.IntegerField()
-    pickup_point = models.CharField(max_length=255, blank=True, null=True)
-    pickup_time = models.DateTimeField()
-    drop_point = models.CharField(max_length=255, blank=True, null=True)
-    drop_time = models.DateTimeField()
+    pickup_point = models.CharField(max_length=255, blank=True, null=True, 
+                                    verbose_name='Pickup Point')
+    pickup_time = models.DateTimeField(verbose_name='Pickup Time')
+    drop_point = models.CharField(max_length=255, blank=True, null=True,
+                                  verbose_name='Drop Point')
+    drop_time = models.DateTimeField(verbose_name='Drop Time')
 
-    is_active = models.BooleanField(default=True)
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
@@ -427,7 +425,6 @@ class Activity(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
@@ -446,7 +443,6 @@ class Activity(BaseModel):
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
     overview = models.TextField(blank=True, default="")
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Attraction'

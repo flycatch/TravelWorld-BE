@@ -2,6 +2,7 @@ asgiref==3.7.2
 Django==5.0.1
 django-cors-headers==4.3.1
 django-jazzmin==2.6.0
+django-modeladmin-reorder==0.3.1
 djangorestframework==3.14.0
 drf-yasg==1.21.7
 gunicorn==21.2.0

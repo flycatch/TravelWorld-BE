@@ -1,8 +1,13 @@
 from django.contrib import admin
-from api import models as api_models
 from django.contrib.auth.models import Group
-from rest_framework.authtoken.models import Token
 
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.models import TokenProxy
+
+from api import models as api_models
+
+
+admin.site.site_header = 'Explore World'
 
 class CustomStatusFilter(admin.SimpleListFilter):
     title = 'Status'
@@ -82,13 +87,16 @@ class ExclusionsAdmin(admin.ModelAdmin):
 
 
 class ActivityAdmin(admin.ModelAdmin):
-    list_display = ("name", "package", "agent_name", "is_active", "stage")
+    list_display = ("name", "package", "get_agent", "is_active", "stage")
     list_editable = ("is_active", "stage",)
     list_filter = (CustomStatusFilter, "stage",)
     search_fields = ("name", "package__agent__username")
 
-    def agent_name(self, obj):
+    def get_agent(self, obj):
         return obj.package.agent
+    
+    get_agent.short_description = "Agent"  # Set a custom column header
+    get_agent.admin_order_field = 'package__agent__username'  # Set the ordering field for the column
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -112,13 +120,14 @@ class AttractionAdmin(admin.ModelAdmin):
 
 class PackageAdmin(admin.ModelAdmin):
     list_display = ("agent", "title", "tour_type", "country", "state",
-                    "city", "category", "min_members", "max_members", "duration_day",
-                    "duration_hour", "pickup_point", "pickup_time", "drop_point",
+                    "city", "category", "duration_day",
+                    "pickup_point", "pickup_time", "drop_point",
                     "drop_time", "is_active", "stage")
     list_filter = ("tour_type",  "country", "state", "category",
                    "is_active", "stage")
     list_filter = (CustomStatusFilter, "stage")
     search_fields = ("title", "agent", "country", "state")
+    list_editable = ("is_active", "stage",)
 
     inlines = [PackageImageInline]
 
@@ -130,6 +139,7 @@ class PackageAdmin(admin.ModelAdmin):
 # Unregister model
 # admin.site.unregister(Token)
 admin.site.unregister(Group)
+admin.site.unregister(TokenProxy)
 
 admin.site.register(api_models.User, UserAdmin)
 admin.site.register(api_models.Agent, AgentAdmin)

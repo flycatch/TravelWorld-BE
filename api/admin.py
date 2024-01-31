@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.template.defaultfilters import truncatewords
 
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.models import TokenProxy
@@ -21,9 +22,10 @@ class AgentAdmin(admin.ModelAdmin):
     list_filter = ("status", "stage")
     list_editable = ("status", "stage",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
+    list_per_page = 10
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -38,6 +40,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ("status",)
     list_editable = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
+    list_per_page = 10
 
     def has_add_permission(self, request):
         return False
@@ -46,14 +49,17 @@ class UserAdmin(admin.ModelAdmin):
 class CountryAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+    list_per_page = 10
 
 
 class StateAdmin(admin.ModelAdmin):
     list_display = ("name", "country")
+    list_per_page = 10
 
 
 class CityAdmin(admin.ModelAdmin):
     list_display = ("name", "state")
+    list_per_page = 10
 
 
 class InclusionsAdmin(admin.ModelAdmin):
@@ -61,6 +67,7 @@ class InclusionsAdmin(admin.ModelAdmin):
     list_filter = ("stage",)
     list_editable = ("stage",)
     search_fields = ("name",)
+    list_per_page = 10
 
 
 class ExclusionsAdmin(admin.ModelAdmin):
@@ -68,6 +75,7 @@ class ExclusionsAdmin(admin.ModelAdmin):
     list_filter = ("stage",)
     list_editable = ("stage",)
     search_fields = ("name",)
+    list_per_page = 10
 
 
 class ActivityAdmin(admin.ModelAdmin):
@@ -75,9 +83,13 @@ class ActivityAdmin(admin.ModelAdmin):
     list_editable = ("status", "stage",)
     list_filter = ("status", "stage",)
     search_fields = ("name", "package__agent__username")
+    list_per_page = 10
 
     def get_agent(self, obj):
         return obj.package.agent
+    
+    def has_add_permission(self, request):
+        return False
     
     get_agent.short_description = "Agent"  # Set a custom column header
     get_agent.admin_order_field = 'package__agent__username'  # Set the ordering field for the column
@@ -92,19 +104,19 @@ class PackageImageInline(admin.TabularInline):
     model = api_models.PackageImage
     extra = 2
 
-from django.template.defaultfilters import truncatewords
 
 class AttractionAdmin(admin.ModelAdmin):
     list_display = ("title", "truncated_overview", "status",)
     list_filter = ("status",)
     list_editable = ("status",)
     search_fields = ("title",)
+    list_per_page = 10
 
     inlines = [AttractionImageInline]
 
     def truncated_overview(self, obj):
         # Display truncated overview in the admin list view
-        return truncatewords(obj.overview, 120)
+        return truncatewords(obj.overview, 80)
 
     truncated_overview.short_description = 'Overview'
 
@@ -119,11 +131,12 @@ class PackageAdmin(admin.ModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent", "country", "state")
     list_editable = ("status", "stage",)
+    list_per_page = 10
 
     inlines = [PackageImageInline]
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
 
 

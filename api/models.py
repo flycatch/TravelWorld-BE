@@ -58,6 +58,9 @@ class Country(BaseModel):
         if country.exists():
             raise ValidationError({'name': f'Country with {self.name} already exists.'})
 
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('Country name should contain only alphabetic characters.')})
 
 class State(BaseModel):
     name = models.CharField(max_length=255)
@@ -77,6 +80,10 @@ class State(BaseModel):
         if state.exists():
             raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
 
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('State name should contain only alphabetic characters.')})
+
 
 class City(BaseModel):
     name = models.CharField(max_length=255)
@@ -95,6 +102,10 @@ class City(BaseModel):
         city = City.objects.filter(name__iexact=self.name, state=self.state).exclude(pk=self.pk)
         if city.exists():
             raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
+        
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('City name should contain only alphabetic characters.')})
 
 
 class TourType(BaseModel):
@@ -208,6 +219,11 @@ class Inclusions(BaseModel):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('Inclusions name should contain only alphabetic characters.')})
+
 
 class Exclusions(BaseModel):
     STAGES_CHOICES = [
@@ -228,6 +244,11 @@ class Exclusions(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
 class Itinerary(BaseModel):
@@ -439,6 +460,11 @@ class Activity(BaseModel):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        # Check if the name contains only alphabetic characters
+        if not self.name.isalpha():
+            raise ValidationError({'name': _('Activity name should contain only alphabetic characters.')})
+
 
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
@@ -450,6 +476,11 @@ class Attraction(BaseModel):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        # Check if the name contains only alphabetic characters
+        if not self.title.isalpha():
+            raise ValidationError({'name': _('Title should contain only alphabetic characters.')})
 
 
 class AttractionImage(models.Model):

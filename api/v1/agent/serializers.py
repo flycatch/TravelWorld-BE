@@ -16,7 +16,7 @@ class AgentSerializer(serializers.ModelSerializer):
         """Meta info."""
 
         model = Agent
-        fields = [ "id", "username", "first_name",
+        fields = [ "id", "first_name", "username",
                   "last_name", "email", "phone", "password", "profile_image"]
 
     def validate_first_name(self, value):
@@ -26,9 +26,9 @@ class AgentSerializer(serializers.ModelSerializer):
         return value
 
     def validate_last_name(self, value):
-        # Validate that the last name contains only alphabets
-        if not value.isalpha():
-            raise serializers.ValidationError("Last name should contain only alphabets.")
+        # Validate that the last name contains only alphabets and spaces
+        if not all(char.isalpha() or char.isspace() for char in value):
+            raise serializers.ValidationError("Last name should contain only alphabets and spaces.")
         return value
 
     def validate_email(self, value):
@@ -64,7 +64,7 @@ class AgentSerializer(serializers.ModelSerializer):
 class AgentLoginSerializer(serializers.Serializer):
     """Serializer for agent login."""
 
-    username = serializers.CharField()
+    username_or_email = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
 
     def to_representation(self, instance):
@@ -72,17 +72,17 @@ class AgentLoginSerializer(serializers.Serializer):
         return {'credentials': instance}
 
     def validate(self, data):
-        username = data.get('username')
+        username_or_email = data.get('username_or_email')
         password = data.get('password')
 
-        # Authenticate user
-        user = authenticate(username=username, password=password)
+        # Authenticate user using either email or username
+        user = authenticate(username=username_or_email, email=username_or_email, password=password)
         if not user:
             raise serializers.ValidationError({"message": "Invalid credentials"})
 
         # Check if Agent exists and has an approved stage
         try:
-            agent = Agent.objects.get(username=username)
+            agent = Agent.objects.get(email=user.email)
             if agent.stage != 'approved':
                 if agent.stage == 'rejected':
                     raise serializers.ValidationError({"message": "Agent is rejected by admin"})

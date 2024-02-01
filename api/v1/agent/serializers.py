@@ -3,15 +3,11 @@ import re
 from rest_framework import serializers
 from api.models import Agent
 from django.contrib.auth import authenticate
-# from api.common.custom_fields import IdencodeField
 from django.contrib.auth.hashers import make_password
 
 
 class AgentSerializer(serializers.ModelSerializer):
     """Serializer for user."""
-
-    # id = IdencodeField(read_only=True)
-
     class Meta:
         """Meta info."""
 
@@ -22,7 +18,7 @@ class AgentSerializer(serializers.ModelSerializer):
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters
         if not (value.isalpha() and len(value) >= 3):
-            raise serializers.ValidationError("First name should contain only alphabets and be at least 3 characters long.")
+            raise serializers.ValidationError("First name should contain only alphabets and be at least 3 characters long, and no whitespace is allowed.")
         return value
 
     def validate_last_name(self, value):

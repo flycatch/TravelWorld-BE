@@ -39,8 +39,8 @@ class UserAdmin(CustomModelAdmin):
     list_editable = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 class CountryAdmin(CustomModelAdmin):
@@ -99,7 +99,7 @@ class ActivityAdmin(CustomModelAdmin):
     inlines = [ActivityImageInline]
 
     def has_add_permission(self, request):
-        return True
+        return False
 
 
 class AttractionAdmin(CustomModelAdmin):

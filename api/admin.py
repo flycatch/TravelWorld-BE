@@ -4,7 +4,7 @@ from django.template.defaultfilters import truncatewords
 
 from rest_framework.authtoken.models import TokenProxy
 
-from api import models as api_models
+from api.models import *
 from api.common.custom_admin import CustomModelAdmin
 
 
@@ -92,12 +92,12 @@ class ActivityAdmin(CustomModelAdmin):
 
 
 class AttractionImageInline(admin.TabularInline):
-    model = api_models.AttractionImage
+    model = AttractionImage
     extra = 3
 
 
 class PackageImageInline(admin.TabularInline):
-    model = api_models.PackageImage
+    model = PackageImage
     extra = 3
 
 
@@ -137,18 +137,16 @@ class PackageAdmin(CustomModelAdmin):
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
 
-admin.site.register(api_models.User, UserAdmin)
-admin.site.register(api_models.Agent, AgentAdmin)
-
-admin.site.register(api_models.Package, PackageAdmin)
-admin.site.register(api_models.Activity, ActivityAdmin)
-admin.site.register(api_models.Attraction, AttractionAdmin)
-admin.site.register(api_models.Inclusions, InclusionsAdmin)
-admin.site.register(api_models.Exclusions, ExclusionsAdmin)
-
-admin.site.register(api_models.Country, CountryAdmin)
-admin.site.register(api_models.State, StateAdmin)
-admin.site.register(api_models.City, CityAdmin)
+admin.site.register(User, UserAdmin)
+admin.site.register(Agent, AgentAdmin)
+admin.site.register(Package, PackageAdmin)
+admin.site.register(Activity, ActivityAdmin)
+admin.site.register(Attraction, AttractionAdmin)
+admin.site.register(Inclusions, InclusionsAdmin)
+admin.site.register(Exclusions, ExclusionsAdmin)
+admin.site.register(Country, CountryAdmin)
+admin.site.register(State, StateAdmin)
+admin.site.register(City, CityAdmin)
 
 # admin.site.register(api_models.TourType)
 # admin.site.register(api_models.PackageCategory)

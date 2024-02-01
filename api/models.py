@@ -432,6 +432,23 @@ class Booking(BaseModel):
         verbose_name = 'Booking'
         verbose_name_plural = 'Bookings'
 
+class PackageActivity(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packageactivity')
+    name = models.CharField(max_length=255)
+    
+    class Meta:
+        verbose_name = 'Package Activity'
+        verbose_name_plural = 'Package Activities'
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        # Check if the name contains only alphabetic characters
+        if not self.name.replace(' ', '').isalpha():
+            raise ValidationError({'name': _('Activity name should contain only alphabetic characters.')})
+
 
 class Activity(BaseModel):
     STAGES_CHOICES = [
@@ -439,17 +456,25 @@ class Activity(BaseModel):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
-
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='activities')
+    agent = models.ForeignKey(
+        Agent, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, related_name='activities')
+    state = models.ForeignKey(
+        State, on_delete=models.CASCADE, related_name='activities')
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name='activities')
+    
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
         default='pending',
         verbose_name='Stage'
     )
-    
+
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activities'
@@ -462,6 +487,15 @@ class Activity(BaseModel):
         if not self.name.replace(' ', '').isalpha():
             raise ValidationError({'name': _('Activity name should contain only alphabetic characters.')})
 
+
+class ActivityImage(models.Model):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activityimages')
+    image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)
+
+    def __str__(self):
+        return f"Image for {self.activity.name}"
+    
 
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)

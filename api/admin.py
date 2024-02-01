@@ -75,20 +75,9 @@ class ExclusionsAdmin(CustomModelAdmin):
     search_fields = ("name",)
 
 
-class ActivityAdmin(CustomModelAdmin):
-    list_display = ("name", "package", "get_agent", "status", "stage")
-    list_editable = ("status", "stage",)
-    list_filter = ("status", "stage",)
-    search_fields = ("name", "package__agent__username")
-
-    def get_agent(self, obj):
-        return obj.package.agent
-
-    def has_add_permission(self, request):
-        return False
-
-    get_agent.short_description = "Agent"  # Set a custom column header
-    get_agent.admin_order_field = 'package__agent__username'  # Set the ordering field for the column
+class ActivityImageInline(admin.TabularInline):
+    model = ActivityImage
+    extra = 3
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -99,6 +88,18 @@ class AttractionImageInline(admin.TabularInline):
 class PackageImageInline(admin.TabularInline):
     model = PackageImage
     extra = 3
+
+
+class ActivityAdmin(CustomModelAdmin):
+    list_display = ("name", "description", "city", "agent", "status", "stage",)
+    list_editable = ("status", "stage",)
+    list_filter = ("status", "stage",)
+    search_fields = ("name", "agent__username", "city__name",)
+
+    inlines = [ActivityImageInline]
+
+    def has_add_permission(self, request):
+        return True
 
 
 class AttractionAdmin(CustomModelAdmin):

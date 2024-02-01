@@ -206,20 +206,19 @@ CORS_ALLOW_METHODS = [
 
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Explore World Admin",
+    "site_title": "Explore World Admins",
 
     # # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
     # "site_header": "ADMIN PANEL",
 
     # Welcome text on the login screen
     "welcome_sign": "Welcome to Explore World",
-    "changeform_format": "single",
-    "related_modal_active": True,
-    # "hide_models": ['wearlay.FollowUpStatusStage','wearlay.Discount'],
-    
+    # "changeform_format": "single",
+    # "related_modal_active": True,
+    # "hide_models": ['api.Token','api.Group'],
  
     # "show_sidebar": False,
-    # "order_with_respect_to": ["wearlay.SalesLead", "Make Messages"],
+    # "order_with_respect_to": ["api.User", "Make Messages"],
 
 }
 

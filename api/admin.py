@@ -1,39 +1,39 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.template.defaultfilters import truncatewords
 
-from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.models import TokenProxy
 
 from api import models as api_models
+from api.common.custom_admin import CustomModelAdmin
 
 
-admin.site.site_header = 'Explore World'
-
-
-class AgentAdmin(admin.ModelAdmin):
+class AgentAdmin(CustomModelAdmin):
     fieldsets = (
-        ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
+        ('Profile Details', {'fields': ('username', 'first_name',
+         'last_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage')}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
-    
+
     list_display = ("username", "first_name", "last_name", "email", "phone", "status", "stage")
     list_filter = ("status", "stage")
     list_editable = ("status", "stage",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(CustomModelAdmin):
     fieldsets = (
-        ('Profile Details', {'fields': ('username', 'first_name', 'last_name', 'phone', 'email', 'profile_image')}),
+        ('Profile Details', {'fields': ('username', 'first_name',
+         'last_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'user_permissions',)}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
         # Add your custom fieldsets here
     )
-    
+
     list_display = ("username", "first_name", "last_name", "email", "phone", "status")
     list_filter = ("status",)
     list_editable = ("status",)
@@ -41,36 +41,41 @@ class UserAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-    
 
-class CountryAdmin(admin.ModelAdmin):
+
+class CountryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+    exclude = ("status",)
 
 
-class StateAdmin(admin.ModelAdmin):
+class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country")
+    search_fields = ("name",)
+    exclude = ("status",)
 
 
-class CityAdmin(admin.ModelAdmin):
+class CityAdmin(CustomModelAdmin):
     list_display = ("name", "state")
+    search_fields = ("name",)
+    exclude = ("status",)
 
 
-class InclusionsAdmin(admin.ModelAdmin):
+class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "stage",)
     list_filter = ("stage",)
     list_editable = ("stage",)
     search_fields = ("name",)
 
 
-class ExclusionsAdmin(admin.ModelAdmin):
+class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "stage")
     list_filter = ("stage",)
     list_editable = ("stage",)
     search_fields = ("name",)
 
 
-class ActivityAdmin(admin.ModelAdmin):
+class ActivityAdmin(CustomModelAdmin):
     list_display = ("name", "package", "get_agent", "status", "stage")
     list_editable = ("status", "stage",)
     list_filter = ("status", "stage",)
@@ -78,23 +83,25 @@ class ActivityAdmin(admin.ModelAdmin):
 
     def get_agent(self, obj):
         return obj.package.agent
-    
+
+    def has_add_permission(self, request):
+        return False
+
     get_agent.short_description = "Agent"  # Set a custom column header
     get_agent.admin_order_field = 'package__agent__username'  # Set the ordering field for the column
 
 
 class AttractionImageInline(admin.TabularInline):
     model = api_models.AttractionImage
-    extra = 1
+    extra = 3
 
 
 class PackageImageInline(admin.TabularInline):
     model = api_models.PackageImage
-    extra = 2
+    extra = 3
 
-from django.template.defaultfilters import truncatewords
 
-class AttractionAdmin(admin.ModelAdmin):
+class AttractionAdmin(CustomModelAdmin):
     list_display = ("title", "truncated_overview", "status",)
     list_filter = ("status",)
     list_editable = ("status",)
@@ -104,12 +111,12 @@ class AttractionAdmin(admin.ModelAdmin):
 
     def truncated_overview(self, obj):
         # Display truncated overview in the admin list view
-        return truncatewords(obj.overview, 120)
+        return truncatewords(obj.overview, 80)
 
     truncated_overview.short_description = 'Overview'
 
 
-class PackageAdmin(admin.ModelAdmin):
+class PackageAdmin(CustomModelAdmin):
     list_display = ("agent", "title", "tour_type", "country", "state",
                     "city", "category", "duration_day",
                     "pickup_point", "pickup_time", "drop_point",
@@ -122,13 +129,11 @@ class PackageAdmin(admin.ModelAdmin):
 
     inlines = [PackageImageInline]
 
-    # def has_add_permission(self, request):
-    #     return False
-
+    def has_add_permission(self, request):
+        return False
 
 
 # Unregister model
-# admin.site.unregister(Token)
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
 

@@ -44,34 +44,34 @@ class UserAdmin(CustomModelAdmin):
 
 
 class CountryAdmin(CustomModelAdmin):
-    list_display = ("name",)
+    list_display = ("name", "image")
     search_fields = ("name",)
     exclude = ("status",)
 
 
 class StateAdmin(CustomModelAdmin):
-    list_display = ("name", "country")
-    search_fields = ("name",)
+    list_display = ("name", "country", "image")
+    search_fields = ("name", "country__name")
     exclude = ("status",)
 
 
 class CityAdmin(CustomModelAdmin):
-    list_display = ("name", "state")
-    search_fields = ("name",)
+    list_display = ("name", "state", "image")
+    search_fields = ("name", "state__name")
     exclude = ("status",)
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage",)
-    list_filter = ("stage",)
-    list_editable = ("stage",)
+    list_display = ("name", "stage", "status")
+    list_filter = ("stage", "status")
+    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 
 class ExclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage")
-    list_filter = ("stage",)
-    list_editable = ("stage",)
+    list_display = ("name", "stage", "status")
+    list_filter = ("stage", "status")
+    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 

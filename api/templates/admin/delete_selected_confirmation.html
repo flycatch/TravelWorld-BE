@@ -14,11 +14,11 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
     <li class="breadcrumb-item"><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
-    <li class="breadcrumb-item active">{% trans 'Delete multiple' %} {{ opts.verbose_name_plural|capfirst }}</li>
+    <li class="breadcrumb-item active">{% trans 'Delete' %}</li>
 </ol>
 {% endblock %}
 
-{% block content_title %} {% trans 'Delete multiple' %} {{ opts.verbose_name_plural|capfirst }} {% endblock %}
+{% block content_title %} {% trans 'Delete' %} {{ opts.verbose_name_plural|capfirst }} {% endblock %}
 
 {% block content %}
 

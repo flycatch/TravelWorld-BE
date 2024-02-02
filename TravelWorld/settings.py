@@ -64,7 +64,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'admin_reorder.middleware.ModelAdminReorder',
+    # 'admin_reorder.middleware.ModelAdminReorder',
+    'api.middleware.ModelAdminReorderWithNav'
+
 
 
 ]
@@ -202,18 +204,34 @@ CORS_ALLOW_METHODS = [
    'OPTIONS',
 ]
 
+JAZZMIN_SETTINGS = {
+    # title of the window (Will default to current_admin_site.site_title if absent or None)
+    "site_title": "Explore World Admins",
+
+    # # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
+    # "site_header": "ADMIN PANEL",
+
+    # Welcome text on the login screen
+    "welcome_sign": "Welcome to Explore World",
+    # "changeform_format": "single",
+    # "related_modal_active": True,
+    # "hide_models": ['api.Token','api.Group'],
+ 
+    # "show_sidebar": False,
+    # "order_with_respect_to": ["api.User", "Make Messages"],
+
+}
+
 ADMIN_REORDER = (
     
-    {'app': 'api', 
-     'models': ('Agent', 'User',),
-     'label': 'Users'},
+    {'app': 'api', 'models': ('api.Agent', 'api.User',),'label': 'Users'},
 
     {'app': 'api', 
-     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions'),
-     'label': 'Product'},
+     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions',),
+     'label': 'Products'},
 
     {'app': 'api', 
      'models': ('api.Country', 'api.State', 'api.City',),
-     'label': 'Users'},
+     'label': 'General Settings'},
     
 )

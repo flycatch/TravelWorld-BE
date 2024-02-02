@@ -4,7 +4,7 @@ from django.template.defaultfilters import truncatewords
 
 from rest_framework.authtoken.models import TokenProxy
 
-from api import models as api_models
+from api.models import *
 from api.common.custom_admin import CustomModelAdmin
 
 
@@ -39,66 +39,67 @@ class UserAdmin(CustomModelAdmin):
     list_editable = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 class CountryAdmin(CustomModelAdmin):
-    list_display = ("name",)
+    list_display = ("name", "image")
     search_fields = ("name",)
     exclude = ("status",)
 
 
 class StateAdmin(CustomModelAdmin):
-    list_display = ("name", "country")
-    search_fields = ("name",)
+    list_display = ("name", "country", "image")
+    search_fields = ("name", "country__name")
     exclude = ("status",)
 
 
 class CityAdmin(CustomModelAdmin):
-    list_display = ("name", "state")
-    search_fields = ("name",)
+    list_display = ("name", "state", "image")
+    search_fields = ("name", "state__name")
     exclude = ("status",)
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage",)
-    list_filter = ("stage",)
-    list_editable = ("stage",)
+    list_display = ("name", "stage", "status")
+    list_filter = ("stage", "status")
+    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 
 class ExclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage")
-    list_filter = ("stage",)
-    list_editable = ("stage",)
+    list_display = ("name", "stage", "status")
+    list_filter = ("stage", "status")
+    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 
-class ActivityAdmin(CustomModelAdmin):
-    list_display = ("name", "package", "get_agent", "status", "stage")
-    list_editable = ("status", "stage",)
-    list_filter = ("status", "stage",)
-    search_fields = ("name", "package__agent__username")
-
-    def get_agent(self, obj):
-        return obj.package.agent
-
-    def has_add_permission(self, request):
-        return False
-
-    get_agent.short_description = "Agent"  # Set a custom column header
-    get_agent.admin_order_field = 'package__agent__username'  # Set the ordering field for the column
+class ActivityImageInline(admin.TabularInline):
+    model = ActivityImage
+    extra = 3
 
 
 class AttractionImageInline(admin.TabularInline):
-    model = api_models.AttractionImage
+    model = AttractionImage
     extra = 3
 
 
 class PackageImageInline(admin.TabularInline):
-    model = api_models.PackageImage
+    model = PackageImage
     extra = 3
+
+
+class ActivityAdmin(CustomModelAdmin):
+    list_display = ("name", "description", "city", "agent", "status", "stage",)
+    list_editable = ("status", "stage",)
+    list_filter = ("status", "stage",)
+    search_fields = ("name", "agent__username", "city__name",)
+
+    inlines = [ActivityImageInline]
+
+    def has_add_permission(self, request):
+        return False
 
 
 class AttractionAdmin(CustomModelAdmin):
@@ -137,18 +138,16 @@ class PackageAdmin(CustomModelAdmin):
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
 
-admin.site.register(api_models.User, UserAdmin)
-admin.site.register(api_models.Agent, AgentAdmin)
-
-admin.site.register(api_models.Package, PackageAdmin)
-admin.site.register(api_models.Activity, ActivityAdmin)
-admin.site.register(api_models.Attraction, AttractionAdmin)
-admin.site.register(api_models.Inclusions, InclusionsAdmin)
-admin.site.register(api_models.Exclusions, ExclusionsAdmin)
-
-admin.site.register(api_models.Country, CountryAdmin)
-admin.site.register(api_models.State, StateAdmin)
-admin.site.register(api_models.City, CityAdmin)
+admin.site.register(User, UserAdmin)
+admin.site.register(Agent, AgentAdmin)
+admin.site.register(Package, PackageAdmin)
+admin.site.register(Activity, ActivityAdmin)
+admin.site.register(Attraction, AttractionAdmin)
+admin.site.register(Inclusions, InclusionsAdmin)
+admin.site.register(Exclusions, ExclusionsAdmin)
+admin.site.register(Country, CountryAdmin)
+admin.site.register(State, StateAdmin)
+admin.site.register(City, CityAdmin)
 
 # admin.site.register(api_models.TourType)
 # admin.site.register(api_models.PackageCategory)

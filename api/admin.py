@@ -18,11 +18,10 @@ class AgentAdmin(CustomModelAdmin):
 
     list_display = ("username", "first_name", "last_name", "email", "phone", "status", "stage")
     list_filter = ("status", "stage")
-    list_editable = ("status", "stage",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 class UserAdmin(CustomModelAdmin):
@@ -118,10 +117,9 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "title", "tour_type", "country", "state",
+    list_display = ("agent", "title", "tour_type", "state",
                     "city", "category", "duration_day",
-                    "pickup_point", "pickup_time", "drop_point",
-                    "drop_time", "status", "stage")
+                    "status", "stage")
     list_filter = ("tour_type",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")

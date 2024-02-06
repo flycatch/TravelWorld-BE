@@ -5,7 +5,9 @@ from rest_framework.routers import DefaultRouter
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      InformationsViewSet, GuideViewSet, InformationActivitiesViewSet,
-                                     ThingsToCarryViewSet, HotelDetailsViewSet)
+                                     ThingsToCarryViewSet, HotelDetailsViewSet, PricingViewSet,
+                                     PackageCategoryViewSet, PackageCancellationPolicyViewSet,
+                                     PackageFAQQuestionViewSet, PackageFAQAnswerViewSet)
 
 
 router = DefaultRouter()
@@ -13,17 +15,28 @@ router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'agent/register', RegisterViewSet, basename='register')
 router.register(r'agent/login', LoginViewSet, basename='login')
 
-#Package
-router.register(r'package', PackageViewSet, basename='package')
-#Itinerary
-router.register(r'itinerary', ItineraryViewSet, basename='itinerary')
-router.register(r'itineraryday', ItineraryDayViewSet, basename='itinerary-day')
-#Informations
-router.register(r'informations', InformationsViewSet, basename='informations')
-router.register(r'hoteldetails', HotelDetailsViewSet, basename='hotel-details')
-router.register(r'guide', GuideViewSet, basename='guide')
-router.register(r'informationactivity', InformationActivitiesViewSet, basename='information-activity')
-router.register(r'thingstocarry', ThingsToCarryViewSet, basename='things-to-carry')
+# Package
+router.register(r'package/create', PackageViewSet, basename='package')
+# Itinerary
+router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
+router.register(r'package/itineraryday', ItineraryDayViewSet, basename='itinerary-day')
+# Informations
+router.register(r'package/informations', InformationsViewSet, basename='informations')
+router.register(r'package/hoteldetails', HotelDetailsViewSet, basename='hotel-details')
+router.register(r'package/guide', GuideViewSet, basename='guide')
+router.register(r'package/informationactivity', InformationActivitiesViewSet,
+                basename='information-activity')
+router.register(r'package/thingstocarry', ThingsToCarryViewSet, basename='things-to-carry')
+# pricing
+router.register(r'package/pricing', PricingViewSet, basename='pricing')
+router.register(r'package/category', PackageCategoryViewSet, basename='packagecategory')
+
+router.register(r'package/cancellation', PackageCancellationPolicyViewSet,
+                basename='packagecancellation')
+
+router.register(r'package/faqquestion', PackageFAQQuestionViewSet, basename='faqquestions')
+router.register(r'package/faqanswer', PackageFAQAnswerViewSet, basename='faqanswers')
+
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [

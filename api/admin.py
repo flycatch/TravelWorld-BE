@@ -35,7 +35,6 @@ class UserAdmin(CustomModelAdmin):
 
     list_display = ("username", "first_name", "last_name", "email", "phone", "status")
     list_filter = ("status",)
-    list_editable = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
     def has_add_permission(self, request):
@@ -63,14 +62,12 @@ class CityAdmin(CustomModelAdmin):
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "stage", "status")
     list_filter = ("stage", "status")
-    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 
 class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "stage", "status")
     list_filter = ("stage", "status")
-    list_editable = ("stage", "status")
     search_fields = ("name",)
 
 
@@ -91,7 +88,6 @@ class PackageImageInline(admin.TabularInline):
 
 class ActivityAdmin(CustomModelAdmin):
     list_display = ("name", "description", "city", "agent", "status", "stage",)
-    list_editable = ("status", "stage",)
     list_filter = ("status", "stage",)
     search_fields = ("name", "agent__username", "city__name",)
 
@@ -104,7 +100,6 @@ class ActivityAdmin(CustomModelAdmin):
 class AttractionAdmin(CustomModelAdmin):
     list_display = ("title", "truncated_overview", "status",)
     list_filter = ("status",)
-    list_editable = ("status",)
     search_fields = ("title",)
 
     inlines = [AttractionImageInline]
@@ -124,7 +119,6 @@ class PackageAdmin(CustomModelAdmin):
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent", "country", "state")
-    list_editable = ("status", "stage",)
 
     inlines = [PackageImageInline]
 

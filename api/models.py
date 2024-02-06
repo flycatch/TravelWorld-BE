@@ -23,8 +23,7 @@ class Agent(BaseUser):
         ('rejected', _('Rejected')),
     ]
 
-
-    profile_image = models.ImageField(upload_to='profile_images/agent/',null=True, blank=True)
+    profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
@@ -32,14 +31,13 @@ class Agent(BaseUser):
         verbose_name=_('Stage'),
     )
 
-
     class Meta:
         verbose_name = 'Agent'
         verbose_name_plural = 'Agents'
 
     def __str__(self):
         return self.username
-    
+
 
 class Country(BaseModel):
     name = models.CharField(max_length=255)
@@ -60,7 +58,9 @@ class Country(BaseModel):
 
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Country name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('Country name should contain only alphabetic characters.')})
+
 
 class State(BaseModel):
     name = models.CharField(max_length=255)
@@ -77,13 +77,15 @@ class State(BaseModel):
 
     def clean(self):
         # Check for uniqueness of country name (case-insensitive)
-        state = State.objects.filter(name__iexact=self.name, country=self.country).exclude(pk=self.pk)
+        state = State.objects.filter(name__iexact=self.name,
+                                     country=self.country).exclude(pk=self.pk)
         if state.exists():
             raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
 
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('State name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('State name should contain only alphabetic characters.')})
 
 
 class City(BaseModel):
@@ -104,10 +106,11 @@ class City(BaseModel):
         city = City.objects.filter(name__iexact=self.name, state=self.state).exclude(pk=self.pk)
         if city.exists():
             raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
-        
+
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('City name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('City name should contain only alphabetic characters.')})
 
 
 class TourType(BaseModel):
@@ -144,7 +147,7 @@ class Package(BaseModel):
     title = models.CharField(max_length=255)
     tour_type = models.ForeignKey(
         TourType, on_delete=models.CASCADE,
-        related_name='packages',verbose_name='Tour Type')
+        related_name='packages', verbose_name='Tour Type')
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='packages')
     state = models.ForeignKey(
@@ -153,12 +156,12 @@ class Package(BaseModel):
         City, on_delete=models.CASCADE, related_name='packages')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='packages')
-    
+
     min_members = models.IntegerField()
     max_members = models.IntegerField()
     duration_day = models.IntegerField(verbose_name='Duration Day')
     duration_hour = models.IntegerField()
-    pickup_point = models.CharField(max_length=255, blank=True, null=True, 
+    pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
     pickup_time = models.DateTimeField(verbose_name='Pickup Time')
     drop_point = models.CharField(max_length=255, blank=True, null=True,
@@ -187,7 +190,7 @@ class PackageImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.package.title}"
-    
+
 
 class ItineraryDay(BaseModel):
     day = models.CharField(max_length=255)
@@ -212,6 +215,7 @@ class Inclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+
     class Meta:
         verbose_name = 'Inclusions'
         verbose_name_plural = 'Inclusions'
@@ -224,10 +228,11 @@ class Inclusions(BaseModel):
         inclusion = Inclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
         if inclusion.exists():
             raise ValidationError({'name': f'{self.name} already exists.'})
-        
+
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Inclusions name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('Inclusions name should contain only alphabetic characters.')})
 
 
 class Exclusions(BaseModel):
@@ -243,6 +248,7 @@ class Exclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+
     class Meta:
         verbose_name = 'Exclusions'
         verbose_name_plural = 'Exclusions'
@@ -255,10 +261,11 @@ class Exclusions(BaseModel):
         exclusion = Exclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
         if exclusion.exists():
             raise ValidationError({'name': f'{self.name} already exists.'})
-        
+
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
 class Itinerary(BaseModel):
@@ -276,6 +283,11 @@ class Itinerary(BaseModel):
 
 
 class HotelDetails(BaseModel):
+<<<<<<< Updated upstream
+=======
+    # package = models.ForeignKey(
+    #     Package, on_delete=models.CASCADE, related_name='hoteldetails')
+>>>>>>> Stashed changes
     name = models.CharField(max_length=255, unique=True)
     details = models.TextField(blank=True, default="")
     location_details = models.TextField(blank=True, default="")
@@ -357,24 +369,39 @@ class Pricing(BaseModel):
         ('per_group', 'Per Group'),
     ]
 
+    #field for group pricing
+    group_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    group_commission = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    group_agent_amount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+
+    #field for per-person pricing
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='pricings')
     pricing_group = models.CharField(
         max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
     price = models.ForeignKey(
         Currency, on_delete=models.CASCADE, related_name='pricings')
-    adults_rate = models.IntegerField()
-    adults_commission = models.CharField(max_length=255, blank=True, null=True)
-    adults_agent_amount = models.FloatField(default=0.0, blank=True, null=True)
-    child_rate = models.IntegerField()
-    child_commission = models.CharField(max_length=255, blank=True, null=True)
-    child_agent_amount = models.FloatField(default=0.0, blank=True, null=True)
-    infant_rate = models.IntegerField()
-    infant_commission = models.CharField(max_length=255, blank=True, null=True)
-    infant_agent_amount = models.FloatField(default=0.0, blank=True, null=True)
-    group_rate = models.IntegerField()
-    group_commission = models.CharField(max_length=255, blank=True, null=True)
-    group_agent_amount = models.FloatField(default=0.0, blank=True, null=True)
+    adults_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    adults_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    adults_agent_amount = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_agent_amount = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_commission = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_agent_amount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Pricing'
@@ -385,20 +412,30 @@ class TourCategory(BaseModel):
     CATEGORY_TYPE_CHOICE = [
         ("through_out_year", "Through Out Year"),
         ("seasonal", "Seasonal"),
-        ("fixed_departure", "Fixed_departure")
+        ("fixed_departure", "Fixed Departure")
     ]
 
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='tour_categories')
     type = models.CharField(
         max_length=255, choices=CATEGORY_TYPE_CHOICE, default='through_out_year')
-    start_at = models.DateField()
-    end_at = models.DateField()
+    start_at = models.DateField(null=True, blank=True)
+    end_at = models.DateField(null=True, blank=True)
+    selected_week_days = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Tour Category'
         verbose_name_plural = 'Tour Categories'
 
+    def is_through_out_year(self):
+        return self.category_type == 'through_out_year'
+
+    def is_seasonal(self):
+        return self.category_type == 'seasonal'
+
+    def is_fixed_departure(self):
+        return self.category_type == 'fixed_departure'
+    
 
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
@@ -411,7 +448,7 @@ class CancellationPolicy(BaseModel):
         verbose_name_plural = 'Cancellation Policies'
 
 
-class FAQQuestion(models.Model):
+class FAQQuestion(BaseModel):
     question = models.CharField(max_length=255)
 
     class Meta:
@@ -422,8 +459,10 @@ class FAQQuestion(models.Model):
         return self.question
 
 
-class FAQAnswer(models.Model):
-    question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='answer')
+class FAQAnswer(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='faqanswer')
+    question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='faqanswer')
     answer = models.TextField()
 
     class Meta:
@@ -445,11 +484,12 @@ class Booking(BaseModel):
         verbose_name = 'Booking'
         verbose_name_plural = 'Bookings'
 
+
 class PackageActivity(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='packageactivity')
     name = models.CharField(max_length=255)
-    
+
     class Meta:
         verbose_name = 'Package Activity'
         verbose_name_plural = 'Package Activities'
@@ -460,7 +500,8 @@ class PackageActivity(BaseModel):
     def clean(self):
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Activity name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('Activity name should contain only alphabetic characters.')})
 
 
 class Activity(BaseModel):
@@ -473,14 +514,14 @@ class Activity(BaseModel):
         Agent, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, default="")
-    
+
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='activities')
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='activities')
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='activities')
-    
+
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
@@ -498,7 +539,8 @@ class Activity(BaseModel):
     def clean(self):
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Activity name should contain only alphabetic characters.')})
+            raise ValidationError(
+                {'name': _('Activity name should contain only alphabetic characters.')})
 
 
 class ActivityImage(models.Model):
@@ -508,7 +550,7 @@ class ActivityImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.activity.name}"
-    
+
 
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
@@ -534,7 +576,7 @@ class AttractionImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.attraction.title}"
-    
+
 
 class UserReview(BaseModel):
     package = models.ForeignKey(

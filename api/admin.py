@@ -142,4 +142,4 @@ admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
 
 # admin.site.register(api_models.TourType)
-# admin.site.register(api_models.PackageCategory)
+admin.site.register(PackageCategory)

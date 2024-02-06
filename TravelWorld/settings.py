@@ -56,6 +56,7 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,10 +67,8 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     # 'admin_reorder.middleware.ModelAdminReorder',
     'api.middleware.ModelAdminReorderWithNav'
-
-
-
 ]
+
 
 ROOT_URLCONF = 'TravelWorld.urls'
 
@@ -189,21 +188,6 @@ SWAGGER_SETTINGS = {
     'JSON_EDITOR': True,
 }
 
-CORS_ALLOW_ALL_ORIGINS=True
-CSRF_TRUSTED_ORIGINS = [config('CSRF_TRUSTED_ORIGINS')]
-
-CORS_ORIGIN_WHITELIST = [config('CORS_ORIGIN_WHITELIST')]
-CORS_ORIGIN_REGEX_WHITELIST = [config('CORS_ORIGIN_REGEX_WHITELIST')]
-
-CORS_ALLOW_METHODS = [
-   'GET',
-   'POST',
-   'PUT',
-   'PATCH',
-   'DELETE',
-   'OPTIONS',
-]
-
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "Explore World Admins",
@@ -235,3 +219,15 @@ ADMIN_REORDER = (
      'label': 'General Settings'},
     
 )
+
+CSRF_TRUSTED_ORIGINS = config("ENV_CSRF_TRUSTED_ORIGINS").split(',')
+CORS_ORIGIN_WHITELIST = config("ENV_CORS_ORIGIN_WHITELIST").split(',')
+CORS_ORIGIN_REGEX_WHITELIST = config("ENV_CORS_ORIGIN_REGEX_WHITELIST").split(',')
+CORS_ALLOW_METHODS = [
+   'GET',
+   'POST',
+   'PUT',
+   'PATCH',
+   'DELETE',
+   'OPTIONS',
+]

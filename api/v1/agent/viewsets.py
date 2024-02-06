@@ -11,9 +11,12 @@ from api.v1.agent.serializers import AgentSerializer, AgentLoginSerializer
 class AgentViewSet(viewsets.ModelViewSet):
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     http_method_names = ['get','put']
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        return self.queryset.filter(pk=self.request.user.pk)
 
 
 class RegisterViewSet(viewsets.ModelViewSet):

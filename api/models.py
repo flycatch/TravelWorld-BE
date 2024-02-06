@@ -264,8 +264,18 @@ class Exclusions(BaseModel):
 
         # Check if the name contains only alphabetic characters
         if not self.name.replace(' ', '').isalpha():
-            raise ValidationError(
-                {'name': _('Exclusions name should contain only alphabetic characters.')})
+            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
+
+
+class ItineraryDay(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='itinerardays')
+    day = models.CharField(max_length=255)
+    plan = models.TextField(blank=True, default="")
+
+    class Meta:
+        verbose_name = 'Itinerary Day'
+        verbose_name_plural = 'Itinerary Day'
 
 
 class Itinerary(BaseModel):
@@ -283,11 +293,8 @@ class Itinerary(BaseModel):
 
 
 class HotelDetails(BaseModel):
-<<<<<<< Updated upstream
-=======
-    # package = models.ForeignKey(
-    #     Package, on_delete=models.CASCADE, related_name='hoteldetails')
->>>>>>> Stashed changes
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='hoteldetails')
     name = models.CharField(max_length=255, unique=True)
     details = models.TextField(blank=True, default="")
     location_details = models.TextField(blank=True, default="")

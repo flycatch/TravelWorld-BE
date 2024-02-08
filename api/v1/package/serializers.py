@@ -1,14 +1,32 @@
 # serializers.py
-from rest_framework import serializers
-from api.models import (Package, Itinerary, ItineraryDay, Informations, Guide,
-                        InformationActivities, ThingsToCarry, HotelDetails, Pricing,
-                        TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer)
+import decimal
 
+from rest_framework import serializers
+from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
+                        TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
+                        PackageImage)
+from rest_framework.response import Response
+from rest_framework import status
 
 class PackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         exclude = ['status', 'is_submitted', 'stage']
+
+    def validate_min_members(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Minimum number of members must be at least 1.")
+        return value
+
+    def validate_max_members(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Maximum number of members must be at least 1.")
+        return value
+
+    def validate_duration_day(self, value):
+        if value < 1:
+            raise serializers.ValidationError("Duration day must be at least 1.")
+        return value
 
     def create(self, validated_data):
         is_submitted = self.context['request'].data.get('is_submitted', False)
@@ -19,6 +37,12 @@ class PackageSerializer(serializers.ModelSerializer):
         validated_data['is_submitted'] = False
         instance = super().create(validated_data)
         return instance
+
+
+class PackageImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageImage
+        exclude = ['status']
 
 
 class ItinerarySerializer(serializers.ModelSerializer):
@@ -39,28 +63,28 @@ class InformationsSerializer(serializers.ModelSerializer):
         exclude = ['status']
 
 
-class HotelDetailsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HotelDetails
-        exclude = ['status']
+# class HotelDetailsSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = HotelDetails
+#         exclude = ['status']
 
 
-class GuideSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Guide
-        exclude = ['status']
+# class GuideSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Guide
+#         exclude = ['status']
 
 
-class InformationActivitiesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = InformationActivities
-        exclude = ['status']
+# class InformationActivitiesSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = InformationActivities
+#         exclude = ['status']
 
 
-class ThingsToCarrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ThingsToCarry
-        exclude = ['status']
+# class ThingsToCarrySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ThingsToCarry
+#         exclude = ['status']
 
 
 class PricingSerializer(serializers.ModelSerializer):
@@ -68,16 +92,111 @@ class PricingSerializer(serializers.ModelSerializer):
         model = Pricing
         exclude = ['status']
 
+    def validate_group_rate(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Group rate cannot be negative.")
+        return value
+
+    def validate_group_commission(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Group commission cannot be negative.")
+        return value
+
+    def validate_adult_rate(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Adult rate cannot be negative.")
+        return value
+
+    def validate_adult_commission(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Adult commission cannot be negative.")
+        return value
+
+    def validate_child_rate(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Child rate cannot be negative.")
+        return value
+
+    def validate_child_commission(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Child commission cannot be negative.")
+        return value
+
+    def validate_infant_rate(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Infant rate cannot be negative.")
+        return value
+
+    def validate_infant_commission(self, value):
+        if value < 0:
+            raise serializers.ValidationError("Infant commission cannot be negative.")
+        return value
+        
+    def validate(self, data):
+        # Ensure that group_commission <= group_rate
+        group_rate = data.get('group_rate')
+        group_commission = data.get('group_commission')
+        if group_rate is not None and group_commission is not None and group_commission > group_rate:
+            raise serializers.ValidationError("Group commission cannot be greater than group rate.")
+
+        # Ensure that adult_commission <= adult_rate
+        adult_rate = data.get('adult_rate')
+        adult_commission = data.get('adult_commission')
+        if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
+            raise serializers.ValidationError("Adult commission cannot be greater than adult rate.")
+
+        # Ensure that child_commission <= child_rate
+        child_rate = data.get('child_rate')
+        child_commission = data.get('child_commission')
+        if child_rate is not None and child_commission is not None and child_commission > child_rate:
+            raise serializers.ValidationError("Child commission cannot be greater than child rate.")
+
+        # Ensure that infant_commission <= infant_rate
+        infant_rate = data.get('infant_rate')
+        infant_commission = data.get('infant_commission')
+        if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
+            raise serializers.ValidationError("Infant commission cannot be greater than infant rate.")
+
+        return data
+
 
 class PackageCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TourCategory
+        exclude = ['status']
+
+    def validate(self, data):
+        category_type = data.get('type')
+        start_at = data.get('start_at')
+        end_at = data.get('end_at')
+
+        if category_type == 'seasonal':
+            if not start_at or not end_at:
+                raise serializers.ValidationError("Start date and end date are required for seasonal category type.")
+            if start_at >= end_at:
+                raise serializers.ValidationError("Start date must be before end date for seasonal category type.")
+
+        # You can add more validation logic for other category types here
+
+        return data
 
 
 class PackageCancellationPolicySerializer(serializers.ModelSerializer):
     class Meta:
         model = CancellationPolicy
         exclude = ['status']
+
+    def validate_amount_percent(self, value):
+        # Validate that the amount_percent is a valid decimal value between 0 and 100
+        try:
+            percent = decimal.Decimal(value)
+            if percent < 0 or percent > 100:
+                raise serializers.ValidationError("Amount percent must be between 0 and 100.")
+        except decimal.InvalidOperation:
+            raise serializers.ValidationError("Amount percent must be a valid decimal value.")
+        
+        return value
+
 
 
 class PackageFAQQuestionSerializer(serializers.ModelSerializer):

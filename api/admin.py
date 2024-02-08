@@ -10,18 +10,19 @@ from api.common.custom_admin import CustomModelAdmin
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
-        ('Profile Details', {'fields': ('username', 'first_name',
+        ('Profile Details', {'fields': ('agent_uid', 'username', 'first_name',
          'last_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage')}),
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("username", "first_name", "last_name", "email", "phone", "status", "stage")
+    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("username", "first_name", "last_name", "email", "phone")
+    readonly_fields = ("agent_uid",)
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 class UserAdmin(CustomModelAdmin):
@@ -37,8 +38,8 @@ class UserAdmin(CustomModelAdmin):
     list_filter = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    # def has_add_permission(self, request):
+    #     return False
 
 
 class CountryAdmin(CustomModelAdmin):
@@ -118,7 +119,7 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("tour_type",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent", "country", "state")
+    search_fields = ("title", "agent__first_name", "country__name", "state__name")
 
     inlines = [PackageImageInline]
 
@@ -141,5 +142,5 @@ admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
 
-# admin.site.register(api_models.TourType)
+admin.site.register(TourType)
 admin.site.register(PackageCategory)

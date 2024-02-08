@@ -23,6 +23,7 @@ class Agent(BaseUser):
         ('rejected', _('Rejected')),
     ]
 
+    agent_uid = models.CharField(max_length=10, unique=True, editable=False)
     profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
     stage = models.CharField(
         max_length=20,
@@ -36,7 +37,16 @@ class Agent(BaseUser):
         verbose_name_plural = 'Agents'
 
     def __str__(self):
-        return self.username
+        return self.agent_uid
+
+    #Generate unique agent id
+    def save(self, *args, **kwargs):
+        if not self.agent_uid:
+            last_agent = Agent.objects.order_by('-agent_uid').first()
+            last_id = last_agent.agent_uid[4:] if last_agent else '0'
+            new_id = str(int(last_id) + 1)
+            self.agent_uid = f'EWAG{new_id}'
+        super().save(*args, **kwargs)
 
 
 class Country(BaseModel):
@@ -175,6 +185,7 @@ class Package(BaseModel):
         verbose_name='Stage'
     )
 
+    is_submitted = models.BooleanField(default=False)
     class Meta:
         verbose_name = 'Package'
         verbose_name_plural = 'Packages'
@@ -183,22 +194,13 @@ class Package(BaseModel):
         return self.title
 
 
-class PackageImage(models.Model):
+class PackageImage(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='packageimages')
     image = models.ImageField(upload_to='package_images/', null=True, default=None, blank=True)
 
     def __str__(self):
         return f"Image for {self.package.title}"
-
-
-class ItineraryDay(BaseModel):
-    day = models.CharField(max_length=255)
-    plan = models.TextField(blank=True, default="")
-
-    class Meta:
-        verbose_name = 'Itinerary Day'
-        verbose_name_plural = 'Itinerary Day'
 
 
 class Inclusions(BaseModel):
@@ -268,10 +270,11 @@ class Exclusions(BaseModel):
 
 
 class ItineraryDay(BaseModel):
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='itinerardays')
-    day = models.CharField(max_length=255)
-    plan = models.TextField(blank=True, default="")
+    # package = models.ForeignKey(
+    #     Package, on_delete=models.CASCADE, related_name='itinerardays')
+    day = models.CharField(max_length=255, default="")
+    place = models.CharField(max_length=255, default="", blank=True, null=True)
+    description = models.TextField(default="", blank=True, null=True)
 
     class Meta:
         verbose_name = 'Itinerary Day'
@@ -286,73 +289,20 @@ class Itinerary(BaseModel):
         ItineraryDay, related_name='itineraries')
     inclusions = models.ManyToManyField(Inclusions, related_name='itineraries')
     exclusions = models.ManyToManyField(Exclusions, related_name='itineraries')
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
 
     class Meta:
         verbose_name = 'Itinerary'
         verbose_name_plural = 'Itinerary'
 
 
-class HotelDetails(BaseModel):
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='hoteldetails')
-    name = models.CharField(max_length=255, unique=True)
-    details = models.TextField(blank=True, default="")
-    location_details = models.TextField(blank=True, default="")
-
-    class Meta:
-        verbose_name = 'Hotel Details'
-        verbose_name_plural = 'Hotel Details'
-
-    def __str__(self):
-        return self.name
-
-
-class Guide(BaseModel):
-    language = models.CharField(max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'Guide'
-        verbose_name_plural = 'Guide'
-
-
-class InformationActivities(BaseModel):
-    name = models.CharField(max_length=255, unique=True)
-
-    class Meta:
-        verbose_name = 'Information Activities'
-        verbose_name_plural = 'Information Activities'
-
-    def __str__(self):
-        return self.name
-
-
-class ThingsToCarry(BaseModel):
-    name = models.CharField(max_length=255, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Things To Carry'
-        verbose_name_plural = 'Things To Carry'
-
-
 class Informations(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='informations')
-    hotel = models.ForeignKey(
-        HotelDetails, on_delete=models.CASCADE, related_name='informations')
-    meals = models.CharField(max_length=255, blank=True, null=True)
-    transpotation = models.CharField(max_length=255, blank=True, null=True)
-    entry_ticket = models.CharField(max_length=255, blank=True, null=True)
-    train_ticket = models.CharField(max_length=255, blank=True, null=True)
-    flight_ticket = models.CharField(max_length=255, blank=True, null=True)
-    guide = models.ManyToManyField(Guide, related_name='informations')
-    information_activities = models.ManyToManyField(
-        InformationActivities, related_name='informations')
-    things_to_carry = models.ManyToManyField(
-        ThingsToCarry, related_name='informations')
-    important_message = models.TextField(blank=True, default="")
+    itinerary = models.ForeignKey(
+        Itinerary, on_delete=models.CASCADE, related_name='informations')
+    details = models.TextField(blank=True, default="")
 
     class Meta:
         verbose_name = 'Information'
@@ -492,24 +442,6 @@ class Booking(BaseModel):
         verbose_name_plural = 'Bookings'
 
 
-class PackageActivity(BaseModel):
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='packageactivity')
-    name = models.CharField(max_length=255)
-
-    class Meta:
-        verbose_name = 'Package Activity'
-        verbose_name_plural = 'Package Activities'
-
-    def __str__(self):
-        return self.name
-
-    def clean(self):
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError(
-                {'name': _('Activity name should contain only alphabetic characters.')})
-
 
 class Activity(BaseModel):
     STAGES_CHOICES = [
@@ -596,3 +528,70 @@ class UserReview(BaseModel):
     class Meta:
         verbose_name = 'User Review'
         verbose_name_plural = 'User Reviews'
+
+
+
+
+
+# class HotelDetails(BaseModel):
+#     # package = models.ForeignKey(
+#     #     Package, on_delete=models.CASCADE, related_name='hoteldetails')
+#     name = models.CharField(max_length=255, unique=True)
+#     details = models.TextField(blank=True, default="")
+#     location_details = models.TextField(blank=True, default="")
+
+#     class Meta:
+#         verbose_name = 'Hotel Details'
+#         verbose_name_plural = 'Hotel Details'
+
+#     def __str__(self):
+#         return self.name
+
+
+# class Guide(BaseModel):
+#     language = models.CharField(max_length=255, unique=True)
+
+#     class Meta:
+#         verbose_name = 'Guide'
+#         verbose_name_plural = 'Guide'
+
+
+# class InformationActivities(BaseModel):
+#     name = models.CharField(max_length=255, unique=True)
+
+#     class Meta:
+#         verbose_name = 'Information Activities'
+#         verbose_name_plural = 'Information Activities'
+
+#     def __str__(self):
+#         return self.name
+
+
+# class ThingsToCarry(BaseModel):
+#     name = models.CharField(max_length=255, unique=True)
+
+#     def __str__(self):
+#         return self.name
+
+#     class Meta:
+#         verbose_name = 'Things To Carry'
+#         verbose_name_plural = 'Things To Carry'
+
+
+# class PackageActivity(BaseModel):
+#     package = models.ForeignKey(
+#         Package, on_delete=models.CASCADE, related_name='packageactivity')
+#     name = models.CharField(max_length=255)
+
+#     class Meta:
+#         verbose_name = 'Package Activity'
+#         verbose_name_plural = 'Package Activities'
+
+#     def __str__(self):
+#         return self.name
+
+#     def clean(self):
+#         # Check if the name contains only alphabetic characters
+#         if not self.name.replace(' ', '').isalpha():
+#             raise ValidationError(
+#                 {'name': _('Activity name should contain only alphabetic characters.')})

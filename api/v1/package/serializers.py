@@ -5,8 +5,6 @@ from rest_framework import serializers
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
                         PackageImage)
-from rest_framework.response import Response
-from rest_framework import status
 
 class PackageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,30 +59,6 @@ class InformationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Informations
         exclude = ['status']
-
-
-# class HotelDetailsSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = HotelDetails
-#         exclude = ['status']
-
-
-# class GuideSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Guide
-#         exclude = ['status']
-
-
-# class InformationActivitiesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = InformationActivities
-#         exclude = ['status']
-
-
-# class ThingsToCarrySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ThingsToCarry
-#         exclude = ['status']
 
 
 class PricingSerializer(serializers.ModelSerializer):
@@ -175,8 +149,6 @@ class PackageCategorySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("Start date and end date are required for seasonal category type.")
             if start_at >= end_at:
                 raise serializers.ValidationError("Start date must be before end date for seasonal category type.")
-
-        # You can add more validation logic for other category types here
 
         return data
 

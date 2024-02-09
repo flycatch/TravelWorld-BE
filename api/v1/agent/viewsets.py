@@ -32,11 +32,5 @@ class LoginViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-
-        return Response({
-            'status': 'success', 'message': 'Login successful',
-            'token': token.key}, status=status.HTTP_200_OK
-            )
+        response_data = serializer.save()
+        return Response(response_data, status=status.HTTP_200_OK)

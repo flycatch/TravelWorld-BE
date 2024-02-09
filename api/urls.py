@@ -6,7 +6,7 @@ from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      InformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFAQQuestionViewSet,
-                                     PackageFAQAnswerViewSet, PackageImageViewSet)
+                                     PackageFAQAnswerViewSet, PackageImageViewSet, PackageDeleteDraft)
 
 
 router = DefaultRouter()
@@ -17,6 +17,8 @@ router.register(r'agent/login', LoginViewSet, basename='login')
 # Package
 router.register(r'package/create', PackageViewSet, basename='package')
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
+router.register(r'packages/delete-draft/', PackageDeleteDraft, basename='delete_draft_package'),
+
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
 router.register(r'package/itineraryday', ItineraryDayViewSet, basename='itinerary-day')

@@ -141,6 +141,7 @@ admin.site.register(Exclusions, ExclusionsAdmin)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
+admin.site.register(Booking)
 
 admin.site.register(TourType)
 admin.site.register(PackageCategory)

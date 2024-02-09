@@ -152,6 +152,17 @@ class Package(BaseModel):
         ('rejected', _('Rejected')),
     ]
 
+    # PRODUCT_TYPE_CHOICES = [
+    #     ('package', _('Package')),
+    #     ('activity', _('Activity')),
+    # ]
+
+    # type = models.CharField(
+    #     max_length=20,
+    #     choices=PRODUCT_TYPE_CHOICES,
+    #     default='package',
+    #     verbose_name='Product Type'
+    # )
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='packages')
     title = models.CharField(max_length=255)
@@ -166,7 +177,6 @@ class Package(BaseModel):
         City, on_delete=models.CASCADE, related_name='packages')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='packages')
-
     min_members = models.IntegerField()
     max_members = models.IntegerField()
     duration_day = models.IntegerField(verbose_name='Duration Day')

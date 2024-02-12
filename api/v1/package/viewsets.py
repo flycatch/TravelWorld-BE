@@ -11,13 +11,13 @@ from rest_framework.authentication import TokenAuthentication
 
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory, CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage)
+                        PackageImage, TourType)
 from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer, 
                                         ItineraryDaySerializer, InformationsSerializer, 
                                         PricingSerializer, PackageCategorySerializer,
                                         PackageFAQQuestionSerializer,PackageImageSerializer,
                                         PackageCancellationPolicySerializer,
-                                        PackageFAQAnswerSerializer)
+                                        PackageFAQAnswerSerializer, PackageTourTypeSerializer)
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -88,6 +88,11 @@ class PackageDeleteDraft(viewsets.ModelViewSet):
                                 status=status.HTTP_403_FORBIDDEN)
         except Package.DoesNotExist:
             return Response({'message': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class PackageTourTypeViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = TourType.objects.all()
+    serializer_class = PackageTourTypeSerializer
 
 
 class ItineraryViewSet(viewsets.ModelViewSet):

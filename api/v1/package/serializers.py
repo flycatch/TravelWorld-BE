@@ -4,7 +4,7 @@ import decimal
 from rest_framework import serializers
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage)
+                        PackageImage, TourType)
 
 class PackageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,6 +46,12 @@ class PackageImageSerializer(serializers.ModelSerializer):
 class ItinerarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Itinerary
+        exclude = ['status']
+
+
+class PackageTourTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TourType
         exclude = ['status']
 
 

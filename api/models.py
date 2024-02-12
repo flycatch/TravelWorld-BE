@@ -151,6 +151,10 @@ class Package(BaseModel):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
+    TOUR_CLASS_CHOICE = [
+        ('private', _('Private')),
+        ('conducting', _('Conducting'))
+    ]
 
     # PRODUCT_TYPE_CHOICES = [
     #     ('package', _('Package')),
@@ -166,6 +170,12 @@ class Package(BaseModel):
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='packages')
     title = models.CharField(max_length=255)
+    tour_class = models.CharField(
+        max_length=20,
+        choices=TOUR_CLASS_CHOICE,
+        default='private',
+        verbose_name='Tour Class'
+    )
     tour_type = models.ForeignKey(
         TourType, on_delete=models.CASCADE,
         related_name='packages', verbose_name='Tour Type')

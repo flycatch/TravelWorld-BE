@@ -128,7 +128,7 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("customer","package","booking_status","check_in")
+    list_display = ("booking_id","customer","package","booking_status","check_in")
     search_fields = ("booking_status",)
 
 # Unregister model

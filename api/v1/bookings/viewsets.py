@@ -3,6 +3,7 @@ from api.filters.booking_filters import *
 from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
                         Informations, Itinerary, ItineraryDay, Package,
                         PackageImage, Pricing, TourCategory)
+from api.tasks import *
 from api.utils.paginator import CustomPagination
 from api.v1.bookings.serializers import BookingSerializer
 from django_filters.rest_framework import DjangoFilterBackend
@@ -80,27 +81,22 @@ class CustomerBookingDetailsView(APIView):
 
 
     def get_object(self):
-        pk = self.kwargs.get('object_id')
-        return Booking.objects.get(pk=pk)
+        object_id = self.kwargs.get('object_id')
+        return Booking.objects.get(object_id=object_id)
 
     def get(self, request, *args, **kwargs):
         try:
 
             instance = self.get_object()
-            serializer = self.get_serializer(instance)
+            serializer = self.serializer_class(instance)
 
-            if serializer.is_valid():
-                return Response({
-                        "status": "success",
-                        "statusCode": status.HTTP_200_OK,
-                        "results": serializer.data,
-                    }, status=status.HTTP_200_OK)
+            return Response({
+                    "status": "success",
+                    "message": "Listed successfully",
+                    "statusCode": status.HTTP_200_OK,
+                    "results": serializer.data,
+                }, status=status.HTTP_200_OK)
             
-            return Response({"results": serializer.errors,
-                                "message": "Something went wrong",
-                                "status": "error",
-                                "statusCode": status.status.HTTP_400_BAD_REQUEST}, status=status.status.HTTP_400_BAD_REQUEST)
-        
         except Exception as error_message:
             response_data = {"message": f"Something went wrong: {error_message}",
                              "status": "error",
@@ -110,8 +106,8 @@ class CustomerBookingDetailsView(APIView):
 
     def put(self, request, *args, **kwargs):
         try:
-            sr_item_id = kwargs.get('id')
-            instance = Booking.objects.get(id=sr_item_id)
+            object_id = kwargs.get('object_id')
+            instance = Booking.objects.get(object_id=object_id)
             
             if not instance:
                 return Response({"message": "Booking object not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -120,6 +116,11 @@ class CustomerBookingDetailsView(APIView):
             serializer = self.serializer_class(instance, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+
+                subject = "Request for Cancellation"
+                message = f'Cancellation Received for booking {instance.booking_id}'
+                email = instance.customer.email
+                send_email.delay(subject,message,email)
 
                 return Response({"message": "Booking Cancelled Successfully",
                                  "status": "success",

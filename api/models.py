@@ -459,7 +459,7 @@ class Booking(BaseModel):
             ("REFUNDED", "REFUNDED"),
           
             )
-    
+    booking_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     customer = models.ForeignKey(

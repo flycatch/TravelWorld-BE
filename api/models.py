@@ -455,13 +455,14 @@ class Booking(BaseModel):
             ("ORDERED", "ORDERED"),
             ("SUCCESSFUL", "SUCCESSFUL"),
             ("FAILED", "FAILED"),
+            ("REFUNDED REQUESTED", "REFUNDED"),
             ("REFUNDED", "REFUNDED"),
           
             )
     
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    created_by = models.ForeignKey(
+    customer = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='created_by_bookings')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='package_bookings')
@@ -475,7 +476,7 @@ class Booking(BaseModel):
     is_paid = models.BooleanField(default=False)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=15,blank=True,null=True)
+    booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
 
 
     class Meta:

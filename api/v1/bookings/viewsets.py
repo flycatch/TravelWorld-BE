@@ -99,10 +99,44 @@ class CustomerBookingDetailsView(APIView):
             return Response({"results": serializer.errors,
                                 "message": "Something went wrong",
                                 "status": "error",
-                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+                                "statusCode": status.status.HTTP_400_BAD_REQUEST}, status=status.status.HTTP_400_BAD_REQUEST)
         
         except Exception as error_message:
             response_data = {"message": f"Something went wrong: {error_message}",
                              "status": "error",
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def put(self, request, *args, **kwargs):
+        try:
+            sr_item_id = kwargs.get('id')
+            instance = Booking.objects.get(id=sr_item_id)
+            
+            if not instance:
+                return Response({"message": "Booking object not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Deserialize and save the updated instance
+            serializer = self.serializer_class(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                return Response({"message": "Booking Cancelled Successfully",
+                                 "status": "success",
+                                 "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+            else:
+                return Response({ "data": serializer.errors,
+                                "message": "Something went wrong",
+                                "status": "error",
+                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Booking.DoesNotExist:
+            return Response({"message": "Booking object not found",
+                             "status": "error",
+                            "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

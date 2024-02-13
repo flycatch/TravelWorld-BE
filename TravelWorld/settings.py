@@ -234,3 +234,12 @@ CORS_ALLOW_METHODS = [
 
 PUBLIC_KEY=  config('PUBLIC_KEY')
 SECRET_KEY = config('SECRET_KEY')
+
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+result_backend = config('RESULT_BACKEND')
+accept_content = ['application/json']
+task_serializer = 'json'
+result_serializer= 'json'
+broker_connection_retry_on_startup = True

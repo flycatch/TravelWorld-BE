@@ -231,3 +231,6 @@ CORS_ALLOW_METHODS = [
    'DELETE',
    'OPTIONS',
 ]
+
+PUBLIC_KEY=  config('PUBLIC_KEY')
+SECRET_KEY = config('SECRET_KEY')

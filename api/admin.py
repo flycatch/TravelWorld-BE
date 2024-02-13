@@ -129,7 +129,8 @@ class PackageAdmin(CustomModelAdmin):
 
 class BookingAdmin(CustomModelAdmin):
     list_display = ("booking_id","customer","package","booking_status","check_in")
-    search_fields = ("booking_status",)
+    list_filter = ("booking_status",)
+    search_fields = ("booking_status","booking_id","customer")
 
 # Unregister model
 admin.site.unregister(Group)

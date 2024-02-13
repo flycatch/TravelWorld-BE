@@ -474,8 +474,8 @@ class Booking(BaseModel):
     order_id = models.CharField(max_length=100,null=True, blank=True)
     payment_id = models.CharField(max_length=100,null=True, blank=True)
     is_paid = models.BooleanField(default=False)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    check_in = models.DateField(null=True, blank=True)
+    check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
 
 

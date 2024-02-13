@@ -463,7 +463,7 @@ class Booking(BaseModel):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     customer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='created_by_bookings')
+        User, on_delete=models.CASCADE, related_name='customer_bookings')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='package_bookings')
     adult = models.IntegerField(null=True, blank=True)

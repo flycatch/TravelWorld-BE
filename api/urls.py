@@ -52,7 +52,7 @@ router.register(r'package/faqanswer', PackageFAQAnswerViewSet, basename='faqansw
 urlpatterns = [
     path('v1/', include(router.urls)),
     path('v1/pay/', start_payment, name="payment"),
-    path('<int:customer_id>/list-bookings/', CustomerBookingListView.as_view(), name='list-bookings'),
-    path('<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
+    path('v1/<int:customer_id>/list-bookings/', CustomerBookingListView.as_view(), name='list-bookings'),
+    path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 
 ]

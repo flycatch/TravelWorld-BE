@@ -1,4 +1,5 @@
 import razorpay
+from api.filters.booking_filters import *
 from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
                         Informations, Itinerary, ItineraryDay, Package,
                         PackageImage, Pricing, TourCategory)
@@ -57,20 +58,19 @@ class CustomerBookingListView(ListAPIView):
     serializer_class = BookingSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
- 
-    search_fields = ['created_by__first_name'] 
-    # filterset_class = BookingFilter
+    search_fields = ['customer__first_name'] 
+    filterset_class = BookingFilter
     
-    def get_queryset(self, request, *args, **kwargs):
+    def get_queryset(self):
         try:
-            queryset = Booking.objects.filter(created_by=kwargs['customer_id']).order_by("-id")
+            queryset = Booking.objects.filter(customer=self.kwargs['customer_id']).order_by("-id")
             return queryset
         
         except Exception as error_message:
             response_data = {"message": f"Something went wrong: {error_message}",
                              "status": "error",
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
-            return Response(response_data, status=status.TTP_500_INTERNAL_SERVER_ERROR)
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class CustomerBookingDetailsView(APIView):

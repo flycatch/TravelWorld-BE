@@ -187,3 +187,11 @@ class PackageFAQAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = FAQAnswer
         exclude = ['status']
+
+
+
+class BookingPackageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Package
+        exclude = ['status', 'is_submitted', 'stage']

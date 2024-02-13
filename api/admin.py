@@ -127,6 +127,10 @@ class PackageAdmin(CustomModelAdmin):
     #     return False
 
 
+class BookingAdmin(CustomModelAdmin):
+    list_display = ("customer","package","booking_status","check_in")
+    search_fields = ("booking_status",)
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -141,7 +145,7 @@ admin.site.register(Exclusions, ExclusionsAdmin)
 admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
-admin.site.register(Booking)
+admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(TourType)
 admin.site.register(PackageCategory)

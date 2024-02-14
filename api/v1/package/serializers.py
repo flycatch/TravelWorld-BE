@@ -14,20 +14,15 @@ class PackageSerializer(serializers.ModelSerializer):
         model = Package
         exclude = ['status', 'is_submitted', 'stage']
 
-    def validate_min_members(self, value):
-        if value < 1:
-            raise serializers.ValidationError("Minimum number of members must be at least 1.")
-        return value
+    # def validate_min_members(self, value):
+    #     if value < 1:
+    #         raise serializers.ValidationError("Minimum number of members must be at least 1.")
+    #     return value
 
-    def validate_max_members(self, value):
-        if value < 1:
-            raise serializers.ValidationError("Maximum number of members must be at least 1.")
-        return value
-
-    def validate_duration_day(self, value):
-        if value < 1:
-            raise serializers.ValidationError("Duration day must be at least 1.")
-        return value
+    # def validate_max_members(self, value):
+    #     if value < 1:
+    #         raise serializers.ValidationError("Maximum number of members must be at least 1.")
+    #     return value
 
     def create(self, validated_data):
         try:

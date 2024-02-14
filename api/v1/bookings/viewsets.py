@@ -1,8 +1,6 @@
 import razorpay
 from api.filters.booking_filters import *
-from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
-                        Informations, Itinerary, ItineraryDay, Package,
-                        PackageImage, Pricing, TourCategory)
+from api.models import *
 from api.tasks import *
 from api.utils.paginator import CustomPagination
 from api.v1.bookings.serializers import BookingSerializer
@@ -116,6 +114,13 @@ class CustomerBookingDetailsView(APIView):
             serializer = self.serializer_class(instance, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+
+                if instance.booking_status == 'REFUNDED REQUESTED':
+                    transaction_data = {"booking":instance,
+                                        "customer_id":request.user.id,
+                                        "package":instance.package,
+                                        "refund_status":"PENDING"}
+                    Transaction.objects.create(**transaction_data)
 
                 subject = "Request for Cancellation"
                 message = f'Cancellation Received for booking {instance.booking_id}'

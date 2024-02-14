@@ -1,4 +1,4 @@
-from api.models import Agent, Booking
+from api.models import Agent, Booking,Transaction
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models.signals import post_save
@@ -31,4 +31,12 @@ def booking_code_created(sender, instance, created, **kwargs):
     if created:
         booking_id = f"BK-{instance.id}"
         instance.booking_id = booking_id
+        instance.save()
+
+@receiver(post_save, sender=Transaction)
+def refund_code_created(sender, instance, created, **kwargs):
+    
+    if created:
+        refund_id = f"RF-{instance.id}"
+        instance.refund_id = refund_id
         instance.save()

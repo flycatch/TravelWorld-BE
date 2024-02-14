@@ -454,8 +454,8 @@ class Booking(BaseModel):
     BOOKING_STATUS =(
             ("ORDERED", "ORDERED"),
             ("SUCCESSFUL", "SUCCESSFUL"),
-            ("FAILED", "FAILED"),
-            ("REFUNDED REQUESTED", "REFUNDED"),
+            ("CANCELLED", "CANCELLED"),
+            ("REFUNDED REQUESTED", "REFUNDED REQUESTED"),
             ("REFUNDED", "REFUNDED"),
           
             )
@@ -477,6 +477,8 @@ class Booking(BaseModel):
     check_in = models.DateField(null=True, blank=True)
     check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
+    refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+
 
     def __str__(self):
         return self.booking_id
@@ -488,6 +490,12 @@ class Booking(BaseModel):
 
 class Transaction(BaseModel):
 
+    REFUND_STATUS =(
+            ("PENDING", "PENDING"),
+            ("CANCELLED", "CANCELLED"),
+            ("REFUNDED", "REFUNDED"),
+          
+            )
     
     refund_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
@@ -498,6 +506,9 @@ class Transaction(BaseModel):
         Package, on_delete=models.CASCADE, related_name='transaction_package')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='transaction_booking')
+    refund_status  =  models.CharField(choices = REFUND_STATUS,max_length=50,blank=True,null=True)
+    refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+
     
 
     def __str__(self):

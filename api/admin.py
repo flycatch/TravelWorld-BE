@@ -166,8 +166,8 @@ class AttractionAdmin(CustomModelAdmin):
 
 class PackageAdmin(CustomModelAdmin):
     list_display = ("agent", "title", "tour_type", "state",
-                    "city", "category", "duration_day",
-                    "status", "stage_colour")
+                    "city", "category",
+                    "status", "stage_colour",)
     list_filter = ("tour_type",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")

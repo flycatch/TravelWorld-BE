@@ -158,18 +158,11 @@ class Package(BaseModel):
         ('private', _('Private')),
         ('conducting', _('Conducting'))
     ]
+    DURATION_CHOICE = [
+        ('day', _('Day Night')),
+        ('hour', _('Hours'))
+    ]
 
-    # PRODUCT_TYPE_CHOICES = [
-    #     ('package', _('Package')),
-    #     ('activity', _('Activity')),
-    # ]
-
-    # type = models.CharField(
-    #     max_length=20,
-    #     choices=PRODUCT_TYPE_CHOICES,
-    #     default='package',
-    #     verbose_name='Product Type'
-    # )
     package_uid = models.CharField(max_length=256, null=True, blank=True)
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='packages')
@@ -193,8 +186,15 @@ class Package(BaseModel):
         PackageCategory, on_delete=models.CASCADE, related_name='packages')
     min_members = models.IntegerField()
     max_members = models.IntegerField()
-    duration_day = models.IntegerField(verbose_name='Duration Day')
-    duration_hour = models.IntegerField()
+    duration = models.CharField(
+            max_length=20,
+            choices=DURATION_CHOICE,
+            default='day',
+            verbose_name='Duration'
+        )
+    duration_day = models.IntegerField(verbose_name='Duration Days', null=True, blank=True)
+    duration_night = models.IntegerField(verbose_name='Duration Nights', null=True, blank=True)
+    duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
     pickup_time = models.DateTimeField(verbose_name='Pickup Time')
@@ -324,8 +324,8 @@ class Itinerary(BaseModel):
 class Informations(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='informations')
-    itinerary = models.ForeignKey(
-        Itinerary, on_delete=models.CASCADE, related_name='informations')
+    inclusions = models.ForeignKey(
+        Inclusions, on_delete=models.CASCADE, related_name='informations_inclusions', null=True, blank=True)
     details = models.TextField(blank=True, default="")
 
     class Meta:

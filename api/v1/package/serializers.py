@@ -2,9 +2,12 @@
 import decimal
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
                         PackageImage, TourType)
+
 
 class PackageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,25 +30,22 @@ class PackageSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        is_submitted = self.context['request'].data.get('is_submitted', False)
+        try:
+            is_submitted = self.context['request'].data.get('is_submitted', False)
 
-        if not is_submitted:
-            return super().create(validated_data)
+            if not is_submitted:
+                return super().create(validated_data)
 
-        validated_data['is_submitted'] = False
-        instance = super().create(validated_data)
-        return instance
+            validated_data['is_submitted'] = False
+            instance = super().create(validated_data)
+            return instance
+        except Exception as e:
+            raise ValidationError("Error creating package: {}".format(str(e)))
 
 
 class PackageImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageImage
-        exclude = ['status']
-
-
-class ItinerarySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Itinerary
         exclude = ['status']
 
 
@@ -59,6 +59,38 @@ class ItineraryDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = ItineraryDay
         exclude = ['status']
+
+
+class ItinerarySerializer(serializers.ModelSerializer):
+    itinerary_day = ItineraryDaySerializer(many=True)
+
+    class Meta:
+        model = Itinerary
+        exclude = ['status']
+
+    def create(self, validated_data):
+        itinerary_day_data = validated_data.pop('itinerary_day')
+        inclusions_data = validated_data.pop('inclusions', [])
+        exclusions_data = validated_data.pop('exclusions', [])
+
+        try:
+            itinerary = Itinerary.objects.create(**validated_data)
+
+            for day_data in itinerary_day_data:
+                try:
+                    itinerary_day_obj = ItineraryDay.objects.create(**day_data)
+                    itinerary.itinerary_day.add(itinerary_day_obj)
+                except Exception as error:
+                    # Rollback the transaction if an exception occurs
+                    itinerary.delete()
+                    raise ValidationError(f"Error creating ItineraryDay: {error}")
+
+            itinerary.inclusions.set(inclusions_data)
+            itinerary.exclusions.set(exclusions_data)
+        except Exception as error:
+            raise ValidationError(f"Error creating Itinerary: {error}")
+
+        return itinerary
 
 
 class InformationsSerializer(serializers.ModelSerializer):

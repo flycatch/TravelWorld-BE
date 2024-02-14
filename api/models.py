@@ -469,7 +469,6 @@ class Booking(BaseModel):
     adult = models.IntegerField(null=True, blank=True)
     child = models.IntegerField(null=True, blank=True)
     infant = models.IntegerField(null=True, blank=True)
-    is_cancelled = models.BooleanField(default=False)
     amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     order_id = models.CharField(max_length=100,null=True, blank=True)
     payment_id = models.CharField(max_length=100,null=True, blank=True)

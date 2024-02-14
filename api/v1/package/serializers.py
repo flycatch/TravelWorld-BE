@@ -170,7 +170,7 @@ class PricingSerializer(serializers.ModelSerializer):
 class PackageCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageCategory
-        exclude = ['status']
+        fields = ['id', 'name']
 
 
 

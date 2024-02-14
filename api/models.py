@@ -478,10 +478,34 @@ class Booking(BaseModel):
     check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
 
+    def __str__(self):
+        return self.booking_id
 
     class Meta:
         verbose_name = 'Booking'
         verbose_name_plural = 'Bookings'
+
+
+class Transaction(BaseModel):
+
+    
+    refund_id = models.CharField(max_length=256, null=True, blank=True)
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    customer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='transaction_customer')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='transaction_package')
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name='transaction_booking')
+    
+
+    def __str__(self):
+        return self.refund_id
+
+    class Meta:
+        verbose_name = 'Transactions'
+        verbose_name_plural = 'Transactions'
 
 
 

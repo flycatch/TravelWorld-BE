@@ -11,6 +11,20 @@ services:
     depends_on:
       - db
 
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    command: 'celery -A TravelWorld worker -l info'
+
+  redis:
+    image: redis:latest
+
   db:
     image: postgres:13.0-alpine
     volumes:

@@ -224,6 +224,7 @@ admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Booking,BookingAdmin)
+admin.site.register(Transaction)
 
 admin.site.register(TourType)
 admin.site.register(PackageCategory)

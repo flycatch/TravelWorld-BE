@@ -1,8 +1,8 @@
+from api.models import Agent, Booking
 from django.conf import settings
-from django.dispatch import receiver
-from django.db.models.signals import post_save
 from django.core.mail import send_mail
-from api.models import Agent
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 @receiver(post_save, sender=Agent)
@@ -23,3 +23,12 @@ def send_email_on_stage_update(sender, instance, created, **kwargs):
             recipient_list = [instance.email]
 
             send_mail(subject, message, from_email, recipient_list)
+
+
+@receiver(post_save, sender=Booking)
+def booking_code_created(sender, instance, created, **kwargs):
+    
+    if created:
+        booking_id = f"BK-{instance.id}"
+        instance.booking_id = booking_id
+        instance.save()

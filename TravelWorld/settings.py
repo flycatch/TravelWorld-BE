@@ -53,6 +53,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 MIDDLEWARE = [
@@ -231,3 +232,15 @@ CORS_ALLOW_METHODS = [
    'DELETE',
    'OPTIONS',
 ]
+
+RAZOR_PUBLIC_KEY=  config('RAZOR_PUBLIC_KEY')
+RAZOR_SECRET_KEY = config('RAZOR_SECRET_KEY')
+
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+result_backend = config('RESULT_BACKEND')
+accept_content = ['application/json']
+task_serializer = 'json'
+result_serializer= 'json'
+broker_connection_retry_on_startup = True

@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
@@ -448,14 +450,34 @@ class FAQAnswer(BaseModel):
 
 
 class Booking(BaseModel):
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='bookings')
+
+    BOOKING_STATUS =(
+            ("ORDERED", "ORDERED"),
+            ("SUCCESSFUL", "SUCCESSFUL"),
+            ("FAILED", "FAILED"),
+            ("REFUNDED REQUESTED", "REFUNDED"),
+            ("REFUNDED", "REFUNDED"),
+          
+            )
+    booking_id = models.CharField(max_length=256, null=True, blank=True)
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    customer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='customer_bookings')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='bookings')
-    adult = models.IntegerField()
-    child = models.IntegerField()
-    infant = models.IntegerField()
+        Package, on_delete=models.CASCADE, related_name='package_bookings')
+    adult = models.IntegerField(null=True, blank=True)
+    child = models.IntegerField(null=True, blank=True)
+    infant = models.IntegerField(null=True, blank=True)
     is_cancelled = models.BooleanField(default=False)
+    amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    order_id = models.CharField(max_length=100,null=True, blank=True)
+    payment_id = models.CharField(max_length=100,null=True, blank=True)
+    is_paid = models.BooleanField(default=False)
+    check_in = models.DateField(null=True, blank=True)
+    check_out = models.DateField(null=True, blank=True)
+    booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
+
 
     class Meta:
         verbose_name = 'Booking'
@@ -548,6 +570,7 @@ class UserReview(BaseModel):
     class Meta:
         verbose_name = 'User Review'
         verbose_name_plural = 'User Reviews'
+
 
 
 

@@ -10,6 +10,8 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageFAQAnswerViewSet, PackageImageViewSet, PackageDeleteDraft,
                                      PackageTourTypeViewSet)
 
+from api.v1.bookings.viewsets import *
+
 
 router = DefaultRouter()
 
@@ -49,4 +51,8 @@ router.register(r'package/faqanswer', PackageFAQAnswerViewSet, basename='faqansw
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('v1/', include(router.urls)),
+    path('v1/pay/', start_payment, name="payment"),
+    path('v1/<int:customer_id>/list-bookings/', CustomerBookingListView.as_view(), name='list-bookings'),
+    path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
+
 ]

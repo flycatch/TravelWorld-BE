@@ -40,6 +40,16 @@ class PackageViewSet(viewsets.ModelViewSet):
         serializer.save(is_submitted=True)  # Set is_submitted to True for final submission
         return Response({'id': instance.id, 'status': 'submitted'})
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Package saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
 
 class PackageImageViewSet(viewsets.ModelViewSet):
     queryset = PackageImage.objects.all()

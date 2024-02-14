@@ -62,7 +62,7 @@ class CustomerBookingListView(ListAPIView):
     
     def get_queryset(self):
         try:
-            queryset = Booking.objects.filter(customer=self.kwargs['customer_id']).order_by("-id")
+            queryset = Booking.objects.filter(customer=self.kwargs['user_id']).order_by("-id")
             return queryset
         
         except Exception as error_message:
@@ -117,14 +117,14 @@ class CustomerBookingDetailsView(APIView):
 
                 if instance.booking_status == 'REFUNDED REQUESTED':
                     transaction_data = {"booking":instance,
-                                        "customer_id":request.user.id,
+                                        "user_id":request.user.id,
                                         "package":instance.package,
                                         "refund_status":"PENDING"}
                     Transaction.objects.create(**transaction_data)
 
                 subject = "Request for Cancellation"
                 message = f'Cancellation Received for booking {instance.booking_id}'
-                email = instance.customer.email
+                email = instance.user.email
                 send_email.delay(subject,message,email)
 
                 return Response({"message": "Booking Cancelled Successfully",

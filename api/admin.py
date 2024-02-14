@@ -193,9 +193,20 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id","customer","package","agent","agent_id","booking_status","check_in")
+    list_display = ("booking_id","customer","package_name","agent","agent_id","booking_status","check_in", "display_created_on")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","customer")
+    exclude = ("status",)
+    fieldsets = (
+        (None, {
+            'fields': ('booking_id','customer', 'package_uid', 'package_name', 
+                       'agent','agent_id','adult', 'child', 'infant', 'amount', 
+                       'order_id', 'payment_id', 'booking_status','check_in', 
+                       'check_out', 'display_created_on', 'refund_amount', 'is_paid',)
+        }),
+
+    )
+    
 
     def agent(self, obj):
         print(obj.package.agent.username)
@@ -203,10 +214,35 @@ class BookingAdmin(CustomModelAdmin):
     
     def agent_id(self, obj):
         return obj.package.agent.agent_uid if obj.package else None
-    
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def display_created_on(self, obj):
+        return obj.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Customize the date format as needed
+    display_created_on.short_description = "Booking date"
+
+    def package_name(self, obj):
+        return obj.package.title if obj.package else None
+    package_name.short_description = "Package Name"
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.readonly_fields += ('display_created_on', 'package_name')
+        return super().change_view(request, object_id, form_url, extra_context)
+
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  
+    display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 # Unregister model

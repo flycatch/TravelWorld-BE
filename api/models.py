@@ -8,6 +8,7 @@ from api.common.models import BaseModel, BaseUser
 
 
 class User(BaseUser):
+    user_uid = models.CharField(max_length=256, null=True, blank=True)
     profile_image = models.ImageField(upload_to='profile_images/user/', null=True, blank=True)
 
     class Meta:
@@ -169,6 +170,7 @@ class Package(BaseModel):
     #     default='package',
     #     verbose_name='Product Type'
     # )
+    package_uid = models.CharField(max_length=256, null=True, blank=True)
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='packages')
     title = models.CharField(max_length=255)
@@ -525,6 +527,7 @@ class Activity(BaseModel):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
+    activity_uid = models.CharField(max_length=256, null=True, blank=True)
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='activities')
     name = models.CharField(max_length=255)

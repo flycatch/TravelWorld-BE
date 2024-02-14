@@ -47,8 +47,8 @@ class PackageViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'success',
             'message': 'Package saved',
-            'id': serializer.data['id']
-            }, status=status.HTTP_201_CREATED)
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
 
 class PackageImageViewSet(viewsets.ModelViewSet):

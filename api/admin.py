@@ -193,9 +193,21 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id","customer","package","booking_status","check_in")
+    list_display = ("booking_id","customer","package","agent","agent_id","booking_status","check_in")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","customer")
+
+    def agent(self, obj):
+        print(obj.package.agent.username)
+        return obj.package.agent.username if obj.package else None
+    
+    def agent_id(self, obj):
+        return obj.package.agent.agent_uid if obj.package else None
+    
+    agent.admin_order_field = 'package__agent__username' 
+    agent_id.admin_order_field = 'package__agent__agent_uid'  
+
+
 
 # Unregister model
 admin.site.unregister(Group)

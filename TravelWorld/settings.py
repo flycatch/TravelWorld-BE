@@ -31,6 +31,7 @@ ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default=[], cast=lambda v: [s.str
 # Application definition
 
 INSTALLED_APPS = [
+    'admin_reorder',
     'jazzmin',
     
     'django.contrib.admin',
@@ -46,7 +47,6 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'api',
-    'admin_reorder',
 ]
 
 REST_FRAMEWORK = {
@@ -66,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # 'admin_reorder.middleware.ModelAdminReorder',
+    'admin_reorder.middleware.ModelAdminReorder',
     'api.middleware.ModelAdminReorderWithNav'
 ]
 

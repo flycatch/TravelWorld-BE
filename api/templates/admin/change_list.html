@@ -4,7 +4,8 @@
 {% block extrastyle %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
-    
+    <link rel="stylesheet" type="text/css" href="{% static 'css/custom_admin.css' %}">
+
     {% if cl.formset or action_form %}
         <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
     {% endif %}

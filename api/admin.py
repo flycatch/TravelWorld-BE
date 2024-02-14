@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import TokenProxy
 
 from api.models import *
 from api.common.custom_admin import CustomModelAdmin
+from django.utils.html import format_html
 
 
 class AgentAdmin(CustomModelAdmin):
@@ -16,10 +17,23 @@ class AgentAdmin(CustomModelAdmin):
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage")
+    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage_colour")
     list_filter = ("status", "stage")
     search_fields = ("username", "first_name", "last_name", "email", "phone")
     readonly_fields = ("agent_uid",)
+
+    def stage_colour(self, obj):
+        if obj.stage == 'approved':
+            color = 'green'
+        elif obj.stage == 'rejected':
+            color = 'red'
+        else:
+            color = 'black'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+
+    stage_colour.short_description = 'stage'  # Set a custom column header
+    stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
     # def has_add_permission(self, request):
     #     return False

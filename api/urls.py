@@ -8,7 +8,7 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      InformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFAQQuestionViewSet,
                                      PackageFAQAnswerViewSet, PackageImageViewSet, PackageDeleteDraft,
-                                     PackageTourTypeViewSet)
+                                     PackageTourCategoryViewSet)
 
 from api.v1.bookings.viewsets import *
 
@@ -29,7 +29,8 @@ router.register(r'agent/login', LoginViewSet, basename='login')
 router.register(r'package/create', PackageViewSet, basename='package')
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft/', PackageDeleteDraft, basename='delete_draft_package'),
-router.register(r'packages/tourtype/', PackageTourTypeViewSet, basename='tour_type'),
+# router.register(r'packages/tourtype/', PackageTourTypeViewSet, basename='tour_type'),
+router.register(r'packages/category/', PackageCategoryViewSet, basename='category'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
@@ -39,7 +40,7 @@ router.register(r'package/informations', InformationsViewSet, basename='informat
 
 # pricing
 router.register(r'package/pricing', PricingViewSet, basename='pricing')
-router.register(r'package/category', PackageCategoryViewSet, basename='packagecategory')
+router.register(r'package/tourcategory', PackageTourCategoryViewSet, basename='tourcategory')
 
 router.register(r'package/cancellation', PackageCancellationPolicyViewSet,
                 basename='packagecancellation')

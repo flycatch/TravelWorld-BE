@@ -126,15 +126,15 @@ class City(BaseModel):
                 {'name': _('City name should contain only alphabetic characters.')})
 
 
-class TourType(BaseModel):
-    name = models.CharField(max_length=255)
+# class TourType(BaseModel):
+#     name = models.CharField(max_length=255)
 
-    class Meta:
-        verbose_name = 'Tour Type'
-        verbose_name_plural = 'Tour Type'
+#     class Meta:
+#         verbose_name = 'Tour Type'
+#         verbose_name_plural = 'Tour Type'
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
 
 class PackageCategory(BaseModel):
@@ -173,9 +173,9 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    tour_type = models.ForeignKey(
-        TourType, on_delete=models.CASCADE,
-        related_name='packages', verbose_name='Tour Type')
+    # tour_type = models.ForeignKey(
+    #     TourType, on_delete=models.CASCADE,
+    #     related_name='packages', verbose_name='Tour Type')
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='packages')
     state = models.ForeignKey(

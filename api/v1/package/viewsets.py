@@ -11,13 +11,13 @@ from rest_framework.authentication import TokenAuthentication
 
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory, CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage, TourType)
+                        PackageImage, PackageCategory)
 from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer, 
                                         ItineraryDaySerializer, InformationsSerializer, 
-                                        PricingSerializer, PackageCategorySerializer,
+                                        PricingSerializer, PackageTourCategorySerializer,
                                         PackageFAQQuestionSerializer,PackageImageSerializer,
-                                        PackageCancellationPolicySerializer,
-                                        PackageFAQAnswerSerializer, PackageTourTypeSerializer)
+                                        PackageCancellationPolicySerializer, PackageCategorySerializer,
+                                        PackageFAQAnswerSerializer)
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -100,9 +100,9 @@ class PackageDeleteDraft(viewsets.ModelViewSet):
             return Response({'message': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class PackageTourTypeViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = TourType.objects.all()
-    serializer_class = PackageTourTypeSerializer
+# class PackageTourTypeViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = TourType.objects.all()
+#     serializer_class = PackageTourTypeSerializer
 
 
 class ItineraryViewSet(viewsets.ModelViewSet):
@@ -134,9 +134,17 @@ class PricingViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
 
+
 class PackageCategoryViewSet(viewsets.ModelViewSet):
-    queryset = TourCategory.objects.all()
+    queryset = PackageCategory.objects.all()
     serializer_class = PackageCategorySerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class PackageTourCategoryViewSet(viewsets.ModelViewSet):
+    queryset = TourCategory.objects.all()
+    serializer_class = PackageTourCategorySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 

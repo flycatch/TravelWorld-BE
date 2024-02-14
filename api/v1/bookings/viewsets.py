@@ -25,7 +25,7 @@ def start_payment(request):
     package = request.data['package']
 
     # setup razorpay client this is the client to whome user is paying money that's you
-    client = razorpay.Client(auth=(PUBLIC_KEY,SECRET_KEY))
+    client = razorpay.Client(auth=(RAZOR_PUBLIC_KEY,RAZOR_SECRET_KEY))
 
     print(client)
 

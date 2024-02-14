@@ -233,8 +233,8 @@ CORS_ALLOW_METHODS = [
    'OPTIONS',
 ]
 
-PUBLIC_KEY=  config('PUBLIC_KEY')
-SECRET_KEY = config('SECRET_KEY')
+RAZOR_PUBLIC_KEY=  config('RAZOR_PUBLIC_KEY')
+RAZOR_SECRET_KEY = config('RAZOR_SECRET_KEY')
 
 
 # Celery Configuration

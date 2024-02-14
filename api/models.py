@@ -464,8 +464,6 @@ class Booking(BaseModel):
     booking_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    customer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='customer_bookings')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='package_bookings')
     adult = models.IntegerField(null=True, blank=True)
@@ -479,6 +477,8 @@ class Booking(BaseModel):
     check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
     refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
 
 
     def __str__(self):
@@ -501,14 +501,14 @@ class Transaction(BaseModel):
     refund_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
-    customer = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='transaction_customer')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='transaction_package')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='transaction_booking')
     refund_status  =  models.CharField(choices = REFUND_STATUS,max_length=50,blank=True,null=True)
     refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='user_transaction',null=True, blank=True)
 
     
 

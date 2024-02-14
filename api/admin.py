@@ -165,10 +165,10 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "title", "tour_type", "state",
+    list_display = ("agent", "title", "tour_class", "state",
                     "city", "category",
                     "status", "stage_colour",)
-    list_filter = ("tour_type",  "country", "state", "category",
+    list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__first_name", "country__name", "state__name")
@@ -262,5 +262,4 @@ admin.site.register(City, CityAdmin)
 admin.site.register(Booking,BookingAdmin)
 admin.site.register(Transaction)
 
-admin.site.register(TourType)
 admin.site.register(PackageCategory)

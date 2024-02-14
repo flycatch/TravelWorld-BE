@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 
 from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage, TourType)
+                        PackageImage, PackageCategory)
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -44,10 +44,10 @@ class PackageImageSerializer(serializers.ModelSerializer):
         exclude = ['status']
 
 
-class PackageTourTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TourType
-        exclude = ['status']
+# class PackageTourTypeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = TourType
+#         exclude = ['status']
 
 
 class ItineraryDaySerializer(serializers.ModelSerializer):
@@ -168,6 +168,13 @@ class PricingSerializer(serializers.ModelSerializer):
 
 
 class PackageCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageCategory
+        exclude = ['status']
+
+
+
+class PackageTourCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = TourCategory
         exclude = ['status']

@@ -28,9 +28,9 @@ router.register(r'agent/login', LoginViewSet, basename='login')
 # Package
 router.register(r'package/create', PackageViewSet, basename='package')
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
-router.register(r'packages/delete-draft/', PackageDeleteDraft, basename='delete_draft_package'),
+router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 # router.register(r'packages/tourtype/', PackageTourTypeViewSet, basename='tour_type'),
-router.register(r'packages/category/', PackageCategoryViewSet, basename='category'),
+router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')

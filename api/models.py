@@ -322,7 +322,7 @@ class Itinerary(BaseModel):
 
 
 class InclusionInformation(BaseModel):
-    inclusions = models.ForeignKey(
+    inclusion = models.ForeignKey(
         Inclusions, on_delete=models.CASCADE, 
         related_name='inclusion_information_inclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
@@ -333,7 +333,7 @@ class InclusionInformation(BaseModel):
 
 
 class ExclusionInformation(BaseModel):
-    exclusions = models.ForeignKey(
+    exclusion = models.ForeignKey(
         Exclusions, on_delete=models.CASCADE, 
         related_name='exclusion_information_exclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")

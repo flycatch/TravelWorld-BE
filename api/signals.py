@@ -37,8 +37,8 @@ def booking_code_created(sender, instance, created, **kwargs):
 def refund_code_created(sender, instance, created, **kwargs):
     
     if created:
-        refund_id = f"EWRF-{instance.id}"
-        instance.refund_id = refund_id
+        transaction_uid = f"EWRF-{instance.id}"
+        instance.transaction_uid = transaction_uid
         instance.save()
 
 @receiver(post_save, sender=Package)

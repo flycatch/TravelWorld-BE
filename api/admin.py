@@ -197,19 +197,29 @@ class BookingAdmin(CustomModelAdmin):
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","user")
     exclude = ("status",)
-    fieldsets = (
-        (None, {
-            'fields': ('booking_id','user', 'package_uid', 'package_name', 
-                       'agent','agent_id','adult', 'child', 'infant', 'amount', 
-                       'order_id', 'payment_id', 'booking_status','check_in', 
-                       'check_out', 'display_created_on', 'refund_amount', 'is_paid',)
-        }),
 
-    )
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # Detail page
+            return (
+                (None, {
+                    'fields': ('booking_id','user', 'package_uid', 'package_name', 
+                               'agent','agent_id','adult', 'child', 'infant', 'amount', 
+                               'order_id', 'payment_id', 'booking_status','check_in', 
+                               'display_created_on', 'refund_amount', 'is_paid',)
+                }),
+            )
+        else:  # Add page
+            return (
+                (None, {
+                    'fields': ('user', 'package', 
+                               'adult', 'child', 'infant', 'amount', 
+                               'order_id', 'payment_id', 'booking_status','check_in', 
+                               'refund_amount', 'is_paid',)
+                }),
+            )
     
 
     def agent(self, obj):
-        print(obj.package.agent.username)
         return obj.package.agent.username if obj.package else None
     
     def agent_id(self, obj):
@@ -220,7 +230,7 @@ class BookingAdmin(CustomModelAdmin):
     package_uid.short_description = "Package UID"
 
     def display_created_on(self, obj):
-        return obj.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Customize the date format as needed
+        return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Booking date"
 
     def package_name(self, obj):

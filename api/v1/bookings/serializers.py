@@ -1,7 +1,7 @@
 import decimal
 
 from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
-                        Informations, Itinerary, ItineraryDay, Package,
+                        PackageInformations, Itinerary, ItineraryDay, Package,
                         PackageImage, Pricing, TourCategory)
 from rest_framework import serializers
 from api.v1.package.serializers import BookingPackageSerializer

@@ -5,10 +5,10 @@ from rest_framework.routers import DefaultRouter
 from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
-                                     InformationsViewSet, PricingViewSet, PackageCategoryViewSet,
+                                     PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFAQQuestionViewSet,
                                      PackageFAQAnswerViewSet, PackageImageViewSet, PackageDeleteDraft,
-                                     PackageTourCategoryViewSet)
+                                     PackageTourCategoryViewSet, InclusionsViewSet, ExclusionsViewSet)
 
 from api.v1.bookings.viewsets import *
 
@@ -35,8 +35,13 @@ router.register(r'packages/category', PackageCategoryViewSet, basename='category
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
 router.register(r'package/itineraryday', ItineraryDayViewSet, basename='itinerary-day')
+
+#inclusions and exclusions
+router.register(r'package/inclusions', InclusionsViewSet, basename='inclusions')
+router.register(r'package/exclusions', ExclusionsViewSet, basename='exclusions')
+
 # Informations
-router.register(r'package/informations', InformationsViewSet, basename='informations')
+router.register(r'package/informations', PackageInformationsViewSet, basename='informations')
 
 # pricing
 router.register(r'package/pricing', PricingViewSet, basename='pricing')

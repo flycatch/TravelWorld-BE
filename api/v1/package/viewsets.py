@@ -9,15 +9,16 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
-from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
+from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
                         TourCategory, CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage, PackageCategory)
+                        PackageImage, PackageCategory, Inclusions, Exclusions)
 from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer, 
-                                        ItineraryDaySerializer, InformationsSerializer, 
+                                        ItineraryDaySerializer, PackageInformationsSerializer, 
                                         PricingSerializer, PackageTourCategorySerializer,
                                         PackageFAQQuestionSerializer,PackageImageSerializer,
                                         PackageCancellationPolicySerializer, PackageCategorySerializer,
-                                        PackageFAQAnswerSerializer)
+                                        PackageFAQAnswerSerializer, InclusionsSerializer,
+                                        ExclusionsSerializer)
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -112,6 +113,16 @@ class ItineraryViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
 
+class InclusionsViewSet(viewsets.ModelViewSet):
+    queryset = Inclusions.objects.all()
+    serializer_class = InclusionsSerializer
+
+
+class ExclusionsViewSet(viewsets.ModelViewSet):
+    queryset = Exclusions.objects.all()
+    serializer_class = ExclusionsSerializer
+
+
 class ItineraryDayViewSet(viewsets.ModelViewSet):
     queryset = ItineraryDay.objects.all()
     serializer_class = ItineraryDaySerializer
@@ -120,9 +131,9 @@ class ItineraryDayViewSet(viewsets.ModelViewSet):
 
 
 #Informations
-class InformationsViewSet(viewsets.ModelViewSet):
-    queryset = Informations.objects.all()
-    serializer_class = InformationsSerializer
+class PackageInformationsViewSet(viewsets.ModelViewSet):
+    queryset = PackageInformations.objects.all()
+    serializer_class = PackageInformationsSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 

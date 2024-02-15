@@ -321,13 +321,40 @@ class Itinerary(BaseModel):
         verbose_name_plural = 'Itinerary'
 
 
-class Informations(BaseModel):
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='informations')
+class InclusionInformation(BaseModel):
     inclusions = models.ForeignKey(
-        Inclusions, on_delete=models.CASCADE, related_name='informations_inclusions', null=True, blank=True)
-    details = models.TextField(blank=True, default="")
+        Inclusions, on_delete=models.CASCADE, 
+        related_name='inclusion_information_inclusion', null=True, blank=True)
+    details = models.TextField(blank=True, null=True, default="")
 
+    class Meta:
+        verbose_name = 'Inclusion Information'
+        verbose_name_plural = 'Inclusion Information'
+
+
+class ExclusionInformation(BaseModel):
+    exclusions = models.ForeignKey(
+        Exclusions, on_delete=models.CASCADE, 
+        related_name='exclusion_information_exclusion', null=True, blank=True)
+    details = models.TextField(blank=True, null=True, default="")
+
+    class Meta:
+        verbose_name = 'Exclusion Information'
+        verbose_name_plural = 'Exclusion Information'
+
+
+class PackageInformations(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='informations_package')
+    inclusiondetails = models.ForeignKey(
+        InclusionInformation, on_delete=models.CASCADE,
+        related_name='informations_inclusion', null=True, blank=True)
+    exclusiondetails = models.ForeignKey(
+        ExclusionInformation, on_delete=models.CASCADE,
+        related_name='informations_exclusion', null=True, blank=True)
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
+    
     class Meta:
         verbose_name = 'Information'
         verbose_name_plural = 'Informations'

@@ -1,5 +1,5 @@
 from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
-                        Informations, Itinerary, ItineraryDay, Package,
+                        PackageInformations, Itinerary, ItineraryDay, Package,
                         PackageImage, Pricing, TourCategory)
 from django_filters import rest_framework as django_filters
 

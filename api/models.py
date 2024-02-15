@@ -215,7 +215,7 @@ class Package(BaseModel):
         verbose_name_plural = 'Packages'
 
     def __str__(self):
-        return self.title
+        return self.package_uid
 
 
 class PackageImage(BaseModel):
@@ -498,7 +498,7 @@ class Transaction(BaseModel):
           
             )
     
-    refund_id = models.CharField(max_length=256, null=True, blank=True)
+    transaction_uid = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
@@ -513,7 +513,7 @@ class Transaction(BaseModel):
     
 
     def __str__(self):
-        return self.refund_id
+        return self.transaction_uid
 
     class Meta:
         verbose_name = 'Transactions'

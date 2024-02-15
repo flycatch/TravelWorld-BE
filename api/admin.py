@@ -253,17 +253,36 @@ class BookingAdmin(CustomModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-    
+
+
 class TransactionAdmin(CustomModelAdmin):
-    list_display = ("refund_id","user","package_name","agent","agent_id","refund_status", "display_created_on")
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # Detail page
+            return (
+                (None, {
+                    'fields': ('transaction_uid','booking_uid', 'user', 'package_name',
+                               'package_uid', 'agent', 'agent_uid', 'display_created_on',
+                                'refund_status', 'refund_amount',)
+                }),
+            )
+        else:  # Add page
+            return (
+                (None, {
+                    'fields': ('package', 'booking', 'refund_status', 'refund_amount', 'user',)
+                }),
+            )
+        
+    list_display = ("transaction_uid", "booking_uid", "user","package_name", "package_uid",
+                     "agent", "agent_uid","refund_status", "display_created_on",)
     list_filter = ("refund_status",)
-    search_fields = ("refund_status","refund_id","user")
+    search_fields = ("refund_status","transaction_uid","user")
+    exclude = ('status',)
 
     def agent(self, obj):
         print(obj.package.agent.username)
         return obj.package.agent.username if obj.package else None
     
-    def agent_id(self, obj):
+    def agent_uid(self, obj):
         return obj.package.agent.agent_uid if obj.package else None
 
     def package_uid(self, obj):
@@ -274,9 +293,18 @@ class TransactionAdmin(CustomModelAdmin):
         return obj.package.title if obj.package else None
     package_name.short_description = "Package Name"
 
+    def booking_uid(self, obj):
+        return obj.booking.booking_id if obj.booking else None
+    booking_uid.short_description = "Booking UID"
+
     def display_created_on(self, obj):
-        return obj.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Customize the date format as needed
+        return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.readonly_fields += ('transaction_uid', 'user', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+                                 'display_created_on', 'package_name')
+        return super().change_view(request, object_id, form_url, extra_context)
 
 
 # Unregister model

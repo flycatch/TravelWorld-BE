@@ -237,9 +237,9 @@ class BookingAdmin(CustomModelAdmin):
         return obj.package.title if obj.package else None
     package_name.short_description = "Package Name"
 
-    def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields += ('display_created_on', 'package_name')
-        return super().change_view(request, object_id, form_url, extra_context)
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     self.readonly_fields += ('display_created_on', 'package_name')
+    #     return super().change_view(request, object_id, form_url, extra_context)
 
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  

@@ -243,6 +243,30 @@ class BookingAdmin(CustomModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+    
+class TransactionAdmin(CustomModelAdmin):
+    list_display = ("refund_id","user","package_name","agent","agent_id","refund_status", "display_created_on")
+    list_filter = ("refund_status",)
+    search_fields = ("refund_status","refund_id","user")
+
+    def agent(self, obj):
+        print(obj.package.agent.username)
+        return obj.package.agent.username if obj.package else None
+    
+    def agent_id(self, obj):
+        return obj.package.agent.agent_uid if obj.package else None
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def package_name(self, obj):
+        return obj.package.title if obj.package else None
+    package_name.short_description = "Package Name"
+
+    def display_created_on(self, obj):
+        return obj.created_on.strftime("%Y-%m-%d %H:%M:%S")  # Customize the date format as needed
+    display_created_on.short_description = "Transaction date"
 
 
 # Unregister model
@@ -260,6 +284,6 @@ admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Booking,BookingAdmin)
-admin.site.register(Transaction)
+admin.site.register(Transaction,TransactionAdmin)
 
 admin.site.register(PackageCategory)

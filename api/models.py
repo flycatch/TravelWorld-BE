@@ -215,7 +215,7 @@ class Package(BaseModel):
         verbose_name_plural = 'Packages'
 
     def __str__(self):
-        return self.package_uid
+        return self.package_uid if self.package_uid else self.title
 
 
 class PackageImage(BaseModel):

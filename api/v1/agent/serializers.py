@@ -100,3 +100,10 @@ class AgentLoginSerializer(serializers.Serializer):
             'message': 'Login successful',
             'token': token.key
         }
+    
+
+class BookingAgentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Agent
+        fields = ["id","agent_uid","username","first_name","last_name","email"]

@@ -8,6 +8,7 @@ from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, P
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions,
                         InclusionInformation, ExclusionInformation)
+from api.v1.agent.serializers import BookingAgentSerializer
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -260,7 +261,7 @@ class PackageFAQAnswerSerializer(serializers.ModelSerializer):
 
 
 class BookingPackageSerializer(serializers.ModelSerializer):
-
+    agent = BookingAgentSerializer(required=False)
     class Meta:
         model = Package
-        exclude = ['status', 'is_submitted', 'stage']
+        fields = ["id","package_uid","title","agent"]

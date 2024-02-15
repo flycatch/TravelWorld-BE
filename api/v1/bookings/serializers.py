@@ -5,10 +5,12 @@ from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
                         PackageImage, Pricing, TourCategory)
 from rest_framework import serializers
 from api.v1.package.serializers import BookingPackageSerializer
+from api.v1.user.serializers import UserSerializer
 
 
 class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)
+    user = UserSerializer(required=False)
 
     class Meta:
         model = Booking

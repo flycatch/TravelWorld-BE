@@ -146,3 +146,15 @@ class CustomerBookingDetailsView(APIView):
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class WelcomeView(APIView):
+    
+
+    def get(self, request, *args, **kwargs):
+        subject = "Request for Cancellation"
+        message = f'Cancellation Received for booking'
+        print("z1")
+        send_email.delay(subject,message,'lenate.j@flycatchtech.com')
+        print("z2")
+        return Response("checking celery")

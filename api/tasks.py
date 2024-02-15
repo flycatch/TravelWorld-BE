@@ -5,7 +5,7 @@ from TravelWorld.settings import *
 
 @shared_task
 def send_email(subject,message,email):
-
+    print("inside celery")
     send_mail(
         subject,
         message ,

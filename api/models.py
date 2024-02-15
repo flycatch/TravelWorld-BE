@@ -311,10 +311,8 @@ class Itinerary(BaseModel):
     overview = models.TextField(blank=True, default="")
     itinerary_day = models.ManyToManyField(
         ItineraryDay, related_name='itineraries')
-    inclusions = models.ManyToManyField(Inclusions, related_name='itineraries')
-    exclusions = models.ManyToManyField(Exclusions, related_name='itineraries')
-    important_message = models.TextField(blank=True, default="",
-                                         verbose_name="important Message")
+    inclusions = models.ManyToManyField(Inclusions, related_name='itineraries', blank=True, null=True)
+    exclusions = models.ManyToManyField(Exclusions, related_name='itineraries', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Itinerary'

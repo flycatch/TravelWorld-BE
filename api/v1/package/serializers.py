@@ -4,9 +4,10 @@ import decimal
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from api.models import (Package, Itinerary, ItineraryDay, Informations, Pricing,
+from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
-                        PackageImage, PackageCategory)
+                        PackageImage, PackageCategory, Inclusions, Exclusions,
+                        InclusionInformation, ExclusionInformation)
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -88,10 +89,44 @@ class ItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
 
-class InformationsSerializer(serializers.ModelSerializer):
+class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Informations
+        model = Inclusions
+        fields = ['id', 'name',]
+
+
+class ExclusionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exclusions
+        fields = ['id', 'name',]
+
+
+class PackageInformationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageInformations
         exclude = ['status']
+
+    def create(self, validated_data):
+        inclusion_details_data = validated_data.pop('inclusiondetails', None)
+        exclusion_details_data = validated_data.pop('exclusiondetails', None)
+
+        try:
+            package_informations = PackageInformations.objects.create(**validated_data)
+
+            if inclusion_details_data:
+                inclusion_details_obj = InclusionInformation.objects.create(**inclusion_details_data)
+                package_informations.inclusiondetails = inclusion_details_obj
+
+            if exclusion_details_data:
+                exclusion_details_obj = ExclusionInformation.objects.create(**exclusion_details_data)
+                package_informations.exclusiondetails = exclusion_details_obj
+
+            package_informations.save()
+
+        except Exception as error:
+            raise serializers.ValidationError(f"Error creating PackageInformations: {error}")
+
+        return package_informations
 
 
 class PricingSerializer(serializers.ModelSerializer):

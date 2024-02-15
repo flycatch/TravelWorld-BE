@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import TokenProxy
 from api.models import *
 from api.common.custom_admin import CustomModelAdmin
 from django.utils.html import format_html
+from api.tasks import *
 
 
 class AgentAdmin(CustomModelAdmin):
@@ -302,9 +303,30 @@ class TransactionAdmin(CustomModelAdmin):
     display_created_on.short_description = "Transaction date"
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields += ('transaction_uid', 'user', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+        self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                  'display_created_on', 'package_name')
+        print("hi")
         return super().change_view(request, object_id, form_url, extra_context)
+    
+    def save_model(self, request, obj, form, change):
+
+        # Get the original object before saving changes
+        original_obj = self.model.objects.get(pk=obj.pk) if change else None
+        
+        print(original_obj)
+        # Save the changes
+        super().save_model(request, obj, form, change)
+
+        # Check if refund_status has changed and the new status is either "CANCELLED" or "REFUNDED"
+        if change and obj.refund_status in ['CANCELLED', 'REFUNDED'] and obj.refund_status != original_obj.refund_status:
+            print("hi2")
+            if obj.refund_status == 'REFUNDED':
+                Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
+
+            subject = f"REFUND STATUS"
+            message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
+            send_email.delay(subject,message,obj.user.email)
+
 
 
 # Unregister model

@@ -280,7 +280,6 @@ class TransactionAdmin(CustomModelAdmin):
     exclude = ('status',)
 
     def agent(self, obj):
-        print(obj.package.agent.username)
         return obj.package.agent.username if obj.package else None
     
     def agent_uid(self, obj):
@@ -305,7 +304,6 @@ class TransactionAdmin(CustomModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                  'display_created_on', 'package_name')
-        print("hi")
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):

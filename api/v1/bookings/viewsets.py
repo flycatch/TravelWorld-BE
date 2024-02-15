@@ -153,7 +153,7 @@ class WelcomeView(APIView):
 
     def get(self, request, *args, **kwargs):
         subject = "Request for Cancellation"
-        message = f'Cancellation Received for booking'
+        message = f'Cancellation Received for booking abc'
         print("z1")
         send_email.delay(subject,message,'lenate.j@flycatchtech.com')
         print("z2")

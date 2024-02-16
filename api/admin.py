@@ -194,7 +194,7 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id","user","package_name","agent","agent_id","booking_status","check_in", "display_created_on")
+    list_display = ("booking_id","user","package_name","agent","agent_id","booking_status","tour_date", "display_created_on")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","user")
     exclude = ("status",)
@@ -204,8 +204,8 @@ class BookingAdmin(CustomModelAdmin):
             return (
                 (None, {
                     'fields': ('booking_id','user', 'package_uid', 'package_name', 
-                               'agent','agent_id','adult', 'child', 'infant', 'amount', 
-                               'order_id', 'payment_id', 'booking_status','check_in', 
+                               'agent','agent_id','adult', 'child', 'infant', 'booking_amount', 
+                               'order_id', 'payment_id', 'booking_status','tour_date', 
                                'display_created_on', 'refund_amount', 'is_paid',)
                 }),
             )
@@ -213,8 +213,8 @@ class BookingAdmin(CustomModelAdmin):
             return (
                 (None, {
                     'fields': ('user', 'package', 
-                               'adult', 'child', 'infant', 'amount', 
-                               'order_id', 'payment_id', 'booking_status','check_in', 
+                               'adult', 'child', 'infant', 'booking_amount', 
+                               'order_id', 'payment_id', 'booking_status','tour_date', 
                                'refund_amount', 'is_paid',)
                 }),
             )
@@ -352,3 +352,5 @@ admin.site.register(Transaction,TransactionAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
+admin.site.register(AgentTransactionSettlement)
+admin.site.register(UserRefundTransaction)

@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from api.common.models import BaseModel, BaseUser
+from api.common.models import BaseModel, BaseUser, AuditFields
 
 
 class User(BaseUser):
@@ -495,17 +495,16 @@ class Booking(BaseModel):
     adult = models.IntegerField(null=True, blank=True)
     child = models.IntegerField(null=True, blank=True)
     infant = models.IntegerField(null=True, blank=True)
-    amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    booking_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     order_id = models.CharField(max_length=100,null=True, blank=True)
     payment_id = models.CharField(max_length=100,null=True, blank=True)
-    is_paid = models.BooleanField(default=False)
-    check_in = models.DateField(null=True, blank=True)
+    tour_date = models.DateField(null=True, blank=True)
     check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
     refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
-
+    cancellation_description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.booking_id
@@ -545,6 +544,64 @@ class Transaction(BaseModel):
         verbose_name = 'Transactions'
         verbose_name_plural = 'Transactions'
 
+
+class UserRefundTransaction(AuditFields):
+
+    REFUND_STATUS =(
+            ("PENDING", "PENDING"),
+            ("CANCELLED", "CANCELLED"),
+            ("REFUNDED", "REFUNDED"),
+          
+            )
+    
+    refund_uid = models.CharField(max_length=256, null=True, blank=True)
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='user_refund_transaction_package')
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name='user_refund_transaction_booking')
+    refund_status  =  models.CharField(choices = REFUND_STATUS,max_length=50,blank=True,null=True)
+    refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
+    refund_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.transaction_uid
+
+    class Meta:
+        verbose_name = 'User Transaction'
+        verbose_name_plural = 'User Transaction'
+
+
+class AgentTransactionSettlement(AuditFields):
+
+    PAYMENT_SETTLEMENT_STATUS =(
+            ("PENDING", "PENDING"),
+            ("SUCCESSFUL", "SUCCESSFUL"),
+          
+            )
+    
+    transaction_id = models.CharField(max_length=256, null=True, blank=True)
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='agent_transaction_settlement_package')
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name='agent_transaction_settlement_booking')
+    payment_settlement_status  =  models.CharField(choices = PAYMENT_SETTLEMENT_STATUS,max_length=50,blank=True,null=True)
+    payment_settlement_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    agent = models.ForeignKey(
+        Agent, on_delete=models.CASCADE, related_name='transaction_settlement_agent',null=True, blank=True)
+    payment_settlement_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.transaction_uid
+
+    class Meta:
+        verbose_name = 'Agent Transaction'
+        verbose_name_plural = 'Agent Transaction'
 
 
 class Activity(BaseModel):
@@ -635,6 +692,16 @@ class UserReview(BaseModel):
         verbose_name_plural = 'User Reviews'
 
 
+
+class ContactPerson(AuditFields):
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    booking = models.ForeignKey(
+        Booking, on_delete=models.CASCADE, related_name='contact_person_booking')
+    full_name = models.CharField(max_length=256, null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    email = models.EmailField(unique=True)
+    contact_number = models.CharField(max_length=15, blank=True, null=True)
 
 
 

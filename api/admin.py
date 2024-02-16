@@ -415,6 +415,65 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             send_email.delay(subject,message,obj.user.email)
 
 
+class AgentTransactionSettlementAdmin(CustomModelAdmin):
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # Detail page
+            return (
+                (None, {
+                    'fields': ('transaction_id','booking_uid', "booking_amount", 'package_name',
+                               'package_uid','agent_uid',
+                                'payment_settlement_status', 'payment_settlement_amount','payment_settlement_date')
+                }),
+            )
+        else:  # Add page
+            return (
+                (None, {
+                    'fields': ('package', 'booking', 'payment_settlement_status', 'payment_settlement_amount', 'agent','payment_settlement_date')
+                }),
+            )
+        
+    list_display = ("transaction_id", "booking_uid","package_name", "package_uid",
+                     "agent", "agent_uid","payment_settlement_status", "payment_settlement_date",)
+    
+    list_filter = ("payment_settlement_status",)
+    search_fields = ("payment_settlement_status","transaction_id","user")
+    exclude = ('status',)
+
+    def agent(self, obj):
+        return obj.package.agent.username if obj.package else None
+    
+    
+    def agent_uid(self, obj):
+        return obj.package.agent.agent_uid if obj.package else None
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def package_name(self, obj):
+        return obj.package.title if obj.package else None
+    package_name.short_description = "Package Name"
+    
+
+    def booking_uid(self, obj):
+        return obj.booking.booking_id if obj.booking else None
+    booking_uid.short_description = "Booking UID"
+
+    def booking_amount(self, obj):
+        return obj.booking.booking_amount if obj.booking else None
+    booking_amount.short_description = "Booking amount"
+
+    def display_created_on(self, obj):
+        return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
+    display_created_on.short_description = "Transaction date"
+
+    def has_add_permission(self, request, obj=None):
+        return True
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+                                 'display_created_on', 'package_name','booking_amount')
+        return super().change_view(request, object_id, form_url, extra_context)
 
 # Unregister model
 admin.site.unregister(Group)
@@ -435,5 +494,5 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
-admin.site.register(AgentTransactionSettlement)
+admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)
 admin.site.register(UserRefundTransaction,UserRefundTransactionAdmin)

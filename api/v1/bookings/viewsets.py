@@ -3,7 +3,7 @@ from api.filters.booking_filters import *
 from api.models import *
 from api.tasks import *
 from api.utils.paginator import CustomPagination
-from api.v1.bookings.serializers import BookingSerializer,ContactPersonSerializer,BookingCreateSerializer
+from api.v1.bookings.serializers import *
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -57,7 +57,13 @@ def start_payment(request):
             contact_serializer.save(booking_id=instance.id)
         else:
             print("Serializer errors:", contact_serializer.errors)
-    
+
+        
+        AgentTransactionSettlement.objects.create(package_id=request.data['package'],
+                                                  booking_id=instance.id,
+                                                  agent_id=34)
+
+
         # order = Booking.objects.create(package_id=package, 
         #                             booking_amount=booking_amount, 
         #                             payment_id=payment['id'])

@@ -30,3 +30,11 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 
+
+class AgentTransactionSettlementSerializer(serializers.ModelSerializer):
+ 
+
+    class Meta:
+        model = AgentTransactionSettlement
+        fields = "__all__"
+        

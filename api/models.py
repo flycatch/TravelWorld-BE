@@ -580,7 +580,7 @@ class AgentTransactionSettlement(AuditFields):
     PAYMENT_SETTLEMENT_STATUS =(
             ("PENDING", "PENDING"),
             ("SUCCESSFUL", "SUCCESSFUL"),
-          
+            ("FAILED","FAILED")
             )
     
     transaction_id = models.CharField(max_length=256, null=True, blank=True)
@@ -590,14 +590,14 @@ class AgentTransactionSettlement(AuditFields):
         Package, on_delete=models.CASCADE, related_name='agent_transaction_settlement_package')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='agent_transaction_settlement_booking')
-    payment_settlement_status  =  models.CharField(choices = PAYMENT_SETTLEMENT_STATUS,max_length=50,blank=True,null=True)
+    payment_settlement_status  =  models.CharField(default="PENDING",choices = PAYMENT_SETTLEMENT_STATUS,max_length=50,blank=True,null=True)
     payment_settlement_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='transaction_settlement_agent',null=True, blank=True)
     payment_settlement_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.transaction_uid
+        return self.transaction_id if self.transaction_id else self.booking.booking_id
 
     class Meta:
         verbose_name = 'Agent Transaction'

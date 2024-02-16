@@ -206,7 +206,7 @@ class BookingAdmin(CustomModelAdmin):
                     'fields': ('booking_id','user', 'package_uid', 'package_name', 
                                'agent','agent_id','adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 
-                               'display_created_on', 'refund_amount', 'is_paid',)
+                               'display_created_on', 'refund_amount',)
                 }),
             )
         else:  # Add page
@@ -215,7 +215,7 @@ class BookingAdmin(CustomModelAdmin):
                     'fields': ('user', 'package', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 
-                               'refund_amount', 'is_paid',)
+                               'refund_amount', )
                 }),
             )
     
@@ -256,12 +256,89 @@ class BookingAdmin(CustomModelAdmin):
         return False
 
 
-class TransactionAdmin(CustomModelAdmin):
+# class TransactionAdmin(CustomModelAdmin):
+#     def get_fieldsets(self, request, obj=None):
+#         if obj:  # Detail page
+#             return (
+#                 (None, {
+#                     'fields': ('transaction_uid','booking_uid', 'user', 'package_name',
+#                                'package_uid', 'agent', 'agent_uid', 'display_created_on',
+#                                 'refund_status', 'refund_amount',)
+#                 }),
+#             )
+#         else:  # Add page
+#             return (
+#                 (None, {
+#                     'fields': ('package', 'booking', 'refund_status', 'refund_amount', 'user',)
+#                 }),
+#             )
+        
+#     list_display = ("transaction_uid", "booking_uid", "user","package_name", "package_uid",
+#                      "agent", "agent_uid","refund_status", "display_created_on",)
+#     list_filter = ("refund_status",)
+#     search_fields = ("refund_status","transaction_uid","user")
+#     exclude = ('status',)
+
+#     def agent(self, obj):
+#         return obj.package.agent.username if obj.package else None
+    
+#     def agent_uid(self, obj):
+#         return obj.package.agent.agent_uid if obj.package else None
+
+#     def package_uid(self, obj):
+#         return obj.package.package_uid if obj.package else None
+#     package_uid.short_description = "Package UID"
+
+#     def package_name(self, obj):
+#         return obj.package.title if obj.package else None
+#     package_name.short_description = "Package Name"
+
+#     def booking_uid(self, obj):
+#         return obj.booking.booking_id if obj.booking else None
+#     booking_uid.short_description = "Booking UID"
+
+#     def display_created_on(self, obj):
+#         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
+#     display_created_on.short_description = "Transaction date"
+
+#     def has_add_permission(self, request, obj=None):
+#         return True
+
+#     def change_view(self, request, object_id, form_url='', extra_context=None):
+#         self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+#                                  'display_created_on', 'package_name')
+#         return super().change_view(request, object_id, form_url, extra_context)
+    
+#     def save_model(self, request, obj, form, change):
+
+#         # Get the original object before saving changes
+#         original_obj = self.model.objects.get(pk=obj.pk) if change else None
+        
+#         print(original_obj)
+#         # Save the changes
+#         super().save_model(request, obj, form, change)
+
+#         # Check if refund_status has changed and the new status is either "CANCELLED" or "REFUNDED"
+#         if change and obj.refund_status in ['CANCELLED', 'REFUNDED'] and obj.refund_status != original_obj.refund_status:
+#             print("hi2")
+#             if obj.refund_status == 'REFUNDED':
+#                 Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
+#             elif obj.refund_status == 'CANCELLED':
+#                 Booking.objects.filter(id=obj.booking_id).update(booking_status='FAILED')
+
+
+#             subject = f"REFUND STATUS"
+#             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
+#             send_email.delay(subject,message,obj.user.email)
+
+
+
+class UserRefundTransactionAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
             return (
                 (None, {
-                    'fields': ('transaction_uid','booking_uid', 'user', 'package_name',
+                    'fields': ('refund_uid','booking_uid', "booking_amount",'user', 'package_name',
                                'package_uid', 'agent', 'agent_uid', 'display_created_on',
                                 'refund_status', 'refund_amount',)
                 }),
@@ -273,10 +350,11 @@ class TransactionAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("transaction_uid", "booking_uid", "user","package_name", "package_uid",
+    list_display = ("refund_uid", "booking_uid", "user","package_name", "package_uid",
                      "agent", "agent_uid","refund_status", "display_created_on",)
+    
     list_filter = ("refund_status",)
-    search_fields = ("refund_status","transaction_uid","user")
+    search_fields = ("refund_status","refund_uid","user")
     exclude = ('status',)
 
     def agent(self, obj):
@@ -292,10 +370,15 @@ class TransactionAdmin(CustomModelAdmin):
     def package_name(self, obj):
         return obj.package.title if obj.package else None
     package_name.short_description = "Package Name"
+    
 
     def booking_uid(self, obj):
         return obj.booking.booking_id if obj.booking else None
     booking_uid.short_description = "Booking UID"
+
+    def booking_amount(self, obj):
+        return obj.booking.booking_amount if obj.booking else None
+    booking_amount.short_description = "Booking amount"
 
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
@@ -305,8 +388,8 @@ class TransactionAdmin(CustomModelAdmin):
         return True
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                 'display_created_on', 'package_name')
+        self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+                                 'display_created_on', 'package_name','booking_amount')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -348,9 +431,9 @@ admin.site.register(Country, CountryAdmin)
 admin.site.register(State, StateAdmin)
 admin.site.register(City, CityAdmin)
 admin.site.register(Booking,BookingAdmin)
-admin.site.register(Transaction,TransactionAdmin)
+# admin.site.register(Transaction,TransactionAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
 admin.site.register(AgentTransactionSettlement)
-admin.site.register(UserRefundTransaction)
+admin.site.register(UserRefundTransaction,UserRefundTransactionAdmin)

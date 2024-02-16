@@ -568,7 +568,7 @@ class UserRefundTransaction(AuditFields):
     refund_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.transaction_uid
+        return self.refund_uid
 
     class Meta:
         verbose_name = 'User Transaction'
@@ -697,7 +697,7 @@ class ContactPerson(AuditFields):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     booking = models.ForeignKey(
-        Booking, on_delete=models.CASCADE, related_name='contact_person_booking')
+        Booking, on_delete=models.CASCADE,null=True, blank=True, related_name='contact_person_booking')
     full_name = models.CharField(max_length=256, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     email = models.EmailField(unique=True)

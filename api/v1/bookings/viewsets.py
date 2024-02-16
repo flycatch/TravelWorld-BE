@@ -3,7 +3,7 @@ from api.filters.booking_filters import *
 from api.models import *
 from api.tasks import *
 from api.utils.paginator import CustomPagination
-from api.v1.bookings.serializers import BookingSerializer
+from api.v1.bookings.serializers import BookingSerializer,ContactPersonSerializer,BookingCreateSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -15,39 +15,62 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
+from django.db import transaction
 
 
 @api_view(['POST'])
 def start_payment(request):
-    amount = request.data['amount']
-    package = request.data['package']
 
-    # setup razorpay client this is the client to whome user is paying money that's you
-    client = razorpay.Client(auth=(RAZOR_PUBLIC_KEY,RAZOR_SECRET_KEY))
+    with transaction.atomic():
+        contact_persons_data = request.data.pop('contact_persons', [])
 
-    print(client)
+        booking_amount = request.data['booking_amount']
+        package = request.data['package']
 
-    # create razorpay order
-   
-    payment = client.order.create({"amount": int(amount) * 100, 
-                                   "currency": "INR", 
-                                   "payment_capture": "1"})
+        # setup razorpay client this is the client to whome user is paying money that's you
+        client = razorpay.Client(auth=(RAZOR_PUBLIC_KEY,RAZOR_SECRET_KEY))
 
-    print(payment)
-   
-    order = Booking.objects.create(package_id=package, 
-                                 amount=amount, 
-                                 payment_id=payment['id'])
+        # print(client)
 
-    serializer = BookingSerializer(order)
-
+        # create razorpay order
     
+        payment = client.order.create({"amount": int(booking_amount) * 100, 
+                                    "currency": "INR", 
+                                    "payment_capture": "1"})
 
-    data = {
-        "payment": payment,
-        "order": serializer.data
-    }
-    return Response(data)
+        # print(payment)
+
+        serializer = BookingCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            print("hi1")
+            instance = serializer.save()
+            print(instance)
+        else:
+            print("Serializer errors:", serializer.errors)
+
+
+        print("hi2")
+
+        contact_serializer = ContactPersonSerializer(data=contact_persons_data,many=True)
+        if contact_serializer.is_valid():
+            contact_serializer.save(booking_id=instance.id)
+        else:
+            print("Serializer errors:", contact_serializer.errors)
+    
+        # order = Booking.objects.create(package_id=package, 
+        #                             booking_amount=booking_amount, 
+        #                             payment_id=payment['id'])
+
+        # serializer = BookingSerializer(order)
+
+        
+
+        data = {
+            "payment": payment,
+            "order": serializer.data
+        }
+        return Response(data)
 
 
 

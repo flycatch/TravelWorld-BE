@@ -9,6 +9,8 @@ from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, P
                         PackageImage, PackageCategory, Inclusions, Exclusions,
                         InclusionInformation, ExclusionInformation)
 from api.v1.agent.serializers import BookingAgentSerializer
+from api.v1.general.serializers import *
+
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -262,6 +264,11 @@ class PackageFAQAnswerSerializer(serializers.ModelSerializer):
 
 class BookingPackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)
+    city = CitySerializer(required=False)
+    state = StateSerializer(required=False)
+    country = CountrySerializer(required=False)
+
     class Meta:
         model = Package
-        fields = ["id","package_uid","title","agent"]
+        fields = ["id","package_uid","title","tour_class",
+                  "country","state","city","agent"]

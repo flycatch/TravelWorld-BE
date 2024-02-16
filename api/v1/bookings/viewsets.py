@@ -228,6 +228,56 @@ class AgentBookingDetailsView(APIView):
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class AgentTransactionListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = AgentTransactionSettlementDetailSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    # search_fields = ['customer__first_name'] 
+    # filterset_class = BookingFilter
+    
+    def get_queryset(self):
+        try:
+            queryset = AgentTransactionSettlement.objects.filter(agent_id=self.kwargs['agent_id']).order_by("-id")
+            return queryset
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AgentTransactionDetailsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = AgentTransactionSettlementDetailSerializer
+
+
+    def get_object(self):
+        object_id = self.kwargs.get('object_id')
+        return AgentTransactionSettlement.objects.get(object_id=object_id)
+
+    def get(self, request, *args, **kwargs):
+        try:
+
+            instance = self.get_object()
+            serializer = self.serializer_class(instance)
+
+            return Response({
+                    "status": "success",
+                    "message": "Listed successfully",
+                    "statusCode": status.HTTP_200_OK,
+                    "results": serializer.data,
+                }, status=status.HTTP_200_OK)
+            
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class WelcomeView(APIView):
     

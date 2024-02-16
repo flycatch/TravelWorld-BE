@@ -64,6 +64,11 @@ urlpatterns = [
     path('v1/<int:agent_id>/agent-list-bookings/', AgentBookingListView.as_view(), name='agent-list-bookings'),
     path('v1/<int:agent_id>/agent-booking-details/<str:object_id>/', AgentBookingDetailsView.as_view(), name='agent-booking-details'),
 
+    path('v1/<int:agent_id>/agent-list-transactions/', AgentTransactionListView.as_view(), name='agent-list-transaction'),
+    path('v1/<int:agent_id>/agent-transactions-details/<str:object_id>/', AgentTransactionDetailsView.as_view(), name='agent-transactions-details'),
+
+
+
     path('v1/welcome/', WelcomeView.as_view(), name='index'),
 
 ]

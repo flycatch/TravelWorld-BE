@@ -18,7 +18,7 @@ class AgentAdmin(CustomModelAdmin):
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage_colour")
+    list_display = ("id","agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage_colour")
     list_filter = ("status", "stage")
     search_fields = ("username", "first_name", "last_name", "email", "phone")
     readonly_fields = ("agent_uid",)
@@ -166,7 +166,7 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "title", "tour_class", "state",
+    list_display = ("id","agent", "title", "tour_class", "state",
                     "city", "category",
                     "status", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
@@ -194,7 +194,7 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id","user","package_name","agent","agent_id","booking_status","tour_date", "display_created_on")
+    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status","tour_date", "display_created_on")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","user")
     exclude = ("status",)
@@ -474,7 +474,24 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                  'display_created_on', 'package_name','booking_amount')
         return super().change_view(request, object_id, form_url, extra_context)
+    
+    def save_model(self, request, obj, form, change):
 
+        # Get the original object before saving changes
+        original_obj = self.model.objects.get(pk=obj.pk) if change else None
+        
+        print(original_obj)
+        # Save the changes
+        super().save_model(request, obj, form, change)
+
+        if change and obj.payment_settlement_status in ['SUCCESSFUL'] and obj.payment_settlement_status != original_obj.payment_settlement_status:
+            print("hi2")
+
+            obj.transaction_id = f"EWTRAN-{obj.id}"
+            obj.save()
+
+
+           
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)

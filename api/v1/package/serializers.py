@@ -272,3 +272,10 @@ class BookingPackageSerializer(serializers.ModelSerializer):
         model = Package
         fields = ["id","package_uid","title","tour_class",
                   "country","state","city","agent"]
+        
+
+class PackageMinFieldsSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Package
+        fields = ['id','package_uid','title']

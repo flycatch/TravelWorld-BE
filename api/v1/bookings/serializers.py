@@ -4,6 +4,7 @@ from api.models import *
 from rest_framework import serializers
 from api.v1.package.serializers import BookingPackageSerializer
 from api.v1.user.serializers import UserSerializer
+from api.v1.agent.serializers import BookingAgentSerializer
 
 
 
@@ -30,6 +31,12 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 
+class BookingMinFieldsSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Booking
+        fields = ['id','booking_id']
+
 
 class AgentTransactionSettlementSerializer(serializers.ModelSerializer):
  
@@ -38,3 +45,11 @@ class AgentTransactionSettlementSerializer(serializers.ModelSerializer):
         model = AgentTransactionSettlement
         fields = "__all__"
         
+
+
+class AgentTransactionSettlementDetailSerializer(serializers.ModelSerializer):
+    booking = BookingSerializer(required=False)
+
+    class Meta:
+        model = AgentTransactionSettlement
+        fields = "__all__"

@@ -311,8 +311,8 @@ class Itinerary(BaseModel):
     overview = models.TextField(blank=True, default="")
     itinerary_day = models.ManyToManyField(
         ItineraryDay, related_name='itineraries')
-    inclusions = models.ManyToManyField(Inclusions, related_name='itineraries', blank=True, null=True)
-    exclusions = models.ManyToManyField(Exclusions, related_name='itineraries', blank=True, null=True)
+    inclusions = models.ManyToManyField(Inclusions, related_name='itineraries', blank=True)
+    exclusions = models.ManyToManyField(Exclusions, related_name='itineraries', blank=True)
 
     class Meta:
         verbose_name = 'Itinerary'
@@ -446,7 +446,9 @@ class TourCategory(BaseModel):
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='cancellation_policies')
-    category = models.CharField(max_length=255)
+    from_day = models.IntegerField(null=True, blank=True)
+    to_day = models.IntegerField(null=True, blank=True)
+    # category = models.CharField(max_length=255)
     amount_percent = models.CharField(max_length=255)
 
     class Meta:

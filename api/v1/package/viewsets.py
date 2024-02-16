@@ -112,6 +112,16 @@ class ItineraryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Itinerary saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
 
 class InclusionsViewSet(viewsets.ModelViewSet):
     queryset = Inclusions.objects.all()

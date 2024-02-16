@@ -250,7 +250,7 @@ class BookingAdmin(CustomModelAdmin):
         return False
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -301,6 +301,9 @@ class TransactionAdmin(CustomModelAdmin):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                  'display_created_on', 'package_name')
@@ -320,6 +323,9 @@ class TransactionAdmin(CustomModelAdmin):
             print("hi2")
             if obj.refund_status == 'REFUNDED':
                 Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
+            elif obj.refund_status == 'CANCELLED':
+                Booking.objects.filter(id=obj.booking_id).update(booking_status='FAILED')
+
 
             subject = f"REFUND STATUS"
             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."

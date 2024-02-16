@@ -484,6 +484,7 @@ class Booking(BaseModel):
             ("CANCELLED", "CANCELLED"),
             ("REFUNDED REQUESTED", "REFUNDED REQUESTED"),
             ("REFUNDED", "REFUNDED"),
+            ("FAILED","FAILED")
           
             )
     booking_id = models.CharField(max_length=256, null=True, blank=True)

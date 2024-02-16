@@ -57,7 +57,7 @@ class PackageImageSerializer(serializers.ModelSerializer):
 class ItineraryDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = ItineraryDay
-        exclude = ['status']
+        exclude = ['status', 'created_on', 'updated_on']
 
 
 class ItinerarySerializer(serializers.ModelSerializer):
@@ -65,7 +65,7 @@ class ItinerarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Itinerary
-        exclude = ['status']
+        exclude = ['status', 'created_on', 'updated_on']
 
     def create(self, validated_data):
         itinerary_day_data = validated_data.pop('itinerary_day')

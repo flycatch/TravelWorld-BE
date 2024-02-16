@@ -351,3 +351,4 @@ admin.site.register(Booking,BookingAdmin)
 admin.site.register(Transaction,TransactionAdmin)
 
 admin.site.register(PackageCategory)
+admin.site.register(Currency)

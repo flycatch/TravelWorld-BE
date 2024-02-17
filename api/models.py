@@ -344,12 +344,16 @@ class ExclusionInformation(BaseModel):
 class PackageInformations(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='informations_package')
-    inclusiondetails = models.ForeignKey(
-        InclusionInformation, on_delete=models.CASCADE,
-        related_name='informations_inclusion', null=True, blank=True)
-    exclusiondetails = models.ForeignKey(
-        ExclusionInformation, on_delete=models.CASCADE,
-        related_name='informations_exclusion', null=True, blank=True)
+    # inclusiondetails = models.ForeignKey(
+    #     InclusionInformation, on_delete=models.CASCADE,
+    #     related_name='informations_inclusion', null=True, blank=True)
+    inclusiondetails = models.ManyToManyField(
+        InclusionInformation, related_name='packageinformations_inclusion', blank=True)
+    exclusiondetails = models.ManyToManyField(
+        ExclusionInformation, related_name='packageinformations_exclusionclusion', blank=True)
+    # exclusiondetails = models.ForeignKey(
+    #     ExclusionInformation, on_delete=models.CASCADE,
+    #     related_name='informations_exclusion', null=True, blank=True)
     important_message = models.TextField(blank=True, default="",
                                          verbose_name="important Message")
     

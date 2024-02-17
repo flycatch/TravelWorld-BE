@@ -108,7 +108,21 @@ class ExclusionsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name',]
 
 
+class InclusionInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InclusionInformation
+        fields = ['inclusion', 'details',]
+
+
+class ExclusionInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExclusionInformation
+        fields = ['exclusion', 'details',]
+
+
 class PackageInformationsSerializer(serializers.ModelSerializer):
+    inclusiondetails = InclusionInformationSerializer(many=True, required=False)
+    exclusiondetails = ExclusionInformationSerializer(many=True, required=False)
     class Meta:
         model = PackageInformations
         exclude = ['status', 'created_on', 'updated_on',]
@@ -121,12 +135,14 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
             package_informations = PackageInformations.objects.create(**validated_data)
 
             if inclusion_details_data:
-                inclusion_details_obj = InclusionInformation.objects.create(**inclusion_details_data)
-                package_informations.inclusiondetails = inclusion_details_obj
+                for inclusion_data in inclusion_details_data:
+                    inclusion_details_obj = InclusionInformation.objects.create(**inclusion_data)
+                    package_informations.inclusiondetails.add(inclusion_details_obj)
 
             if exclusion_details_data:
-                exclusion_details_obj = ExclusionInformation.objects.create(**exclusion_details_data)
-                package_informations.exclusiondetails = exclusion_details_obj
+                for exclusion_data in exclusion_details_data:
+                    exclusion_details_obj = ExclusionInformation.objects.create(**exclusion_data)
+                    package_informations.exclusiondetails.add(exclusion_details_obj)
 
             package_informations.save()
 
@@ -135,10 +151,10 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
 
         return package_informations
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['packageinformation_id'] = instance.id
-        return data
+    # def to_representation(self, instance):
+    #     data = super().to_representation(instance)
+    #     data['packageinformation_id'] = instance.id
+    #     return data
 
 
 class PricingSerializer(serializers.ModelSerializer):

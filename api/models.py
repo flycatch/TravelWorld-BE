@@ -78,7 +78,7 @@ class Country(BaseModel):
 class State(BaseModel):
     name = models.CharField(max_length=255)
     country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='states')
+        Country, on_delete=models.CASCADE, related_name='state_country')
     image = models.ImageField(upload_to='state_images/', null=True, default=None, blank=True)
 
     class Meta:
@@ -104,7 +104,7 @@ class State(BaseModel):
 class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='cities')
+        State, on_delete=models.CASCADE, related_name='city_state')
     image = models.ImageField(upload_to='city_images/', null=True, default=None, blank=True)
 
     class Meta:
@@ -165,7 +165,7 @@ class Package(BaseModel):
 
     package_uid = models.CharField(max_length=256, null=True, blank=True)
     agent = models.ForeignKey(
-        Agent, on_delete=models.CASCADE, related_name='packages')
+        Agent, on_delete=models.CASCADE, related_name='package_agent')
     title = models.CharField(max_length=255)
     tour_class = models.CharField(
         max_length=20,
@@ -177,13 +177,13 @@ class Package(BaseModel):
     #     TourType, on_delete=models.CASCADE,
     #     related_name='packages', verbose_name='Tour Type')
     country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='packages')
+        Country, on_delete=models.CASCADE, related_name='package_country')
     state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='packages')
+        State, on_delete=models.CASCADE, related_name='package_state')
     city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='packages')
+        City, on_delete=models.CASCADE, related_name='package_city')
     category = models.ForeignKey(
-        PackageCategory, on_delete=models.CASCADE, related_name='packages')
+        PackageCategory, on_delete=models.CASCADE, related_name='package_category')
     min_members = models.IntegerField()
     max_members = models.IntegerField()
     duration = models.CharField(
@@ -220,7 +220,7 @@ class Package(BaseModel):
 
 class PackageImage(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='packageimages')
+        Package, on_delete=models.CASCADE, related_name='packageimage_package')
     image = models.ImageField(upload_to='package_images/', null=True, default=None, blank=True)
 
     def __str__(self):
@@ -307,12 +307,12 @@ class ItineraryDay(BaseModel):
 
 class Itinerary(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='itineraries')
+        Package, on_delete=models.CASCADE, related_name='itinerary_package')
     overview = models.TextField(blank=True, default="")
     itinerary_day = models.ManyToManyField(
-        ItineraryDay, related_name='itineraries')
-    inclusions = models.ManyToManyField(Inclusions, related_name='itineraries', blank=True)
-    exclusions = models.ManyToManyField(Exclusions, related_name='itineraries', blank=True)
+        ItineraryDay, related_name='itinerary_itinerary_day')
+    inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
+    exclusions = models.ManyToManyField(Exclusions, related_name='itinerary_exclusions', blank=True)
 
     class Meta:
         verbose_name = 'Itinerary'
@@ -322,7 +322,7 @@ class Itinerary(BaseModel):
 class InclusionInformation(BaseModel):
     inclusion = models.ForeignKey(
         Inclusions, on_delete=models.CASCADE, 
-        related_name='inclusion_information_inclusion', null=True, blank=True)
+        related_name='inclusioninformation_inclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 
     class Meta:
@@ -333,7 +333,7 @@ class InclusionInformation(BaseModel):
 class ExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
         Exclusions, on_delete=models.CASCADE, 
-        related_name='exclusion_information_exclusion', null=True, blank=True)
+        related_name='exclusioninformation_exclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 
     class Meta:
@@ -343,14 +343,14 @@ class ExclusionInformation(BaseModel):
 
 class PackageInformations(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='informations_package')
+        Package, on_delete=models.CASCADE, related_name='packageinformations_package')
     # inclusiondetails = models.ForeignKey(
     #     InclusionInformation, on_delete=models.CASCADE,
     #     related_name='informations_inclusion', null=True, blank=True)
     inclusiondetails = models.ManyToManyField(
-        InclusionInformation, related_name='packageinformations_inclusion', blank=True)
+        InclusionInformation, related_name='packageinformations_inclusiondetails', blank=True)
     exclusiondetails = models.ManyToManyField(
-        ExclusionInformation, related_name='packageinformations_exclusionclusion', blank=True)
+        ExclusionInformation, related_name='packageinformations_exclusiondetails', blank=True)
     # exclusiondetails = models.ForeignKey(
     #     ExclusionInformation, on_delete=models.CASCADE,
     #     related_name='informations_exclusion', null=True, blank=True)
@@ -389,11 +389,12 @@ class Pricing(BaseModel):
 
     #field for per-person pricing
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='pricings')
+        Package, on_delete=models.CASCADE, related_name='pricing_package')
     pricing_group = models.CharField(
         max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
     price = models.ForeignKey(
-        Currency, on_delete=models.CASCADE, related_name='pricings')
+        Currency, on_delete=models.CASCADE, related_name='pricing_price',
+        null=True, blank=True)
     adults_rate = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     adults_commission = models.DecimalField(
@@ -426,7 +427,7 @@ class TourCategory(BaseModel):
     ]
 
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='tour_categories')
+        Package, on_delete=models.CASCADE, related_name='tourcategory_package')
     type = models.CharField(
         max_length=255, choices=CATEGORY_TYPE_CHOICE, default='through_out_year')
     start_at = models.DateField(null=True, blank=True)
@@ -449,7 +450,7 @@ class TourCategory(BaseModel):
 
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='cancellation_policies')
+        Package, on_delete=models.CASCADE, related_name='cancellationpolicy_package')
     from_day = models.IntegerField(null=True, blank=True)
     to_day = models.IntegerField(null=True, blank=True)
     # category = models.CharField(max_length=255)
@@ -473,8 +474,8 @@ class FAQQuestion(BaseModel):
 
 class FAQAnswer(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='faqanswer')
-    question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='faqanswer')
+        Package, on_delete=models.CASCADE, related_name='faqanswer_package')
+    question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='faqanswer_question')
     answer = models.TextField()
 
     class Meta:
@@ -497,7 +498,7 @@ class Booking(BaseModel):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='package_bookings')
+        Package, on_delete=models.CASCADE, related_name='package_booking')
     adult = models.IntegerField(null=True, blank=True)
     child = models.IntegerField(null=True, blank=True)
     infant = models.IntegerField(null=True, blank=True)

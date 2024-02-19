@@ -5,7 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
-                        TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
+                        TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
@@ -306,17 +306,32 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
 
 
 
-class PackageFAQQuestionSerializer(serializers.ModelSerializer):
+class PackageFaqCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = FAQQuestion
+        model = PackageFaqCategory
+        fields = ['question', 'answer',]
+
+
+class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
+    category = PackageFaqCategorySerializer(many=True, required=False)
+    class Meta:
+        model = PackageFaqQuestionAnswer
         exclude = ['status', 'created_on', 'updated_on',]
 
+    def create(self, validated_data):
+        category_data = validated_data.pop('category', [])
 
-class PackageFAQAnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FAQAnswer
-        exclude = ['status', 'created_on', 'updated_on',]
+        try:
+            package_faq_data = PackageFaqQuestionAnswer.objects.create(**validated_data)
 
+            for data in category_data:
+                print(data)
+                faq_category_data = PackageFaqCategory.objects.create(**data)
+                package_faq_data.category.add(faq_category_data)
+        except Exception as error:
+            raise serializers.ValidationError(f"Error creating Package FAQ: {error}")
+
+        return package_faq_data
 
 
 class BookingPackageSerializer(serializers.ModelSerializer):

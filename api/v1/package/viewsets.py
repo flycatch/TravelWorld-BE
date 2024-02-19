@@ -10,15 +10,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
 from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
-                        TourCategory, CancellationPolicy, FAQQuestion, FAQAnswer,
+                        TourCategory, CancellationPolicy, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions)
 from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer, 
                                         ItineraryDaySerializer, PackageInformationsSerializer, 
                                         PricingSerializer, PackageTourCategorySerializer,
-                                        PackageFAQQuestionSerializer,PackageImageSerializer,
+                                        PackageFaqQuestionAnswerSerializer,PackageImageSerializer, 
                                         PackageCancellationPolicySerializer, PackageCategorySerializer,
-                                        PackageFAQAnswerSerializer, InclusionsSerializer,
-                                        ExclusionsSerializer)
+                                        InclusionsSerializer, ExclusionsSerializer)
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -173,19 +172,12 @@ class PackageTourCategoryViewSet(viewsets.ModelViewSet):
 class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
     queryset = CancellationPolicy.objects.all()
     serializer_class = PackageCancellationPolicySerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
+    queryset = PackageFaqQuestionAnswer.objects.all()
+    serializer_class = PackageFaqQuestionAnswerSerializer
     # permission_classes = [IsAuthenticated]
     # authentication_classes = [TokenAuthentication]
-
-
-class PackageFAQQuestionViewSet(viewsets.ModelViewSet):
-    queryset = FAQQuestion.objects.all()
-    serializer_class = PackageFAQQuestionSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-
-class PackageFAQAnswerViewSet(viewsets.ModelViewSet):
-    queryset = FAQAnswer.objects.all()
-    serializer_class = PackageFAQAnswerSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]

@@ -119,7 +119,7 @@ class CustomPasswordResetConfirmView(APIView):
                                 "statusCode": status.HTTP_200_OK})
             
             else:
-                return Response({ "data": serializer.errors,
+                return Response({ "results": serializer.errors,
                                     "message": "Something went wrong",
                                     "status": "error",
                                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)

@@ -203,10 +203,10 @@ class BookingAdmin(CustomModelAdmin):
         if obj:  # Detail page
             return (
                 (None, {
-                    'fields': ('booking_id','user', 'package_uid', 'package_name', 
-                               'agent','agent_id','adult', 'child', 'infant', 'booking_amount', 
-                               'order_id', 'payment_id', 'booking_status','tour_date', 
-                               'display_created_on', 'refund_amount',)
+                    'fields': ('user','booking_id', 'package_uid', 'package_name', 
+                               'agent_id','agent','order_id','booking_amount','payment_id',
+                               'booking_status','display_created_on','tour_date', 
+                                'adult', 'child', 'infant', 'refund_amount',)
                 }),
             )
         else:  # Add page

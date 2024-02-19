@@ -1,13 +1,13 @@
+from decimal import Decimal
+
+from api.common.custom_admin import CustomModelAdmin
+from api.models import *
+from api.tasks import *
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import truncatewords
-
-from rest_framework.authtoken.models import TokenProxy
-
-from api.models import *
-from api.common.custom_admin import CustomModelAdmin
 from django.utils.html import format_html
-from api.tasks import *
+from rest_framework.authtoken.models import TokenProxy
 
 
 class AgentAdmin(CustomModelAdmin):
@@ -332,15 +332,15 @@ class BookingAdmin(CustomModelAdmin):
 #             send_email.delay(subject,message,obj.user.email)
 
 
-
 class UserRefundTransactionAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
+           
             return (
                 (None, {
-                    'fields': ('refund_uid','booking_uid', "booking_amount",'user', 'package_name',
+                    'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",'package_name',
                                'package_uid', 'agent', 'agent_uid', 'display_created_on',
-                                'refund_status', 'refund_amount',)
+                                'refund_status', 'refund_amount','cancellation_policies')
                 }),
             )
         else:  # Add page
@@ -356,6 +356,16 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     list_filter = ("refund_status",)
     search_fields = ("refund_status","refund_uid","user")
     exclude = ('status',)
+
+
+    def cancellation_policies(self, obj):
+        if obj.package:
+            policies = CancellationPolicy.objects.filter(package=obj.package)
+            formatted_policies = "\n".join([f"The cancellation policy from {policy.from_day} to {policy.to_day} days : {policy.amount_percent} %" for policy in policies])
+            return formatted_policies
+        return None
+    
+    cancellation_policies.short_description = "Cancellation Policies"
 
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
@@ -380,16 +390,44 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
+    def booking_date(self, obj):
+        return obj.created_on.strftime("%Y-%m-%d") if obj.booking else None
+    booking_date.short_description = "Booking date"
+
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
+    
+    # def calculate_refund_amount(self, obj):
+    #     print("g1")
+    #     if obj.booking and obj.booking.package:
+    #         print("z1")
+    #         booking_date = obj.booking.created_on
+
+    #         print(obj.booking.package.id)
+    #         print(obj.package.id)
+    #         policies = CancellationPolicy.objects.filter(package_id=obj.package.id)
+    #         refund_amount = obj.booking.booking_amount
+
+    #         print(booking_date)
+    #         print(policies)
+    #         for policy in policies:
+    #             if policy.from_day <= (booking_date - obj.created_on).days <= policy.to_day:
+    #                 print("k`1")
+    #                 amount_percent = Decimal(policy.amount_percent)
+    #                 refund_amount = refund_amount - (refund_amount * (amount_percent / Decimal(100)))
+    #                 print(refund_amount)
+    #                 return refund_amount
+                
+    #     return None
+    
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                 'display_created_on', 'package_name','booking_amount')
+        self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid',"booking_date", 'agent',
+                                 'display_created_on', 'package_name','booking_amount','cancellation_policies','user')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -420,8 +458,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         if obj:  # Detail page
             return (
                 (None, {
-                    'fields': ('transaction_id','booking_uid', "booking_amount", 'package_name',
-                               'package_uid','agent_uid',
+                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount", 'package_name',
+                               'package_uid',
                                 'payment_settlement_status', 'payment_settlement_amount','payment_settlement_date')
                 }),
             )
@@ -468,7 +506,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     display_created_on.short_description = "Transaction date"
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
@@ -511,5 +549,7 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
+# admin.site.register(CancellationPolicy)
+
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)
 admin.site.register(UserRefundTransaction,UserRefundTransactionAdmin)

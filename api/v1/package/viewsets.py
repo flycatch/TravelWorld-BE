@@ -179,5 +179,5 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     queryset = PackageFaqQuestionAnswer.objects.all()
     serializer_class = PackageFaqQuestionAnswerSerializer
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]

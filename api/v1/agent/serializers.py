@@ -111,7 +111,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data['new_password'] != data['confirm_password']:
-            raise serializers.ValidationError("Passwords do not match.")
+            raise serializers.ValidationError({"message": "Passwords do not match."})
         return data
 
 class BookingAgentSerializer(serializers.ModelSerializer):

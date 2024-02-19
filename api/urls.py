@@ -9,6 +9,11 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
                                      InclusionsViewSet, ExclusionsViewSet)
+from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
+                                     ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
+                                     ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
+                                     ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
+                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet)
 
 from api.v1.bookings.viewsets import *
 
@@ -25,7 +30,9 @@ router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'agent/register', RegisterViewSet, basename='register')
 router.register(r'agent/login', LoginViewSet, basename='login')
 
-# Package
+"""
+Package urls
+"""
 router.register(r'package/create', PackageViewSet, basename='package')
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
@@ -49,8 +56,36 @@ router.register(r'package/tourcategory', PackageTourCategoryViewSet, basename='t
 
 router.register(r'package/cancellation', PackageCancellationPolicyViewSet,
                 basename='packagecancellation')
-
 router.register(r'package/faq', PackageFaqQuestionAnswerViewSet, basename='package_faq')
+
+"""
+Activity urls
+"""
+router.register(r'activity/create', ActivityViewSet, basename='activity')
+router.register(r'activity/upload', ActivityImageViewSet, basename='activity_image_upload')
+router.register(r'activity/delete-draft', ActivityDeleteDraft, basename='delete_draft_activity'),
+# router.register(r'activity/tourtype/', ActivityTourTypeViewSet, basename='tour_type'),
+router.register(r'activity/category', ActivityCategoryViewSet, basename='activity_category'),
+
+# Itinerary
+router.register(r'activity/itinerary', ActivityItineraryViewSet, basename='activity_itinerary')
+router.register(r'activity/itineraryday', ActivityItineraryDayViewSet, basename='activity_itinerary-day')
+
+#inclusions and exclusions
+router.register(r'activity/inclusions', ActivityInclusionsViewSet, basename='activity_inclusions')
+router.register(r'activity/exclusions', ActivityExclusionsViewSet, basename='activity_exclusions')
+
+# Informations
+router.register(r'activity/informations', ActivityInformationsViewSet, basename='activity_informations')
+
+# pricing
+router.register(r'activity/pricing', ActivityPricingViewSet, basename='activity_pricing')
+router.register(r'activity/tourcategory', ActivityTourCategoryViewSet, basename='activity_tourcategory')
+
+router.register(r'activity/cancellation', ActivityCancellationPolicyViewSet,
+                basename='activitycancellation')
+
+router.register(r'activity/faq', ActivityFaqQuestionAnswerViewSet, basename='activity_faq')
 
 
 # The API URLs are now determined automatically by the router.

@@ -106,7 +106,7 @@ class ActivityDeleteDraft(viewsets.ModelViewSet):
 #     serializer_class = ActivityTourTypeSerializer
 
 
-class ItineraryViewSet(viewsets.ModelViewSet):
+class ActivityItineraryViewSet(viewsets.ModelViewSet):
     queryset = ActivityItinerary.objects.all()
     serializer_class = ActivityItinerarySerializer
     permission_classes = [IsAuthenticated]
@@ -123,17 +123,17 @@ class ItineraryViewSet(viewsets.ModelViewSet):
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
 
-class InclusionsViewSet(viewsets.ModelViewSet):
+class ActivityInclusionsViewSet(viewsets.ModelViewSet):
     queryset = ActivityInclusions.objects.all()
     serializer_class = ActivityInclusionsSerializer
 
 
-class ExclusionsViewSet(viewsets.ModelViewSet):
+class ActivityExclusionsViewSet(viewsets.ModelViewSet):
     queryset = ActivityExclusions.objects.all()
     serializer_class = ActivityExclusionsSerializer
 
 
-class ItineraryDayViewSet(viewsets.ModelViewSet):
+class ActivityItineraryDayViewSet(viewsets.ModelViewSet):
     queryset = ActivityItineraryDay.objects.all()
     serializer_class = ActivityItineraryDaySerializer
     permission_classes = [IsAuthenticated]
@@ -148,7 +148,7 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
 
-class PricingViewSet(viewsets.ModelViewSet):
+class ActivityPricingViewSet(viewsets.ModelViewSet):
     queryset = ActivityPricing.objects.all()
     serializer_class = ActivityPricingSerializer
     permission_classes = [IsAuthenticated]

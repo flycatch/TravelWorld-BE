@@ -128,9 +128,13 @@ class PackageImageInline(admin.TabularInline):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("name", "description", "city", "agent", "status", "stage_colour",)
-    list_filter = ("status", "stage",)
-    search_fields = ("name", "agent__username", "city__name",)
+    list_display = ("id","agent", "title", "tour_class", "state",
+                    "city", "category",
+                    "status", "stage_colour",)
+    list_filter = ("tour_class",  "country", "state", "category",
+                   "status", "stage")
+    list_filter = ("status", "stage")
+    search_fields = ("title", "agent__first_name", "country__name", "state__name")
 
     inlines = [ActivityImageInline]
 
@@ -146,9 +150,6 @@ class ActivityAdmin(CustomModelAdmin):
 
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
-
-    # def has_add_permission(self, request):
-    #     return False
 
 
 class AttractionAdmin(CustomModelAdmin):

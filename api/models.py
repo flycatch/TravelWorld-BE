@@ -184,8 +184,8 @@ class Package(BaseModel):
         City, on_delete=models.CASCADE, related_name='package_city')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='package_category')
-    min_members = models.IntegerField()
-    max_members = models.IntegerField()
+    min_members = models.IntegerField(null=True, blank=True)
+    max_members = models.IntegerField(null=True, blank=True)
     duration = models.CharField(
             max_length=20,
             choices=DURATION_CHOICE,
@@ -197,10 +197,10 @@ class Package(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time')
+    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time')
+    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,
@@ -716,10 +716,12 @@ class Activity(BaseModel):
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='activity_city')
     category = models.ForeignKey(
-        ActivityCategory, on_delete=models.CASCADE, related_name='activity_category')
+        ActivityCategory, on_delete=models.CASCADE,
+        related_name='activity_category',
+        blank=True, null=True)
     
-    min_members = models.IntegerField()
-    max_members = models.IntegerField()
+    min_members = models.IntegerField(null=True, blank=True)
+    max_members = models.IntegerField(null=True, blank=True)
     duration = models.CharField(
             max_length=20,
             choices=DURATION_CHOICE,
@@ -731,10 +733,10 @@ class Activity(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time')
+    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time')
+    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,

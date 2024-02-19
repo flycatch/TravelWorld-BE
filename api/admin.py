@@ -251,7 +251,7 @@ class BookingAdmin(CustomModelAdmin):
         return False
 
     def has_add_permission(self, request, obj=None):
-        return False
+        return True
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -400,7 +400,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     display_created_on.short_description = "Transaction date"
 
     def has_add_permission(self, request, obj=None):
-        return False
+        return True
     
     # def calculate_refund_amount(self, obj):
     #     print("g1")

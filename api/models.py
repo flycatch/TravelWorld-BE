@@ -466,26 +466,21 @@ class CancellationPolicy(BaseModel):
         verbose_name_plural = 'Cancellation Policies'
 
 
-class FAQQuestion(BaseModel):
+class PackageFaqCategory(BaseModel):
     question = models.CharField(max_length=255)
-
-    class Meta:
-        verbose_name = 'FAQQuestion'
-        verbose_name_plural = 'FAQQuestions'
-
-    def __str__(self):
-        return self.question
-
-
-class FAQAnswer(BaseModel):
-    package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='faqanswer_package')
-    question = models.OneToOneField(FAQQuestion, on_delete=models.CASCADE, related_name='faqanswer_question')
     answer = models.TextField()
 
     class Meta:
         verbose_name = 'FAQAnswer'
         verbose_name_plural = 'FAQAnswers'
+
+
+class PackageFaqQuestionAnswer(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packagefaq_package')
+    category = models.ManyToManyField(PackageFaqCategory,
+                                      related_name='package_faq_category',
+                                      blank=True)
 
 
 class Booking(BaseModel):

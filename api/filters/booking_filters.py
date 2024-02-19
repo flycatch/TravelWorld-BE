@@ -1,4 +1,4 @@
-from api.models import (Booking, CancellationPolicy, FAQAnswer, FAQQuestion,
+from api.models import (Booking, CancellationPolicy,
                         PackageInformations, Itinerary, ItineraryDay, Package,
                         PackageImage, Pricing, TourCategory)
 from django_filters import rest_framework as django_filters

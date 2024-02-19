@@ -6,9 +6,9 @@ from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
-                                     PackageCancellationPolicyViewSet, PackageFAQQuestionViewSet,
-                                     PackageFAQAnswerViewSet, PackageImageViewSet, PackageDeleteDraft,
-                                     PackageTourCategoryViewSet, InclusionsViewSet, ExclusionsViewSet)
+                                     PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
+                                     PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
+                                     InclusionsViewSet, ExclusionsViewSet)
 
 from api.v1.bookings.viewsets import *
 
@@ -50,8 +50,7 @@ router.register(r'package/tourcategory', PackageTourCategoryViewSet, basename='t
 router.register(r'package/cancellation', PackageCancellationPolicyViewSet,
                 basename='packagecancellation')
 
-router.register(r'package/faqquestion', PackageFAQQuestionViewSet, basename='faqquestions')
-router.register(r'package/faqanswer', PackageFAQAnswerViewSet, basename='faqanswers')
+router.register(r'package/faq', PackageFaqQuestionAnswerViewSet, basename='package_faq')
 
 
 # The API URLs are now determined automatically by the router.

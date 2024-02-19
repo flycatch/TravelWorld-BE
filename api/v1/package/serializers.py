@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
                         TourCategory,CancellationPolicy, FAQQuestion, FAQAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions,
-                        InclusionInformation, ExclusionInformation)
+                        InclusionInformation, ExclusionInformation, PackageCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 
@@ -256,30 +256,53 @@ class PackageTourCategorySerializer(serializers.ModelSerializer):
         return data
 
 
+class CancellationPolicyCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageCancellationCategory
+        fields = ['from_day', 'to_day', 'amount_percent',]
+
+
 class PackageCancellationPolicySerializer(serializers.ModelSerializer):
+    category = CancellationPolicyCategorySerializer(many=True, required=False)
+
     class Meta:
         model = CancellationPolicy
         exclude = ['status', 'created_on', 'updated_on',]
 
-    def validate(self, data):
-        from_day = data.get('from_day')
-        to_day = data.get('to_day')
-        amount_percent = data.get('amount_percent')
+    def create(self, validated_data):
+        category_data = validated_data.pop('category', [])
 
-        # Add your custom validation logic here
-        if from_day is not None and to_day is not None:
-            if from_day >= to_day:
-                raise ValidationError("The 'from_day' must be less than 'to_day'.")
+        try:
+            cancellation_policy = CancellationPolicy.objects.create(**validated_data)
 
-        if amount_percent is not None:
-            try:
-                amount_percent = float(amount_percent)
-                if amount_percent < 0 or amount_percent > 100:
-                    raise ValidationError("The 'amount percentage' must be between 0 and 100.")
-            except ValueError:
-                raise ValidationError("Invalid value for 'amount percentage'. Must be a number.")
+            for data in category_data:
+                print(data)
+                cancellation_category_data = PackageCancellationCategory.objects.create(**data)
+                cancellation_policy.category.add(cancellation_category_data)
+        except Exception as error:
+            raise serializers.ValidationError(f"Error creating Cancellation Policy: {error}")
 
-        return data
+        return cancellation_policy
+
+    # def validate(self, data):
+    #     from_day = data.get('from_day')
+    #     to_day = data.get('to_day')
+    #     amount_percent = data.get('amount_percent')
+
+    #     # Add your custom validation logic here
+    #     if from_day is not None and to_day is not None:
+    #         if from_day >= to_day:
+    #             raise ValidationError("The 'from_day' must be less than 'to_day'.")
+
+    #     if amount_percent is not None:
+    #         try:
+    #             amount_percent = float(amount_percent)
+    #             if amount_percent < 0 or amount_percent > 100:
+    #                 raise ValidationError("The 'amount percentage' must be between 0 and 100.")
+    #         except ValueError:
+    #             raise ValidationError("Invalid value for 'amount percentage'. Must be a number.")
+
+    #     return data
 
 
 

@@ -1,11 +1,17 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from api.models import Agent
+from api.tasks import *
+from api.v1.agent.serializers import (AgentLoginSerializer, AgentSerializer,
+                                      PasswordResetConfirmSerializer)
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-
-from api.models import Agent
-from api.v1.agent.serializers import AgentSerializer, AgentLoginSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 class AgentViewSet(viewsets.ModelViewSet):
@@ -34,3 +40,92 @@ class LoginViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         response_data = serializer.save()
         return Response(response_data, status=status.HTTP_200_OK)
+    
+
+class ForgotPassword(APIView):
+    def post(self, request):
+        
+        try:
+            email = request.data.get('email')
+            if not email:
+                return Response({'message': 'Please provide an email address',
+                                 "status": "error",
+                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                user = Agent.objects.get(email=email)
+            except Agent.DoesNotExist:
+                return Response({'message': 'User with that email address does not exist',
+                                 "status": "error",
+                                "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+            
+            token = default_token_generator.make_token(user)
+            uidb64 = urlsafe_base64_encode(str(user.id).encode())
+            reset_url = f"{DEFAULT_BASE_URL}/reset-password?uidb64={uidb64}&token={token}"
+
+            send_mail(
+                'Reset your password',
+                f'Please click the following link to reset your password: {reset_url}',
+                EMAIL_HOST_USER,
+                [email],
+                fail_silently=False
+                
+            )
+            return Response({'message': 'Password reset email and verification code has been sent.',
+                              "status": "success",
+                            "statusCode": status.HTTP_200_OK})
+    
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class CustomPasswordResetConfirmView(APIView):
+    serializer_class = PasswordResetConfirmSerializer
+
+    def post(self, request):
+        try:
+
+            uidb64 = request.GET.get('uidb64')
+            token = request.GET.get('token')
+
+            serializer = self.serializer_class(data=request.data)
+
+            if serializer.is_valid():
+
+                uidb64_bytes = force_bytes(uidb64)
+                uid = urlsafe_base64_decode(uidb64).decode()
+            
+                try:
+                    user = Agent.objects.get(pk=uid)
+
+                except Agent.DoesNotExist:
+                    return Response({'message': 'User with that email address does not exist',
+                                    "status": "error",
+                                    "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                
+                if not default_token_generator.check_token(user, token):
+                    return Response({'message': 'Invalid password reset link',
+                                     "status": "error",
+                                    "statusCode": status.HTTP_400_BAD_REQUEST}, status=400)
+
+                # Set the user's password to the new password and save
+                user.password=make_password(serializer.validated_data['new_password'])
+                user.save()
+                return Response({'message': 'Password reset successfully',
+                                 "status": "success",
+                                "statusCode": status.HTTP_200_OK})
+            
+            else:
+                return Response({ "data": serializer.errors,
+                                    "message": "Something went wrong",
+                                    "status": "error",
+                                    "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

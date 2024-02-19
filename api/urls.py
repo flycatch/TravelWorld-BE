@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet
-from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet
+from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
@@ -65,6 +65,8 @@ urlpatterns = [
 
     path('v1/<int:agent_id>/agent-list-transactions/', AgentTransactionListView.as_view(), name='agent-list-transaction'),
     path('v1/<int:agent_id>/agent-transactions-details/<str:object_id>/', AgentTransactionDetailsView.as_view(), name='agent-transactions-details'),
+    path('v1/forgot-password-link/', ForgotPassword.as_view(), name='forgot-password'),
+    path('v1/reset-password/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
 
 

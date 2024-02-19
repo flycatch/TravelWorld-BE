@@ -9,6 +9,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 from api.models import Agent
+from django.core.validators import FileExtensionValidator, RegexValidator
 
 
 class AgentSerializer(serializers.ModelSerializer):
@@ -100,7 +101,18 @@ class AgentLoginSerializer(serializers.Serializer):
             'message': 'Login successful',
             'token': token.key
         }
-    
+
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    new_password = serializers.CharField(write_only=True, style={'input_type': 'password'}, validators=[RegexValidator(regex=(
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})"), message="Password must have minimum 8 characters, alphanumeric with at least one uppercase, one lowercase and one special character.", code='invalid_password')])
+    confirm_password = serializers.CharField(max_length=128)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
 
 class BookingAgentSerializer(serializers.ModelSerializer):
 

@@ -253,3 +253,5 @@ accept_content = ['application/json']
 task_serializer = 'json'
 result_serializer= 'json'
 broker_connection_retry_on_startup = True
+
+DEFAULT_BASE_URL = config('DEFAULT_BASE_URL',default='')

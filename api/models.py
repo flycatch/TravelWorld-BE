@@ -615,53 +615,6 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
-class Activity(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
-    activity_uid = models.CharField(max_length=256, null=True, blank=True)
-    agent = models.ForeignKey(
-        Agent, on_delete=models.CASCADE, related_name='activities')
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, default="")
-
-    country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='activities')
-    state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='activities')
-    city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='activities')
-
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
-
-    class Meta:
-        verbose_name = 'Activity'
-        verbose_name_plural = 'Activities'
-
-    def __str__(self):
-        return self.name
-
-    def clean(self):
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError(
-                {'name': _('Activity name should contain only alphabetic characters.')})
-
-
-class ActivityImage(models.Model):
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='activityimages')
-    image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)
-
-    def __str__(self):
-        return f"Image for {self.activity.name}"
 
 
 class Attraction(BaseModel):
@@ -716,66 +669,330 @@ class ContactPerson(AuditFields):
 
 
 
+"""
+ACTIVITY MODELS
+"""
 
-# class HotelDetails(BaseModel):
-#     # package = models.ForeignKey(
-#     #     Package, on_delete=models.CASCADE, related_name='hoteldetails')
-#     name = models.CharField(max_length=255, unique=True)
-#     details = models.TextField(blank=True, default="")
-#     location_details = models.TextField(blank=True, default="")
+class ActivityCategory(BaseModel):
+    name = models.CharField(max_length=255)
 
-#     class Meta:
-#         verbose_name = 'Hotel Details'
-#         verbose_name_plural = 'Hotel Details'
+    class Meta:
+        verbose_name = 'Activity Category'
+        verbose_name_plural = 'Activity Category'
 
-#     def __str__(self):
-#         return self.name
-
-
-# class Guide(BaseModel):
-#     language = models.CharField(max_length=255, unique=True)
-
-#     class Meta:
-#         verbose_name = 'Guide'
-#         verbose_name_plural = 'Guide'
+    def __str__(self):
+        return self.name
 
 
-# class InformationActivities(BaseModel):
-#     name = models.CharField(max_length=255, unique=True)
+class Activity(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+    TOUR_CLASS_CHOICE = [
+        ('private', _('Private')),
+        ('conducting', _('Conducting'))
+    ]
+    DURATION_CHOICE = [
+        ('day', _('Day Night')),
+        ('hour', _('Hours'))
+    ]
 
-#     class Meta:
-#         verbose_name = 'Information Activities'
-#         verbose_name_plural = 'Information Activities'
+    activity_uid = models.CharField(max_length=256, null=True, blank=True)
+    agent = models.ForeignKey(
+        Agent, on_delete=models.CASCADE, related_name='activity_agent')
+    title = models.CharField(max_length=255)
+    tour_class = models.CharField(
+        max_length=20,
+        choices=TOUR_CLASS_CHOICE,
+        default='private',
+        verbose_name='Tour Class'
+    )
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, related_name='activity_country')
+    state = models.ForeignKey(
+        State, on_delete=models.CASCADE, related_name='activity_state')
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name='activity_city')
+    category = models.ForeignKey(
+        ActivityCategory, on_delete=models.CASCADE, related_name='activity_category')
+    
+    min_members = models.IntegerField()
+    max_members = models.IntegerField()
+    duration = models.CharField(
+            max_length=20,
+            choices=DURATION_CHOICE,
+            default='day',
+            verbose_name='Duration'
+        )
+    duration_day = models.IntegerField(verbose_name='Duration Days', null=True, blank=True)
+    duration_night = models.IntegerField(verbose_name='Duration Nights', null=True, blank=True)
+    duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
+    pickup_point = models.CharField(max_length=255, blank=True, null=True,
+                                    verbose_name='Pickup Point')
+    pickup_time = models.DateTimeField(verbose_name='Pickup Time')
+    drop_point = models.CharField(max_length=255, blank=True, null=True,
+                                  verbose_name='Drop Point')
+    drop_time = models.DateTimeField(verbose_name='Drop Time')
 
-#     def __str__(self):
-#         return self.name
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
+    is_submitted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Activity'
+        verbose_name_plural = 'Activity'
+
+    def __str__(self):
+        return self.activity_uid if self.activity_uid else self.title
 
 
-# class ThingsToCarry(BaseModel):
-#     name = models.CharField(max_length=255, unique=True)
+class ActivityImage(models.Model):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
+    image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)
 
-#     def __str__(self):
-#         return self.name
-
-#     class Meta:
-#         verbose_name = 'Things To Carry'
-#         verbose_name_plural = 'Things To Carry'
+    def __str__(self):
+        return f"Image for {self.activity.name}"
 
 
-# class PackageActivity(BaseModel):
-#     package = models.ForeignKey(
-#         Package, on_delete=models.CASCADE, related_name='packageactivity')
-#     name = models.CharField(max_length=255)
+class ActivityInclusions(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
 
-#     class Meta:
-#         verbose_name = 'Package Activity'
-#         verbose_name_plural = 'Package Activities'
+    name = models.CharField(max_length=255, unique=True)
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
 
-#     def __str__(self):
-#         return self.name
+    class Meta:
+        verbose_name = 'Activity Inclusions'
+        verbose_name_plural = 'Activity Inclusions'
 
-#     def clean(self):
-#         # Check if the name contains only alphabetic characters
-#         if not self.name.replace(' ', '').isalpha():
-#             raise ValidationError(
-#                 {'name': _('Activity name should contain only alphabetic characters.')})
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        # Check for uniqueness of country name (case-insensitive)
+        inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+        if inclusion.exists():
+            raise ValidationError({'name': f'{self.name} already exists.'})
+
+        # Check if the name contains only alphabetic characters
+        if not self.name.replace(' ', '').isalpha():
+            raise ValidationError(
+                {'name': _('Inclusions name should contain only alphabetic characters.')})
+
+
+class ActivityExclusions(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+    name = models.CharField(max_length=255, unique=True)
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
+
+    class Meta:
+        verbose_name = 'Activity Exclusions'
+        verbose_name_plural = 'Activity Exclusions'
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        # Check for uniqueness of country name (case-insensitive)
+        exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+        if exclusion.exists():
+            raise ValidationError({'name': f'{self.name} already exists.'})
+
+        # Check if the name contains only alphabetic characters
+        if not self.name.replace(' ', '').isalpha():
+            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
+
+
+class ActivityItineraryDay(BaseModel):
+    day = models.CharField(max_length=255, default="")
+    place = models.CharField(max_length=255, default="", blank=True, null=True)
+    description = models.TextField(default="", blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Itinerary Day'
+        verbose_name_plural = 'Itinerary Day'
+
+
+class ActivityItinerary(BaseModel):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activity_itinerary_activity')
+    overview = models.TextField(blank=True, default="")
+    itinerary_day = models.ManyToManyField(
+        ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
+    inclusions = models.ManyToManyField(ActivityInclusions, related_name='activity_itinerary_inclusions', blank=True)
+    exclusions = models.ManyToManyField(ActivityExclusions, related_name='activity_itinerary_exclusions', blank=True)
+
+    class Meta:
+        verbose_name = 'Activity Itinerary'
+        verbose_name_plural = 'Activity Itinerary'
+
+
+class ActivityInclusionInformation(BaseModel):
+    inclusion = models.ForeignKey(
+        Inclusions, on_delete=models.CASCADE, 
+        related_name='activity_inclusioninformation_inclusion', null=True, blank=True)
+    details = models.TextField(blank=True, null=True, default="")
+
+    class Meta:
+        verbose_name = 'Activity Inclusion Information'
+        verbose_name_plural = 'Activity Inclusion Information'
+
+
+class ActivityExclusionInformation(BaseModel):
+    exclusion = models.ForeignKey(
+        Exclusions, on_delete=models.CASCADE, 
+        related_name='activity_exclusioninformation_exclusion', null=True, blank=True)
+    details = models.TextField(blank=True, null=True, default="")
+
+    class Meta:
+        verbose_name = 'Activity Exclusion Information'
+        verbose_name_plural = 'Activity Exclusion Information'
+
+
+class ActivityInformations(BaseModel):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activity_informations_activity')
+    inclusiondetails = models.ManyToManyField(
+        ActivityInclusionInformation, related_name='activity_informations_inclusiondetails', blank=True)
+    exclusiondetails = models.ManyToManyField(
+        ActivityExclusionInformation, related_name='pactivity_informations_exclusiondetails', blank=True)
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
+    
+    class Meta:
+        verbose_name = 'Activity Information'
+        verbose_name_plural = 'Activity Informations'
+
+
+class ActivityPricing(BaseModel):
+    PRICING_GROUP_CHOICE = [
+        ('per_person', 'Per Person'),
+        ('per_group', 'Per Group'),
+    ]
+
+    #field for group pricing
+    group_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    group_commission = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    group_agent_amount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+
+    #field for per-person pricing
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activity_pricing_activity')
+    pricing_group = models.CharField(
+        max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
+    price = models.ForeignKey(
+        Currency, on_delete=models.CASCADE, related_name='activity_pricing_price',
+        null=True, blank=True)
+    adults_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    adults_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    adults_agent_amount = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_agent_amount = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_commission = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_agent_amount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Activity Pricing'
+        verbose_name_plural = 'Activity Pricing'
+
+
+class ActivityTourCategory(BaseModel):
+    CATEGORY_TYPE_CHOICE = [
+        ("through_out_year", "Through Out Year"),
+        ("seasonal", "Seasonal"),
+        ("fixed_departure", "Fixed Departure")
+    ]
+
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activity_tourcategory_activity')
+    type = models.CharField(
+        max_length=255, choices=CATEGORY_TYPE_CHOICE, default='through_out_year')
+    start_at = models.DateField(null=True, blank=True)
+    end_at = models.DateField(null=True, blank=True)
+    selected_week_days = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Activity Tour Category'
+        verbose_name_plural = 'Activity Tour Categories'
+
+    def is_through_out_year(self):
+        return self.category_type == 'through_out_year'
+
+    def is_seasonal(self):
+        return self.category_type == 'seasonal'
+
+    def is_fixed_departure(self):
+        return self.category_type == 'fixed_departure'
+    
+
+class ActivityCancellationCategory(BaseModel):
+    from_day = models.IntegerField(null=True, blank=True)
+    to_day = models.IntegerField(null=True, blank=True)
+    amount_percent = models.CharField(max_length=255)
+
+
+class ActivityCancellationPolicy(BaseModel):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='cancellationpolicy_activity')
+    category = models.ManyToManyField(ActivityCancellationCategory,
+                                      related_name='activity_cancellationpolicy_category',
+                                      blank=True)
+
+    class Meta:
+        verbose_name = 'Activity Cancellation Policy'
+        verbose_name_plural = 'Activity Cancellation Policies'
+
+
+class ActivityFaqCategory(BaseModel):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+
+    class Meta:
+        verbose_name = 'Activity FAQAnswer'
+        verbose_name_plural = 'Activity FAQAnswers'
+
+
+class ActivityFaqQuestionAnswer(BaseModel):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='activityfaq_activity')
+    category = models.ManyToManyField(ActivityFaqCategory,
+                                      related_name='activity_faq_category',
+                                      blank=True)

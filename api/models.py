@@ -448,13 +448,18 @@ class TourCategory(BaseModel):
         return self.category_type == 'fixed_departure'
     
 
+class PackageCancellationCategory(BaseModel):
+    from_day = models.IntegerField(null=True, blank=True)
+    to_day = models.IntegerField(null=True, blank=True)
+    amount_percent = models.CharField(max_length=255)
+
+
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='cancellationpolicy_package')
-    from_day = models.IntegerField(null=True, blank=True)
-    to_day = models.IntegerField(null=True, blank=True)
-    # category = models.CharField(max_length=255)
-    amount_percent = models.CharField(max_length=255)
+    category = models.ManyToManyField(PackageCancellationCategory,
+                                      related_name='cancellationpolicy_category',
+                                      blank=True)
 
     class Meta:
         verbose_name = 'Cancellation Policy'

@@ -173,8 +173,8 @@ class PackageTourCategoryViewSet(viewsets.ModelViewSet):
 class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
     queryset = CancellationPolicy.objects.all()
     serializer_class = PackageCancellationPolicySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
 class PackageFAQQuestionViewSet(viewsets.ModelViewSet):

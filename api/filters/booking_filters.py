@@ -1,6 +1,4 @@
-from api.models import (Booking, CancellationPolicy,
-                        PackageInformations, Itinerary, ItineraryDay, Package,
-                        PackageImage, Pricing, TourCategory)
+from api.models import (Booking, AgentTransactionSettlement)
 from django_filters import rest_framework as django_filters
 
 
@@ -11,3 +9,11 @@ class BookingFilter(django_filters.FilterSet):
     class Meta:
         model = Booking
         fields = ['booking_status', 'tour_date']
+
+
+class AgentTransactionSettlementFilter(django_filters.FilterSet):
+    payment_settlement_status = django_filters.CharFilter(field_name='payment_settlement_status', lookup_expr='exact')
+
+    class Meta:
+        model = AgentTransactionSettlement
+        fields = ['payment_settlement_status']

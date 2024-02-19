@@ -235,7 +235,7 @@ class AgentTransactionListView(ListAPIView):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     # search_fields = ['customer__first_name'] 
-    # filterset_class = BookingFilter
+    filterset_class = AgentTransactionSettlementFilter
     
     def get_queryset(self):
         try:

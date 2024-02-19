@@ -413,6 +413,10 @@ class Pricing(BaseModel):
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     infant_agent_amount = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    discount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    total = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Pricing'

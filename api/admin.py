@@ -507,7 +507,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     display_created_on.short_description = "Transaction date"
 
     def has_add_permission(self, request, obj=None):
-        return False
+        return True
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',

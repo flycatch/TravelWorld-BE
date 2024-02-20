@@ -546,6 +546,9 @@ class UserReviewAdmin(CustomModelAdmin):
         return False
 
 
+class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
+    list_display = ("id","percentage")
+
            
 # Unregister model
 admin.site.unregister(Group)
@@ -568,6 +571,9 @@ admin.site.register(PackageCategory)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(CancellationPolicy)
+
+admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
+
 
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)
 admin.site.register(UserRefundTransaction,UserRefundTransactionAdmin)

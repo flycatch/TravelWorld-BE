@@ -176,7 +176,7 @@ class ActivityAdmin(CustomModelAdmin):
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__first_name", "country__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name", "state__name")
 
     inlines = [ActivityImageInline]
 
@@ -236,7 +236,7 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__first_name", "country__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name", "state__name")
 
     inlines = [PackageImageInline]
 

@@ -21,7 +21,7 @@ from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer,
 
 
 class PackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.all()
+    queryset = Package.objects.filter(status='active', stage='approved', is_submitted=True)
     serializer_class = PackageSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]

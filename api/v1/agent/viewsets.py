@@ -63,14 +63,11 @@ class ForgotPassword(APIView):
             uidb64 = urlsafe_base64_encode(str(user.id).encode())
             reset_url = f"{DEFAULT_BASE_URL}/reset-password?uidb64={uidb64}&token={token}"
 
-            send_mail(
-                'Reset your password',
-                f'Please click the following link to reset your password: {reset_url}',
-                EMAIL_HOST_USER,
-                [email],
-                fail_silently=False
-                
-            )
+          
+            send_email.delay('Reset your password',
+                             f'Please click the following link to reset your password: {reset_url}',
+                             email
+                             )
             return Response({'message': 'Password reset email and verification code has been sent.',
                               "status": "success",
                             "statusCode": status.HTTP_200_OK})

@@ -19,7 +19,7 @@ class AgentSerializer(serializers.ModelSerializer):
 
         model = Agent
         fields = [ "id", "first_name", "username",
-                  "last_name", "email", "phone", "password", "profile_image"]
+                  "last_name", "email", "phone", "password", "profile_image","agent_uid"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters

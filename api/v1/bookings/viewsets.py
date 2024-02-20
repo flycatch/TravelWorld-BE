@@ -279,6 +279,30 @@ class AgentTransactionDetailsView(APIView):
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class AdvanceAmountPercentageSettingListView(APIView):
+    """
+      Returns the advance-amount-percentage-list 
+    
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+   
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = AdvanceAmountPercentageSetting.objects.values('id','percentage')
+            return Response({"results":queryset,
+                             "message": "Listed sucessfully",
+                            "status": "success",
+                            "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class WelcomeView(APIView):
     
 

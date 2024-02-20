@@ -123,7 +123,8 @@ urlpatterns = [
              'delete': 'destroy'
          }), name='user-review-detail'),
 
-
+    
+    path('v1/advance-amount-percentage-list/', AdvanceAmountPercentageSettingListView.as_view(), name='advance-amount-percentage-list'),
 
     path('v1/welcome/', WelcomeView.as_view(), name='index'),
 

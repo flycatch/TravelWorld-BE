@@ -115,3 +115,6 @@ class UserReviewListView(ListAPIView):
                              "status": "error",
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+

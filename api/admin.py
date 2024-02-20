@@ -53,8 +53,8 @@ class UserAdmin(CustomModelAdmin):
     list_filter = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
 
 class CountryAdmin(CustomModelAdmin):
@@ -62,6 +62,8 @@ class CountryAdmin(CustomModelAdmin):
     search_fields = ("name",)
     exclude = ("status",)
 
+    def has_add_permission(self, request):
+        return False
 
 class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country", "image")
@@ -153,7 +155,7 @@ class ActivityAdmin(CustomModelAdmin):
 
 
 class AttractionAdmin(CustomModelAdmin):
-    list_display = ("title", "truncated_overview", "status",)
+    list_display = ("title", "status",)
     list_filter = ("status",)
     search_fields = ("title",)
 

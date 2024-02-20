@@ -771,7 +771,7 @@ class Activity(BaseModel):
         return self.activity_uid if self.activity_uid else self.title
 
 
-class ActivityImage(models.Model):
+class ActivityImage(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
     image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)

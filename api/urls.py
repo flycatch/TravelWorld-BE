@@ -16,7 +16,7 @@ from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInclusionsViewSet, ActivityExclusionsViewSet)
 
 from api.v1.bookings.viewsets import *
-
+from api.v1.reviews.viewsets import *
 
 router = DefaultRouter()
 
@@ -91,17 +91,30 @@ router.register(r'activity/faq', ActivityFaqQuestionAnswerViewSet, basename='act
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('v1/', include(router.urls)),
+    
+    # User booking
     path('v1/pay/', start_payment, name="payment"),
     path('v1/<int:user_id>/customer-list-bookings/', CustomerBookingListView.as_view(), name='customer-list-bookings'),
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 
+    # Agent View booking
     path('v1/<int:agent_id>/agent-list-bookings/', AgentBookingListView.as_view(), name='agent-list-bookings'),
     path('v1/<int:agent_id>/agent-booking-details/<str:object_id>/', AgentBookingDetailsView.as_view(), name='agent-booking-details'),
 
+    # Agent View transaction
     path('v1/<int:agent_id>/agent-list-transactions/', AgentTransactionListView.as_view(), name='agent-list-transaction'),
     path('v1/<int:agent_id>/agent-transactions-details/<str:object_id>/', AgentTransactionDetailsView.as_view(), name='agent-transactions-details'),
+
+    #Forgot password
     path('v1/forgot-password-link/', ForgotPassword.as_view(), name='forgot-password'),
     path('v1/reset-password/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+
+
+    #User Review
+    path('<int:user_id>/user-review/', UserReviewView.as_view
+         ({
+             'post': 'create'
+         }), name='user-review'),
 
 
 

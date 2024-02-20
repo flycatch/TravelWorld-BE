@@ -649,7 +649,9 @@ class UserReview(BaseModel):
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews')
     rating = models.IntegerField()
-    review = models.TextField(blank=True, default="")
+    review = models.TextField(blank=True,null=True )
+    is_active = models.BooleanField(default=1)
+    is_deleted = models.BooleanField(default=0)
 
     class Meta:
         verbose_name = 'User Review'

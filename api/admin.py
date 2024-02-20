@@ -530,6 +530,21 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             obj.save()
 
 
+class UserReviewAdmin(CustomModelAdmin):
+    list_display = ("id","user", "package", "rating", "review", "is_active", "is_deleted")
+    search_fields = ( "package__name", "user__username")
+    exclude = ('status',)
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
            
 # Unregister model
 admin.site.unregister(Group)
@@ -550,7 +565,7 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
-admin.site.register(UserReview)
+admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(CancellationPolicy)
 
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)

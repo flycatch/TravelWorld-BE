@@ -647,9 +647,9 @@ class UserReview(BaseModel):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='reviews')
-    created_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews')
+        Package, on_delete=models.CASCADE, null=True, blank=True,related_name='package_review')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review')
     rating = models.IntegerField()
     review = models.TextField(blank=True,null=True )
     is_active = models.BooleanField(default=1)

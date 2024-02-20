@@ -20,7 +20,7 @@ class UserReviewSerializer(serializers.ModelSerializer):
 
 
 class UserReviewDetailSerializer(serializers.ModelSerializer):
-    created_by = UserSerializer(required=False)
+    user = UserSerializer(required=False)
     package = PackageMinFieldsSerializer(required=False)
 
 

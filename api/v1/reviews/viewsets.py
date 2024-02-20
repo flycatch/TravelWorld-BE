@@ -42,7 +42,7 @@ class UserReviewView(viewsets.GenericViewSet):
             Response: The HTTP response containing the serialized user review data.
 
         """
-        request.data['created_by'] = kwargs['user_id']
+        request.data['user'] = kwargs['user_id']
         try:
             with transaction.atomic():
                 serializer = self.get_serializer(data=request.data)

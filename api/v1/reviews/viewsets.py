@@ -32,36 +32,37 @@ class UserReviewView(viewsets.GenericViewSet):
    
     def create(self, request, *args, **kwargs):
         """
-        Handle POST request to create a new freight charges.
+        Handle POST request to create a new user review.
 
         Args:
             request (Request): The HTTP POST request object.
             **kwargs: Additional keyword arguments, including 'created_by'.
 
         Returns:
-            Response: The HTTP response containing the serialized freight charges data.
+            Response: The HTTP response containing the serialized user review data.
 
         """
         request.data['created_by'] = kwargs['user_id']
         try:
             with transaction.atomic():
-              
-               
-
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
 
-                freight_charge_obj = serializer.save()
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return Response({ "results": serializer.errors,
+                                    "message": "Something went wrong",
+                                    "status": "error",
+                                    "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
-                
-
-                
-                message = 'created successfully'
-                return Response({"message": message, 'data': serializer.data}, status=status.HTTP_201_CREATED)
+                message = 'Created successfully'
+                return Response({"message": message,
+                                  "status": "success",
+                                "statusCode": status.HTTP_201_CREATED,
+                                  'results': serializer.data}, status=status.HTTP_201_CREATED)
             
-        except serializers.ValidationError as error:
-            response_data = error.detail
-            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        
         
         except Exception as error_message:
             response_data = {"message": f"Something went wrong: {error_message}",

@@ -550,6 +550,7 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
+admin.site.register(UserReview)
 # admin.site.register(CancellationPolicy)
 
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)

@@ -111,7 +111,7 @@ urlpatterns = [
 
 
     #User Review
-    path('<int:user_id>/user-review/', UserReviewView.as_view
+    path('v1/<int:user_id>/user-review/', UserReviewView.as_view
          ({
              'post': 'create'
          }), name='user-review'),

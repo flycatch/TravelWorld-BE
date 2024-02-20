@@ -184,7 +184,7 @@ class AgentBookingListView(ListAPIView):
     serializer_class = BookingSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['user__first_name','user__username','booking_id'] 
+    search_fields = ['user__first_name','user__username','booking_id','package__title'] 
     filterset_class = BookingFilter
     
     def get_queryset(self):
@@ -234,7 +234,7 @@ class AgentTransactionListView(ListAPIView):
     serializer_class = AgentTransactionSettlementDetailSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['agent__agent_uid','agent__username','transaction_id'] 
+    search_fields = ['package__title','booking__user__username','transaction_id'] 
     filterset_class = AgentTransactionSettlementFilter
     
     def get_queryset(self):

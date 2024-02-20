@@ -498,6 +498,12 @@ class Booking(BaseModel):
             ("FAILED","FAILED")
           
             )
+    
+    BOOKING_TYPE =(
+            ("PARTIAL PAYMENT", "PARTIAL PAYMENT"),
+            ("FULL AMOUNT PAYMENT", "FULL AMOUNT PAYMENT"), 
+            )
+    
     booking_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
@@ -516,6 +522,8 @@ class Booking(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
     cancellation_description = models.TextField(blank=True, null=True)
+    booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
+
 
     def __str__(self):
         return self.booking_id
@@ -615,6 +623,12 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
+class AdvanceAmountPercentageSetting(AuditFields):
+    percentage = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Advance Amount Percentage Setting"
+        verbose_name_plural = "Advance Amount Percentage Settings"
 
 
 class Attraction(BaseModel):
@@ -658,7 +672,6 @@ class UserReview(BaseModel):
     class Meta:
         verbose_name = 'User Review'
         verbose_name_plural = 'User Reviews'
-
 
 
 class ContactPerson(AuditFields):

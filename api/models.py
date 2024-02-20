@@ -644,6 +644,8 @@ class AttractionImage(models.Model):
 
 
 class UserReview(BaseModel):
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='reviews')
     created_by = models.ForeignKey(

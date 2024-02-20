@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
+from django.shortcuts import get_object_or_404
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -58,8 +59,8 @@ class UserReviewView(viewsets.GenericViewSet):
                 message = 'Created successfully'
                 return Response({"message": message,
                                   "status": "success",
-                                "statusCode": status.HTTP_201_CREATED,
-                                  'results': serializer.data}, status=status.HTTP_201_CREATED)
+                                "statusCode": status.HTTP_201_CREATED
+                                  }, status=status.HTTP_201_CREATED)
             
         
         
@@ -68,6 +69,32 @@ class UserReviewView(viewsets.GenericViewSet):
                              "status": "error",
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Handle DELETE request to mark a sales lead as deleted.
+
+        Args:
+            **kwargs: Additional keyword arguments, including 'object_id'.
+
+        Returns:
+            Response: The HTTP response indicating successful deletion.
+
+        """
+        queryset = self.get_queryset()
+        object_id = self.kwargs.get('object_id')
+        
+        instance = get_object_or_404(queryset, object_id=object_id)
+
+        queryset.filter(object_id=object_id).update(
+            is_deleted=True,
+            is_active=False
+        )
+        message = 'Deleted successfully'
+        return Response({"message" : message,
+                          "status": "success",
+                        "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
         
 
 

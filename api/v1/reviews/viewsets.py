@@ -4,6 +4,7 @@ from api.models import *
 from api.tasks import *
 from api.utils.paginator import CustomPagination
 from api.v1.reviews.serializers import *
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -15,8 +16,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
-from django.db import transaction
-
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -63,6 +62,26 @@ class UserReviewView(viewsets.GenericViewSet):
                                   'results': serializer.data}, status=status.HTTP_201_CREATED)
             
         
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
+class UserReviewListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = UserReviewDetailSerializer
+    pagination_class = CustomPagination
+
+    
+    def get_queryset(self):
+        try:
+            queryset =  UserReview.objects.filter(created_by=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
+            return queryset
         
         except Exception as error_message:
             response_data = {"message": f"Something went wrong: {error_message}",

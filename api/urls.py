@@ -116,6 +116,7 @@ urlpatterns = [
              'post': 'create'
          }), name='user-review'),
 
+    path('v1/<int:user_id>/user-review-list/', UserReviewListView.as_view(), name='user-review-list'),
 
 
     path('v1/welcome/', WelcomeView.as_view(), name='index'),

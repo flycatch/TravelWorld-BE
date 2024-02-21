@@ -469,7 +469,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'booking', 'payment_settlement_status', 'payment_settlement_amount', 'agent','payment_settlement_date')
+                    'fields': ('package', 'booking', 'payment_settlement_status',
+                                'payment_settlement_amount', 'agent','payment_settlement_date')
                 }),
             )
         
@@ -545,7 +546,7 @@ class UserReviewAdmin(CustomModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):

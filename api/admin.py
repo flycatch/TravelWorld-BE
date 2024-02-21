@@ -87,13 +87,13 @@ class CountryAdmin(CustomModelAdmin):
         return False
 
 class StateAdmin(CustomModelAdmin):
-    list_display = ("name", "country", "image")
+    list_display = ("name", "country", "thumb_image", "cover_img")
     search_fields = ("name", "country__name")
     exclude = ("status",)
 
 
 class CityAdmin(CustomModelAdmin):
-    list_display = ("name", "state", "image")
+    list_display = ("name", "state", "thumb_image", "cover_img")
     search_fields = ("name", "state__name")
     exclude = ("status",)
 

@@ -623,12 +623,27 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
+class TourType(AuditFields):
+    title = models.CharField(max_length=256, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Tour Type"
+        verbose_name_plural = "Tour Type"
+
+    def __str__(self):
+        return self.title
+    
 class AdvanceAmountPercentageSetting(AuditFields):
+    category = models.ForeignKey(
+        TourType, on_delete=models.CASCADE, related_name='tour_catgory',null=True, blank=True)
     percentage = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    
 
     class Meta:
         verbose_name = "Advance Amount Percentage Setting"
         verbose_name_plural = "Advance Amount Percentage Settings"
+
+
 
 
 class Attraction(BaseModel):

@@ -572,6 +572,8 @@ admin.site.register(Booking,BookingAdmin)
 admin.site.register(PackageCategory)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
+admin.site.register(TourType)
+
 # admin.site.register(CancellationPolicy)
 
 admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)

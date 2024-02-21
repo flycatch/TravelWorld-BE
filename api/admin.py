@@ -461,8 +461,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         if obj:  # Detail page
             return (
                 (None, {
-                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount", 'package_name',
-                               'package_uid',
+                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount","booking_type",
+                                'package_name','package_uid',
                                 'payment_settlement_status', 'payment_settlement_amount','payment_settlement_date')
                 }),
             )
@@ -473,10 +473,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("transaction_id", "booking_uid","package_name", "package_uid",
+    list_display = ("transaction_id", "booking_uid","booking_type","package_name", "package_uid",
                      "agent", "agent_uid","payment_settlement_status", "payment_settlement_date",)
     
-    list_filter = ("payment_settlement_status",)
+    list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("payment_settlement_status","transaction_id","user")
     exclude = ('status',)
 

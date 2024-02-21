@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
 from api.common.models import BaseModel, BaseUser, AuditFields
-
+from api.utils.choices import *
 
 class User(BaseUser):
     user_uid = models.CharField(max_length=256, null=True, blank=True)
@@ -499,11 +499,6 @@ class Booking(BaseModel):
           
             )
     
-    BOOKING_TYPE =(
-            ("PARTIAL PAYMENT", "PARTIAL PAYMENT"),
-            ("FULL AMOUNT PAYMENT", "FULL AMOUNT PAYMENT"), 
-            )
-    
     booking_id = models.CharField(max_length=256, null=True, blank=True)
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
@@ -614,6 +609,8 @@ class AgentTransactionSettlement(AuditFields):
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='transaction_settlement_agent',null=True, blank=True)
     payment_settlement_date = models.DateField(null=True, blank=True)
+    booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
+
 
     def __str__(self):
         return self.transaction_id if self.transaction_id else self.booking.booking_id

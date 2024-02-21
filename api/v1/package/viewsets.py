@@ -29,7 +29,7 @@ from rest_framework.response import Response
 
 
 class PackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.filter(status='active', stage='approved', is_submitted=True)
+    # queryset = Package.objects.filter(status='active', stage='approved', is_submitted=True)
     serializer_class = PackageSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]

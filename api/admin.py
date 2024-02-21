@@ -47,17 +47,6 @@ class AgentAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
-    def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
-
     def has_add_permission(self, request):
         return False
 

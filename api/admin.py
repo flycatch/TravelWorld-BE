@@ -47,6 +47,17 @@ class AgentAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+
     def has_add_permission(self, request):
         return False
 
@@ -75,8 +86,6 @@ class UserAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
-    def has_add_permission(self, request):
-        return False
 
 class CountryAdmin(CustomModelAdmin):
     list_display = ("name", "image")
@@ -177,7 +186,7 @@ class ActivityAdmin(CustomModelAdmin):
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
 
     inlines = [ActivityImageInline]
 
@@ -206,7 +215,7 @@ class ActivityAdmin(CustomModelAdmin):
 
 
 class AttractionAdmin(CustomModelAdmin):
-    list_display = ("title", "status",)
+    list_display = ("title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
 
@@ -237,7 +246,7 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
 
     inlines = [PackageImageInline]
 

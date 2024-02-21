@@ -291,8 +291,13 @@ class AdvanceAmountPercentageSettingListView(APIView):
    
     def get(self, request, *args, **kwargs):
         try:
+            queryset = AdvanceAmountPercentageSetting.objects.values('id','category','category__title','percentage')
+
             category_id = self.request.GET.get('category_id')
-            queryset = AdvanceAmountPercentageSetting.objects.filter(category=category_id).values('id','percentage')
+            
+            if category_id:
+                queryset = queryset.filter(category=category_id)
+
             return Response({"results":queryset,
                              "message": "Listed sucessfully",
                             "status": "success",

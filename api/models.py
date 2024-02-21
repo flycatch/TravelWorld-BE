@@ -668,7 +668,8 @@ class UserReview(BaseModel):
     review = models.TextField(blank=True,null=True )
     is_active = models.BooleanField(default=1)
     is_deleted = models.BooleanField(default=0)
-
+    homepage_display = models.BooleanField(default=0)
+    
     class Meta:
         verbose_name = 'User Review'
         verbose_name_plural = 'User Reviews'

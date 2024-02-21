@@ -535,7 +535,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 class UserReviewAdmin(CustomModelAdmin):
     list_display = ("id","user", "package", "rating", "review", "is_active", "is_deleted")
     search_fields = ( "package__name", "user__username")
-    list_filter = ("user",)
+    list_filter = ("user","rating")
     exclude = ('status',)
 
     def has_change_permission(self, request, obj=None):

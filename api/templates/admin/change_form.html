@@ -120,6 +120,31 @@
     {{  block.super }}
     <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
+
+    <script>
+        (function($) {
+        $(document).ready(function() {
+            $('#{{ opts.model_name|lower }}_form').submit(function() {
+                // $('input[type="submit"]').prop('disabled', true);
+                // $('input[type="submit"]').val('Submitting...');
+
+                // Disable the submit button
+                var submitButton = document.querySelector('input[type="submit"]');
+                submitButton.value = "saving..";
+                submitButton.disabled = true;
+
+                // Set a timeout to revert the button text and re-enable the button after 6 seconds
+                setTimeout(function() {
+                    submitButton.value = "Save";
+                    submitButton.disabled = false;
+                }, 6000);
+
+            });
+        });
+        })(django.jQuery);
+    
+    </script>
+
     {% if jazzmin_settings.related_modal_active %}
     <script type="text/javascript" src="{% static 'jazzmin/plugins/bootstrap-show-modal/bootstrap-show-modal.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'jazzmin/js/related-modal.js' %}"></script>

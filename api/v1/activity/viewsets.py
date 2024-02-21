@@ -1,31 +1,59 @@
 # views.py
+from api.filters.package_activity_filters import *
+from api.models import (Activity, ActivityCancellationPolicy, ActivityCategory,
+                        ActivityExclusions, ActivityFaqQuestionAnswer,
+                        ActivityImage, ActivityInclusions,
+                        ActivityInformations, ActivityItinerary,
+                        ActivityItineraryDay, ActivityPricing,
+                        ActivityTourCategory)
+from api.utils.paginator import CustomPagination
+from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
+                                         ActivityCategorySerializer,
+                                         ActivityExclusionsSerializer,
+                                         ActivityFaqQuestionAnswerSerializer,
+                                         ActivityImageSerializer,
+                                         ActivityInclusionsSerializer,
+                                         ActivityInformationsSerializer,
+                                         ActivityItineraryDaySerializer,
+                                         ActivityItinerarySerializer,
+                                         ActivityPricingSerializer,
+                                         ActivitySerializer,
+                                         ActivityTourCategorySerializer)
 from django.db import transaction
-
-from rest_framework import status
-from rest_framework import viewsets
-from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import TokenAuthentication
-
-from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, 
-                        ActivityPricing, ActivityTourCategory, ActivityCancellationPolicy,
-                        ActivityFaqQuestionAnswer, ActivityImage, ActivityCategory, ActivityInclusions,
-                        ActivityExclusions)
-from api.v1.activity.serializers import (ActivitySerializer, ActivityItinerarySerializer, 
-                                        ActivityItineraryDaySerializer, ActivityInformationsSerializer, 
-                                        ActivityPricingSerializer, ActivityTourCategorySerializer,
-                                        ActivityFaqQuestionAnswerSerializer,ActivityImageSerializer, 
-                                        ActivityCancellationPolicySerializer, ActivityCategorySerializer,
-                                        ActivityInclusionsSerializer, ActivityExclusionsSerializer)
+from rest_framework.response import Response
 
 
 class ActivityViewSet(viewsets.ModelViewSet):
-    queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['agent__username','activity_uid','title','tour_class'] 
+    filterset_class = ActivityFilter
+
+
+    def get_queryset(self, **kwargs):
+        
+        # sort
+        sort_by = self.request.GET.get("sort_by", None)
+        sort_order = self.request.GET.get("sort_order", "asc")
+        agent = self.request.GET.get("agent")
+        
+        queryset = Activity.objects.filter(agent=agent)
+
+        if sort_by:
+            sort_field = sort_by if sort_order == "asc" else f"-{sort_by}"
+            queryset = queryset.order_by(sort_field)
+        
+        return queryset
 
     @action(detail=True, methods=['patch'], url_path='submit')
     @transaction.atomic

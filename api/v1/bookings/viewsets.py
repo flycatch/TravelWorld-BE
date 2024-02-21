@@ -86,7 +86,7 @@ class CustomerBookingListView(ListAPIView):
     serializer_class = BookingSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['customer__first_name'] 
+    search_fields = ['user__username'] 
     filterset_class = BookingFilter
     
     def get_queryset(self):
@@ -294,7 +294,7 @@ class AdvanceAmountPercentageSettingListView(APIView):
             queryset = AdvanceAmountPercentageSetting.objects.values('id','category','category__title','percentage')
 
             category_id = self.request.GET.get('category_id')
-            
+
             if category_id:
                 queryset = queryset.filter(category=category_id)
 

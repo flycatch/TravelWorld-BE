@@ -1,30 +1,57 @@
 # views.py
+from api.filters.package_activity_filters import *
+from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
+                        ItineraryDay, Package, PackageCategory,
+                        PackageFaqQuestionAnswer, PackageImage,
+                        PackageInformations, Pricing, TourCategory)
+from api.utils.paginator import CustomPagination
+from api.v1.package.serializers import (ExclusionsSerializer,
+                                        InclusionsSerializer,
+                                        ItineraryDaySerializer,
+                                        ItinerarySerializer,
+                                        PackageCancellationPolicySerializer,
+                                        PackageCategorySerializer,
+                                        PackageFaqQuestionAnswerSerializer,
+                                        PackageImageSerializer,
+                                        PackageInformationsSerializer,
+                                        PackageSerializer,
+                                        PackageTourCategorySerializer,
+                                        PricingSerializer)
 from django.db import transaction
-
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
-
-from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
-                        TourCategory, CancellationPolicy, PackageFaqQuestionAnswer,
-                        PackageImage, PackageCategory, Inclusions, Exclusions)
-from api.v1.package.serializers import (PackageSerializer, ItinerarySerializer, 
-                                        ItineraryDaySerializer, PackageInformationsSerializer, 
-                                        PricingSerializer, PackageTourCategorySerializer,
-                                        PackageFaqQuestionAnswerSerializer,PackageImageSerializer, 
-                                        PackageCancellationPolicySerializer, PackageCategorySerializer,
-                                        InclusionsSerializer, ExclusionsSerializer)
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 class PackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.all()
     serializer_class = PackageSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['agent__username','package_uid','title','tour_class'] 
+    filterset_class = PackageFilter
+
+    def get_queryset(self, **kwargs):
+        
+        #sort
+        sort_by = self.request.GET.get("sort_by", None)
+        sort_order = self.request.GET.get("sort_order", "asc")
+        agent = self.request.GET.get("agent")
+        
+        queryset = Package.objects.filter(agent=agent)
+
+        if sort_by:
+            sort_field = sort_by if sort_order == "asc" else f"-{sort_by}"
+            queryset = queryset.order_by(sort_field)
+        
+        return queryset
+
 
     @action(detail=True, methods=['patch'], url_path='submit')
     @transaction.atomic

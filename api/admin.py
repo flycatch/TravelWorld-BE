@@ -549,7 +549,7 @@ class UserReviewAdmin(CustomModelAdmin):
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
-    list_display = ("id","percentage")
+    list_display = ("id","category","percentage")
 
            
 # Unregister model

@@ -51,7 +51,7 @@ class PackageViewSet(viewsets.ModelViewSet):
             queryset: A filtered queryset containing active and approved packages that are submitted.
         """
 
-        queryset = Package.objects.filter(status='active', stage='approved', is_submitted=True)
+        queryset = Package.objects.all()
         #sort
         sort_by = self.request.GET.get("sort_by", None)
         sort_order = self.request.GET.get("sort_order", "asc")

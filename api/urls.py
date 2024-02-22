@@ -33,7 +33,7 @@ router.register(r'agent/login', LoginViewSet, basename='login')
 """
 Package urls
 """
-router.register(r'package/create', PackageViewSet, basename='package')
+router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 # router.register(r'packages/tourtype/', PackageTourTypeViewSet, basename='tour_type'),
@@ -61,7 +61,7 @@ router.register(r'package/faq', PackageFaqQuestionAnswerViewSet, basename='packa
 """
 Activity urls
 """
-router.register(r'activity/create', ActivityViewSet, basename='activity')
+router.register(r'activity/create', ActivityViewSet, basename='activity') #activity crud operations
 router.register(r'activity/upload', ActivityImageViewSet, basename='activity_image_upload')
 router.register(r'activity/delete-draft', ActivityDeleteDraft, basename='delete_draft_activity'),
 # router.register(r'activity/tourtype/', ActivityTourTypeViewSet, basename='tour_type'),

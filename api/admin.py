@@ -267,7 +267,7 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status","tour_date", "display_created_on")
+    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","user")
     exclude = ("status",)
@@ -314,6 +314,27 @@ class BookingAdmin(CustomModelAdmin):
     # def change_view(self, request, object_id, form_url='', extra_context=None):
     #     self.readonly_fields += ('display_created_on', 'package_name')
     #     return super().change_view(request, object_id, form_url, extra_context)
+
+    def booking_status_colour(self, obj):
+            if obj.booking_status == 'SUCCESSFUL':
+                color = 'green'
+            elif obj.booking_status == 'ORDERED':
+                color = 'black'
+            elif obj.booking_status == 'CANCELLED':
+                color = 'gray'
+            elif obj.booking_status == 'REFUND REQUESTED':
+                color = 'black'
+            elif obj.booking_status == 'REFUNDED':
+                color = 'orange'
+            elif obj.booking_status == 'FAILED':
+                color = 'red'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.booking_status)
+
+    booking_status_colour.short_description = 'Booking Status'  # Set a custom column header
+    booking_status_colour.admin_order_field = 'Booking Status'  # Enable sorting by stage
 
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  
@@ -425,7 +446,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             )
         
     list_display = ("refund_uid", "booking_uid", "user","package_name", "package_uid",
-                     "agent", "agent_uid","refund_status", "display_created_on",)
+                     "agent", "agent_uid","refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
     search_fields = ("refund_status","refund_uid","user")
@@ -525,6 +546,21 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
             send_email.delay(subject,message,obj.user.email)
 
+    def refund_status_colour(self, obj):
+            if obj.refund_status == 'PENDING':
+                color = 'orange'
+            elif obj.refund_status == 'CANCELLED':
+                color = 'red'
+            elif obj.refund_status == 'REFUNDED':
+                color = 'green'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.refund_status)
+
+    refund_status_colour.short_description = 'Refund Status'  # Set a custom column header
+    refund_status_colour.admin_order_field = 'Refund Status'  # Enable sorting by stage
+
     booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
@@ -552,7 +588,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             )
         
     list_display = ("transaction_id", "booking_uid","booking_type","package_name", "package_uid",
-                     "agent", "agent_uid","payment_settlement_status", "payment_settlement_date",)
+                     "agent", "agent_uid","payment_settlement_status_colour", "payment_settlement_date",)
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("payment_settlement_status","transaction_id","user")
@@ -608,6 +644,21 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
             obj.transaction_id = f"EWTRAN-{obj.id}"
             obj.save()
+
+    def payment_settlement_status_colour(self, obj):
+            if obj.payment_settlement_status == 'PENDING':
+                color = 'orange'
+            elif obj.payment_settlement_status == 'CANCELLED':
+                color = 'red'
+            elif obj.payment_settlement_status == 'REFUNDED':
+                color = 'green'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.payment_settlement_status)
+
+    payment_settlement_status_colour.short_description = 'Payment settlement status'  # Set a custom column header
+    payment_settlement_status_colour.admin_order_field = 'Payment settlement status'  # Enable sorting by stage
 
     booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage

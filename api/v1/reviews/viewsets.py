@@ -107,6 +107,7 @@ class UserReviewListView(ListAPIView):
     
     def get_queryset(self):
         try:
+
             queryset =  UserReview.objects.filter(created_by=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
             return queryset
         
@@ -118,3 +119,69 @@ class UserReviewListView(ListAPIView):
         
 
 
+
+
+class AgentUserReviewReplyView(viewsets.GenericViewSet):
+    """
+    This API view handles CRUD operations related to UserReview Reply Views.
+
+    """
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = UserReviewSerializer
+    queryset = UserReview.objects.filter(is_deleted=0, is_active=1)
+
+
+    def update(self, request, *args, **kwargs):
+
+        """
+        Updates a specific user reply view.
+        """
+
+        try:
+            instance = get_object_or_404(self.get_queryset(), object_id=kwargs.get('object_id'))
+            serializer = self.serializer_class(
+                instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response({ "results": serializer.errors,
+                                "message": "Something went wrong",
+                                "status": "error",
+                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+            message = 'updated successfully'
+            return Response({"message" : message,
+                            "status": "success",
+                            "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
+        
+        except Exception as error_message:
+                response_data = {"message": f"Something went wrong: {error_message}",
+                                "status": "error",
+                                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class AgentUserReviewReplyListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = UserReviewDetailSerializer
+    pagination_class = CustomPagination
+
+    
+    def get_queryset(self):
+        try:
+            booking = self.request.GET.get("booking", None)
+            agent = self.request.GET.get("agent", None)
+            queryset =  UserReview.objects.filter(agent=agent,booking=booking,
+                                                  is_deleted=0, is_active=1).order_by("-id")
+            return queryset
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

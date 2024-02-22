@@ -1,13 +1,16 @@
 from decimal import Decimal
 
-from api.common.custom_admin import CustomModelAdmin
-from api.models import *
-from api.tasks import *
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import truncatewords
 from django.utils.html import format_html
+
 from rest_framework.authtoken.models import TokenProxy
+
+from api.common.custom_admin import CustomModelAdmin
+from api.models import *
+from api.tasks import *
+from api.utils.admin import stage_colour, status_colour, booking_status_colour, refund_status_colour
 
 
 class AgentAdmin(CustomModelAdmin):
@@ -24,26 +27,14 @@ class AgentAdmin(CustomModelAdmin):
     readonly_fields = ("agent_uid",)
 
     def stage_colour(self, obj):
-        if obj.stage == 'approved':
-            color = 'green'
-        elif obj.stage == 'rejected':
-            color = 'red'
-        else:
-            color = 'orange'  # Default color
+        return stage_colour(obj.stage)
 
-        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+
+    def status_colour(self, obj):
+        return status_colour(obj.status)
 
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
-
-    def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
@@ -65,12 +56,7 @@ class UserAdmin(CustomModelAdmin):
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+        return status_colour(obj.status)
 
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
@@ -102,27 +88,15 @@ class InclusionsAdmin(CustomModelAdmin):
     search_fields = ("name",)
 
     def stage_colour(self, obj):
-        if obj.stage == 'approved':
-            color = 'green'
-        elif obj.stage == 'rejected':
-            color = 'red'
-        else:
-            color = 'orange'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+        return stage_colour(obj.stage)
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
+        return status_colour(obj.status)
 
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
 
 class ExclusionsAdmin(CustomModelAdmin):
@@ -131,27 +105,16 @@ class ExclusionsAdmin(CustomModelAdmin):
     search_fields = ("name",)
 
     def stage_colour(self, obj):
-        if obj.stage == 'approved':
-            color = 'green'
-        elif obj.stage == 'rejected':
-            color = 'red'
-        else:
-            color = 'orange'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+        return stage_colour(obj.stage)
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
+        return status_colour(obj.status)
 
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+
 
 class ActivityImageInline(admin.TabularInline):
     model = ActivityImage
@@ -180,27 +143,16 @@ class ActivityAdmin(CustomModelAdmin):
     inlines = [ActivityImageInline]
 
     def stage_colour(self, obj):
-        if obj.stage == 'approved':
-            color = 'green'
-        elif obj.stage == 'rejected':
-            color = 'red'
-        else:
-            color = 'orange'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+        return stage_colour(obj.stage)
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
+        return status_colour(obj.status)
 
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+
 
 
 class AttractionAdmin(CustomModelAdmin):
@@ -215,12 +167,7 @@ class AttractionAdmin(CustomModelAdmin):
         return truncatewords(obj.overview, 80)
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+        return status_colour(obj.status)
 
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
@@ -240,27 +187,15 @@ class PackageAdmin(CustomModelAdmin):
     inlines = [PackageImageInline]
 
     def stage_colour(self, obj):
-        if obj.stage == 'approved':
-            color = 'green'
-        elif obj.stage == 'rejected':
-            color = 'red'
-        else:
-            color = 'orange'  # Default color
-
-        return format_html('<span style="color: {};">{}</span>', color, obj.stage)
+        return stage_colour(obj.stage)
 
     def status_colour(self, obj):
-        if obj.status == 'active':
-            color = 'green'
-        else:
-            color = 'gray'  # Default color
+        return status_colour(obj.status)
 
-        return format_html('<span style="color: {};">{}</span>', color, obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
     def has_add_permission(self, request):
         return False
@@ -316,22 +251,7 @@ class BookingAdmin(CustomModelAdmin):
     #     return super().change_view(request, object_id, form_url, extra_context)
 
     def booking_status_colour(self, obj):
-            if obj.booking_status == 'SUCCESSFUL':
-                color = 'green'
-            elif obj.booking_status == 'ORDERED':
-                color = 'black'
-            elif obj.booking_status == 'CANCELLED':
-                color = 'gray'
-            elif obj.booking_status == 'REFUND REQUESTED':
-                color = 'black'
-            elif obj.booking_status == 'REFUNDED':
-                color = 'orange'
-            elif obj.booking_status == 'FAILED':
-                color = 'red'
-            else:
-                color = 'black'  # Default color
-
-            return format_html('<span style="color: {};">{}</span>', color, obj.booking_status)
+        return booking_status_colour(obj.booking_status)
 
     booking_status_colour.short_description = 'Booking Status'  # Set a custom column header
     booking_status_colour.admin_order_field = 'Booking Status'  # Enable sorting by stage
@@ -546,17 +466,9 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
             send_email.delay(subject,message,obj.user.email)
 
-    def refund_status_colour(self, obj):
-            if obj.refund_status == 'PENDING':
-                color = 'orange'
-            elif obj.refund_status == 'CANCELLED':
-                color = 'red'
-            elif obj.refund_status == 'REFUNDED':
-                color = 'green'
-            else:
-                color = 'black'  # Default color
 
-            return format_html('<span style="color: {};">{}</span>', color, obj.refund_status)
+    def refund_status_colour(self, obj):
+        return refund_status_colour(obj.refund_status)
 
     refund_status_colour.short_description = 'Refund Status'  # Set a custom column header
     refund_status_colour.admin_order_field = 'Refund Status'  # Enable sorting by stage
@@ -646,16 +558,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             obj.save()
 
     def payment_settlement_status_colour(self, obj):
-            if obj.payment_settlement_status == 'PENDING':
-                color = 'orange'
-            elif obj.payment_settlement_status == 'CANCELLED':
-                color = 'red'
-            elif obj.payment_settlement_status == 'REFUNDED':
-                color = 'green'
-            else:
-                color = 'black'  # Default color
-
-            return format_html('<span style="color: {};">{}</span>', color, obj.payment_settlement_status)
+        return refund_status_colour(obj.payment_settlement_status)
 
     payment_settlement_status_colour.short_description = 'Payment settlement status'  # Set a custom column header
     payment_settlement_status_colour.admin_order_field = 'Payment settlement status'  # Enable sorting by stage

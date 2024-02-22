@@ -160,6 +160,95 @@ class PackageCategory(BaseModel):
         return self.name
 
 
+
+class ActivityCategory(BaseModel):
+    name = models.CharField(max_length=255)
+    thumb_img = models.ImageField(
+        upload_to='activity/category/thumb_images/', 
+        null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='activity/category/cover_image/', 
+        null=True, default=None, blank=True)
+
+    class Meta:
+        verbose_name = 'Activity Category'
+        verbose_name_plural = 'Activity Category'
+
+    def __str__(self):
+        return self.name
+
+
+class Activity(BaseModel):
+    STAGES_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+    TOUR_CLASS_CHOICE = [
+        ('private', _('Private')),
+        ('conducting', _('Conducting'))
+    ]
+    DURATION_CHOICE = [
+        ('day', _('Day Night')),
+        ('hour', _('Hours'))
+    ]
+
+    activity_uid = models.CharField(max_length=256, null=True, blank=True)
+    agent = models.ForeignKey(
+        Agent, on_delete=models.CASCADE, related_name='activity_agent')
+    title = models.CharField(max_length=255)
+    tour_class = models.CharField(
+        max_length=20,
+        choices=TOUR_CLASS_CHOICE,
+        default='private',
+        verbose_name='Tour Class'
+    )
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE, related_name='activity_country')
+    state = models.ForeignKey(
+        State, on_delete=models.CASCADE, related_name='activity_state')
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name='activity_city')
+    category = models.ForeignKey(
+        ActivityCategory, on_delete=models.CASCADE,
+        related_name='activity_category',
+        blank=True, null=True)
+    
+    min_members = models.IntegerField(null=True, blank=True)
+    max_members = models.IntegerField(null=True, blank=True)
+    duration = models.CharField(
+            max_length=20,
+            choices=DURATION_CHOICE,
+            default='day',
+            verbose_name='Duration'
+        )
+    duration_day = models.IntegerField(verbose_name='Duration Days', null=True, blank=True)
+    duration_night = models.IntegerField(verbose_name='Duration Nights', null=True, blank=True)
+    duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
+    pickup_point = models.CharField(max_length=255, blank=True, null=True,
+                                    verbose_name='Pickup Point')
+    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
+    drop_point = models.CharField(max_length=255, blank=True, null=True,
+                                  verbose_name='Drop Point')
+    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
+
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name='Stage'
+    )
+    is_submitted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Activity'
+        verbose_name_plural = 'Activity'
+
+    def __str__(self):
+        return self.activity_uid if self.activity_uid else self.title
+
+
+
 class Package(BaseModel):
     STAGES_CHOICES = [
         ('pending', _('Pending')),
@@ -515,7 +604,9 @@ class Booking(BaseModel):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='package_booking')
+        Package, on_delete=models.CASCADE, null=True, blank=True,related_name='package_booking')
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='activity_booking')
     adult = models.IntegerField(null=True, blank=True)
     child = models.IntegerField(null=True, blank=True)
     infant = models.IntegerField(null=True, blank=True)
@@ -585,6 +676,8 @@ class UserRefundTransaction(AuditFields):
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='user_refund_transaction_package')
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='user_refund_transaction_activity')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='user_refund_transaction_booking')
     refund_status  =  models.CharField(choices = REFUND_STATUS,max_length=50,blank=True,null=True)
@@ -614,6 +707,8 @@ class AgentTransactionSettlement(AuditFields):
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='agent_transaction_settlement_package')
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='agent_transaction_settlement_activity')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='agent_transaction_settlement_booking')
     payment_settlement_status  =  models.CharField(default="PENDING",choices = PAYMENT_SETTLEMENT_STATUS,max_length=50,blank=True,null=True)
@@ -704,6 +799,8 @@ class UserReview(BaseModel):
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_agent')
     agent_comment = models.TextField(blank=True,null=True )
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='activity_review')
 
     class Meta:
         verbose_name = 'User Review'
@@ -725,92 +822,6 @@ class ContactPerson(AuditFields):
 """
 ACTIVITY MODELS
 """
-
-class ActivityCategory(BaseModel):
-    name = models.CharField(max_length=255)
-    thumb_img = models.ImageField(
-        upload_to='activity/category/thumb_images/', 
-        null=True, default=None, blank=True)
-    cover_img = models.ImageField(
-        upload_to='activity/category/cover_image/', 
-        null=True, default=None, blank=True)
-
-    class Meta:
-        verbose_name = 'Activity Category'
-        verbose_name_plural = 'Activity Category'
-
-    def __str__(self):
-        return self.name
-
-
-class Activity(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
-    TOUR_CLASS_CHOICE = [
-        ('private', _('Private')),
-        ('conducting', _('Conducting'))
-    ]
-    DURATION_CHOICE = [
-        ('day', _('Day Night')),
-        ('hour', _('Hours'))
-    ]
-
-    activity_uid = models.CharField(max_length=256, null=True, blank=True)
-    agent = models.ForeignKey(
-        Agent, on_delete=models.CASCADE, related_name='activity_agent')
-    title = models.CharField(max_length=255)
-    tour_class = models.CharField(
-        max_length=20,
-        choices=TOUR_CLASS_CHOICE,
-        default='private',
-        verbose_name='Tour Class'
-    )
-    country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='activity_country')
-    state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='activity_state')
-    city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='activity_city')
-    category = models.ForeignKey(
-        ActivityCategory, on_delete=models.CASCADE,
-        related_name='activity_category',
-        blank=True, null=True)
-    
-    min_members = models.IntegerField(null=True, blank=True)
-    max_members = models.IntegerField(null=True, blank=True)
-    duration = models.CharField(
-            max_length=20,
-            choices=DURATION_CHOICE,
-            default='day',
-            verbose_name='Duration'
-        )
-    duration_day = models.IntegerField(verbose_name='Duration Days', null=True, blank=True)
-    duration_night = models.IntegerField(verbose_name='Duration Nights', null=True, blank=True)
-    duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
-    pickup_point = models.CharField(max_length=255, blank=True, null=True,
-                                    verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
-    drop_point = models.CharField(max_length=255, blank=True, null=True,
-                                  verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
-
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
-    is_submitted = models.BooleanField(default=False)
-
-    class Meta:
-        verbose_name = 'Activity'
-        verbose_name_plural = 'Activity'
-
-    def __str__(self):
-        return self.activity_uid if self.activity_uid else self.title
 
 
 class ActivityImage(BaseModel):

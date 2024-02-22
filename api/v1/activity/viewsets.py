@@ -41,13 +41,15 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
 
     def get_queryset(self, **kwargs):
-        
+        queryset = Activity.objects.filter(status='active', stage='approved', is_submitted=True)
+
         # sort
         sort_by = self.request.GET.get("sort_by", None)
         sort_order = self.request.GET.get("sort_order", "asc")
         agent = self.request.GET.get("agent")
-        
-        queryset = Activity.objects.filter(agent=agent)
+
+        if agent:
+            queryset = queryset.filter(agent=agent)
 
         if sort_by:
             sort_field = sort_by if sort_order == "asc" else f"-{sort_by}"

@@ -18,7 +18,7 @@ class AgentAdmin(CustomModelAdmin):
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("id","agent_uid", "username", "first_name", "last_name", "email", "phone", "status", "stage_colour")
+    list_display = ("id","agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
     list_filter = ("status", "stage")
     search_fields = ("username", "first_name", "last_name", "email", "phone")
     readonly_fields = ("agent_uid",)
@@ -29,15 +29,26 @@ class AgentAdmin(CustomModelAdmin):
         elif obj.stage == 'rejected':
             color = 'red'
         else:
-            color = 'black'  # Default color
+            color = 'orange'  # Default color
 
         return format_html('<span style="color: {};">{}</span>', color, obj.stage)
 
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
-    # def has_add_permission(self, request):
-    #     return False
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+
+    def has_add_permission(self, request):
+        return False
 
 
 class UserAdmin(CustomModelAdmin):
@@ -49,12 +60,20 @@ class UserAdmin(CustomModelAdmin):
         # Add your custom fieldsets here
     )
 
-    list_display = ("username", "first_name", "last_name", "email", "phone", "status")
+    list_display = ("username", "first_name", "last_name", "email", "phone", "status_colour")
     list_filter = ("status",)
     search_fields = ("username", "first_name", "last_name", "email", "phone")
 
-    def has_add_permission(self, request):
-        return False
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
 
 class CountryAdmin(CustomModelAdmin):
@@ -66,19 +85,19 @@ class CountryAdmin(CustomModelAdmin):
         return False
 
 class StateAdmin(CustomModelAdmin):
-    list_display = ("name", "country", "image")
+    list_display = ("name", "country", "thumb_image", "cover_img")
     search_fields = ("name", "country__name")
     exclude = ("status",)
 
 
 class CityAdmin(CustomModelAdmin):
-    list_display = ("name", "state", "image")
+    list_display = ("name", "state", "thumb_image", "cover_img")
     search_fields = ("name", "state__name")
     exclude = ("status",)
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage_colour", "status")
+    list_display = ("name", "stage_colour", "status_colour")
     list_filter = ("stage", "status")
     search_fields = ("name",)
 
@@ -88,16 +107,26 @@ class InclusionsAdmin(CustomModelAdmin):
         elif obj.stage == 'rejected':
             color = 'red'
         else:
-            color = 'black'  # Default color
+            color = 'orange'  # Default color
 
         return format_html('<span style="color: {};">{}</span>', color, obj.stage)
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
 
 class ExclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage_colour", "status")
+    list_display = ("name", "stage_colour", "status_colour")
     list_filter = ("stage", "status")
     search_fields = ("name",)
 
@@ -107,10 +136,20 @@ class ExclusionsAdmin(CustomModelAdmin):
         elif obj.stage == 'rejected':
             color = 'red'
         else:
-            color = 'black'  # Default color
+            color = 'orange'  # Default color
 
         return format_html('<span style="color: {};">{}</span>', color, obj.stage)
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
@@ -132,11 +171,11 @@ class PackageImageInline(admin.TabularInline):
 class ActivityAdmin(CustomModelAdmin):
     list_display = ("id","agent", "title", "tour_class", "state",
                     "city", "category",
-                    "status", "stage_colour",)
+                    "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__first_name", "country__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
 
     inlines = [ActivityImageInline]
 
@@ -146,16 +185,26 @@ class ActivityAdmin(CustomModelAdmin):
         elif obj.stage == 'rejected':
             color = 'red'
         else:
-            color = 'black'  # Default color
+            color = 'orange'  # Default color
 
         return format_html('<span style="color: {};">{}</span>', color, obj.stage)
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
 
 class AttractionAdmin(CustomModelAdmin):
-    list_display = ("title", "status",)
+    list_display = ("title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
 
@@ -165,17 +214,28 @@ class AttractionAdmin(CustomModelAdmin):
         # Display truncated overview in the admin list view
         return truncatewords(obj.overview, 80)
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+
     truncated_overview.short_description = 'Overview'
 
 
 class PackageAdmin(CustomModelAdmin):
     list_display = ("id","agent", "title", "tour_class", "state",
                     "city", "category",
-                    "status", "stage_colour",)
+                    "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__first_name", "country__name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
 
     inlines = [PackageImageInline]
 
@@ -185,19 +245,29 @@ class PackageAdmin(CustomModelAdmin):
         elif obj.stage == 'rejected':
             color = 'red'
         else:
-            color = 'black'  # Default color
+            color = 'orange'  # Default color
 
         return format_html('<span style="color: {};">{}</span>', color, obj.stage)
 
+    def status_colour(self, obj):
+        if obj.status == 'active':
+            color = 'green'
+        else:
+            color = 'gray'  # Default color
+
+        return format_html('<span style="color: {};">{}</span>', color, obj.status)
+
+    status_colour.short_description = 'Status'  # Set a custom column header
+    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
-    # def has_add_permission(self, request):
-    #     return False
+    def has_add_permission(self, request):
+        return False
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status","tour_date", "display_created_on")
+    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
     list_filter = ("booking_status",)
     search_fields = ("booking_status","booking_id","user")
     exclude = ("status",)
@@ -245,9 +315,31 @@ class BookingAdmin(CustomModelAdmin):
     #     self.readonly_fields += ('display_created_on', 'package_name')
     #     return super().change_view(request, object_id, form_url, extra_context)
 
+    def booking_status_colour(self, obj):
+            if obj.booking_status == 'SUCCESSFUL':
+                color = 'green'
+            elif obj.booking_status == 'ORDERED':
+                color = 'black'
+            elif obj.booking_status == 'CANCELLED':
+                color = 'gray'
+            elif obj.booking_status == 'REFUND REQUESTED':
+                color = 'black'
+            elif obj.booking_status == 'REFUNDED':
+                color = 'orange'
+            elif obj.booking_status == 'FAILED':
+                color = 'red'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.booking_status)
+
+    booking_status_colour.short_description = 'Booking Status'  # Set a custom column header
+    booking_status_colour.admin_order_field = 'Booking Status'  # Enable sorting by stage
+
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
+    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -354,7 +446,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             )
         
     list_display = ("refund_uid", "booking_uid", "user","package_name", "package_uid",
-                     "agent", "agent_uid","refund_status", "display_created_on",)
+                     "agent", "agent_uid","refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
     search_fields = ("refund_status","refund_uid","user")
@@ -399,7 +491,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
-    display_created_on.short_description = "Transaction date"
+    display_created_on.short_description = "Transaction Date"
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -426,7 +518,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     #                 return refund_amount
                 
     #     return None
-    
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid',"booking_date", 'agent',
@@ -455,6 +546,28 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
             send_email.delay(subject,message,obj.user.email)
 
+    def refund_status_colour(self, obj):
+            if obj.refund_status == 'PENDING':
+                color = 'orange'
+            elif obj.refund_status == 'CANCELLED':
+                color = 'red'
+            elif obj.refund_status == 'REFUNDED':
+                color = 'green'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.refund_status)
+
+    refund_status_colour.short_description = 'Refund Status'  # Set a custom column header
+    refund_status_colour.admin_order_field = 'Refund Status'  # Enable sorting by stage
+
+    booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
+    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
+    package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
+    agent.admin_order_field = 'Agent'  # Enable sorting by stage
+    agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
+    display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
+
 
 class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
@@ -475,7 +588,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             )
         
     list_display = ("transaction_id", "booking_uid","booking_type","package_name", "package_uid",
-                     "agent", "agent_uid","payment_settlement_status", "payment_settlement_date",)
+                     "agent", "agent_uid","payment_settlement_status_colour", "payment_settlement_date",)
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("payment_settlement_status","transaction_id","user")
@@ -532,6 +645,26 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             obj.transaction_id = f"EWTRAN-{obj.id}"
             obj.save()
 
+    def payment_settlement_status_colour(self, obj):
+            if obj.payment_settlement_status == 'PENDING':
+                color = 'orange'
+            elif obj.payment_settlement_status == 'CANCELLED':
+                color = 'red'
+            elif obj.payment_settlement_status == 'REFUNDED':
+                color = 'green'
+            else:
+                color = 'black'  # Default color
+
+            return format_html('<span style="color: {};">{}</span>', color, obj.payment_settlement_status)
+
+    payment_settlement_status_colour.short_description = 'Payment settlement status'  # Set a custom column header
+    payment_settlement_status_colour.admin_order_field = 'Payment settlement status'  # Enable sorting by stage
+
+    booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
+    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
+    package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
+    agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
+    display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
 class UserReviewAdmin(CustomModelAdmin):
     list_display = ("id","user", "package", "rating", "review", "is_active", "is_deleted")
@@ -552,7 +685,7 @@ class UserReviewAdmin(CustomModelAdmin):
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
     list_display = ("id","category","percentage")
 
-           
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)

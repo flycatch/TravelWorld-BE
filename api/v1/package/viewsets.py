@@ -29,6 +29,10 @@ from rest_framework.response import Response
 
 
 class PackageViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for handling CRUD operations related to packages.
+    """
+
     serializer_class = PackageSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
@@ -38,13 +42,23 @@ class PackageViewSet(viewsets.ModelViewSet):
     filterset_class = PackageFilter
 
     def get_queryset(self, **kwargs):
-        
+        """
+        Queryset to list package data based on agent if passed agent id as param.
+        also sort data option added.
+        Get the queryset of packages filtered by status, stage, and submission.
+
+        Returns:
+            queryset: A filtered queryset containing active and approved packages that are submitted.
+        """
+
+        queryset = Package.objects.filter(status='active', stage='approved', is_submitted=True)
         #sort
         sort_by = self.request.GET.get("sort_by", None)
         sort_order = self.request.GET.get("sort_order", "asc")
         agent = self.request.GET.get("agent")
-        
-        queryset = Package.objects.filter(agent=agent)
+
+        if agent:
+            queryset = Package.objects.filter(agent=agent)
 
         if sort_by:
             sort_field = sort_by if sort_order == "asc" else f"-{sort_by}"
@@ -56,6 +70,13 @@ class PackageViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'], url_path='submit')
     @transaction.atomic
     def submit_final(self, request, pk=None):
+        """
+        function to make activity final submit true, while calling patch method.
+
+        Returns:
+            returns package id as response.
+        """
+
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -68,6 +89,15 @@ class PackageViewSet(viewsets.ModelViewSet):
         return Response({'id': instance.id, 'status': 'submitted'})
 
     def create(self, request, *args, **kwargs):
+        """
+        Create a new Package.
+
+        Args:
+            request: The request object containing the data for the new package.
+        Returns:
+            Response: A response with created package id.
+        """
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

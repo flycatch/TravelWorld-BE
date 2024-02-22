@@ -79,7 +79,10 @@ class State(BaseModel):
     name = models.CharField(max_length=255)
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='state_country')
-    image = models.ImageField(upload_to='state_images/', null=True, default=None, blank=True)
+    thumb_image = models.ImageField(upload_to='state/thumb_images/', null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='state/cover_image/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'State'
@@ -105,7 +108,10 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='city_state')
-    image = models.ImageField(upload_to='city_images/', null=True, default=None, blank=True)
+    thumb_image = models.ImageField(upload_to='city/thumb_images/', null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='city/cover_image/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'City'
@@ -139,6 +145,12 @@ class City(BaseModel):
 
 class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
+    thumb_img = models.ImageField(
+        upload_to='package/category/thumb_images/', 
+        null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='package/category/cover_image/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'Package Category'
@@ -646,6 +658,12 @@ class AdvanceAmountPercentageSetting(AuditFields):
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
     overview = models.TextField(blank=True, default="")
+    thumb_img = models.ImageField(
+        upload_to='attraction/thumb_images/', 
+        null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='attraction/cover_image/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'Attraction'
@@ -705,6 +723,12 @@ ACTIVITY MODELS
 
 class ActivityCategory(BaseModel):
     name = models.CharField(max_length=255)
+    thumb_img = models.ImageField(
+        upload_to='activity/category/thumb_images/', 
+        null=True, default=None, blank=True)
+    cover_img = models.ImageField(
+        upload_to='activity/category/cover_image/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'Activity Category'
@@ -787,7 +811,7 @@ class Activity(BaseModel):
 class ActivityImage(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
-    image = models.ImageField(upload_to='attraction_images/', null=True, default=None, blank=True)
+    image = models.ImageField(upload_to='activity_images/', null=True, default=None, blank=True)
 
     def __str__(self):
         return f"Image for {self.activity.name}"

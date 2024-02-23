@@ -30,6 +30,17 @@ class RegisterViewSet(viewsets.ModelViewSet):
     serializer_class = AgentSerializer
     http_method_names = ['post']
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            self.perform_create(serializer)
+            return Response({'status': 'success','message': 'Agent registered successfully',
+                             'data': serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
+            return Response({ 'status': 'error', 'message': error_messages,
+                             'statusCode': status.HTTP_400_BAD_REQUEST })
+
 
 class LoginViewSet(viewsets.ModelViewSet):
     serializer_class = AgentLoginSerializer

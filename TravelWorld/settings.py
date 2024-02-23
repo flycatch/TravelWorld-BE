@@ -228,9 +228,9 @@ ADMIN_REORDER = (
                 'api.AdvanceAmountPercentageSetting'),
      'label': 'General Settings'},
 
-    {'app': 'api', 
-     'models': ('api.PackageCategory', 'api.Currency'),
-     'label': 'Others'},
+    # {'app': 'api', 
+    #  'models': ('api.PackageCategory', 'api.Currency'),
+    #  'label': 'Others'},
     
 )
 

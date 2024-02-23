@@ -21,14 +21,13 @@ class AgentAdmin(CustomModelAdmin):
         ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("id","agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
+    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
     list_filter = ("status", "stage")
-    search_fields = ("username", "first_name", "last_name", "email", "phone")
+    search_fields = ("agent_uid", "username", "first_name", "email", "phone")
     readonly_fields = ("agent_uid",)
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
-
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -37,6 +36,7 @@ class AgentAdmin(CustomModelAdmin):
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
+    # agent_uid.short_description = 'Agent UID'  # Enable sorting by stage
 
     def has_add_permission(self, request):
         return False
@@ -51,9 +51,15 @@ class UserAdmin(CustomModelAdmin):
         # Add your custom fieldsets here
     )
 
-    list_display = ("username", "first_name", "last_name", "email", "phone", "status_colour")
+    list_display = ("user_uid", "username", "first_name", "last_name", "email", "phone", "status_colour")
     list_filter = ("status",)
-    search_fields = ("username", "first_name", "last_name", "email", "phone")
+    search_fields = ("user_uid", "username", "first_name", "email", "phone")
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -63,7 +69,7 @@ class UserAdmin(CustomModelAdmin):
 
 
 class CountryAdmin(CustomModelAdmin):
-    list_display = ("name", "image")
+    list_display = ("name",)
     search_fields = ("name",)
     exclude = ("status",)
 
@@ -71,13 +77,13 @@ class CountryAdmin(CustomModelAdmin):
         return False
 
 class StateAdmin(CustomModelAdmin):
-    list_display = ("name", "country", "thumb_image", "cover_img")
+    list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
 
 
 class CityAdmin(CustomModelAdmin):
-    list_display = ("name", "state", "thumb_image", "cover_img")
+    list_display = ("name", "state",)
     search_fields = ("name", "state__name")
     exclude = ("status",)
 
@@ -132,13 +138,14 @@ class PackageImageInline(admin.TabularInline):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("id","agent", "title", "tour_class", "state",
+    list_display = ("agent", "title", "tour_class", "state",
                     "city", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
+                     "city__name", "category__name")
 
     inlines = [ActivityImageInline]
 
@@ -176,13 +183,14 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("id","agent", "title", "tour_class", "state",
+    list_display = ("agent", "title", "tour_class", "state",
                     "city", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "agent__first_name", "state__name")
+    search_fields = ("title", "agent__agent_uid", "agent__first_name",
+                     "state__name", "city__name", "category__name", "tour_class")
 
     inlines = [PackageImageInline]
 
@@ -202,9 +210,9 @@ class PackageAdmin(CustomModelAdmin):
 
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("id","booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
+    list_display = ("booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
     list_filter = ("booking_status",)
-    search_fields = ("booking_status","booking_id","user")
+    search_fields = ("booking_id", "user__user_uid",)
     exclude = ("status",)
 
     def get_fieldsets(self, request, obj=None):
@@ -369,9 +377,9 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                      "agent", "agent_uid","refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
-    search_fields = ("refund_status","refund_uid","user")
+    search_fields = ("refund_uid", "booking__booking_id", "package__title", "package__package_uid", 
+                     "user__username")
     exclude = ('status',)
-
 
     def cancellation_policies(self, obj):
         if obj.package:
@@ -503,7 +511,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                      "agent", "agent_uid","payment_settlement_status_colour", "payment_settlement_date",)
     
     list_filter = ("payment_settlement_status","booking_type")
-    search_fields = ("payment_settlement_status","transaction_id","user")
+    search_fields = ("transaction_id", "booking__booking_id", "package__title", "package__package_uid", 
+                     "agent__agent_uid", "agent__username")
     exclude = ('status',)
 
     def agent(self, obj):
@@ -570,9 +579,9 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("id","user", "package", "rating", "review", "is_active", "is_deleted")
+    list_display = ("user", "package", "activity", "rating", "review",)
     search_fields = ( "package__name", "user__username")
-    list_filter = ("user","rating")
+    list_filter = ("rating",)
     exclude = ('status',)
 
     def has_change_permission(self, request, obj=None):
@@ -586,7 +595,16 @@ class UserReviewAdmin(CustomModelAdmin):
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
-    list_display = ("id","category","percentage")
+    list_display = ("category","percentage")
+    search_fields = ( "category", "percentage")
+
+class PackageCategoryAdmin(CustomModelAdmin):
+    list_display = ("name",)
+    search_fields = ( "name",)
+
+class TourTypeAdmin(CustomModelAdmin):
+    list_display = ("title",)
+    search_fields = ( "title",)
 
 
 # Unregister model
@@ -606,10 +624,10 @@ admin.site.register(City, CityAdmin)
 admin.site.register(Booking,BookingAdmin)
 # admin.site.register(Transaction,TransactionAdmin)
 
-admin.site.register(PackageCategory)
+admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
-admin.site.register(TourType)
+admin.site.register(TourType,TourTypeAdmin)
 
 # admin.site.register(CancellationPolicy)
 

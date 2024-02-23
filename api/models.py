@@ -8,7 +8,7 @@ from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
 
 class User(BaseUser):
-    user_uid = models.CharField(max_length=256, null=True, blank=True)
+    user_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='User UID')
     profile_image = models.ImageField(upload_to='profile_images/user/', null=True, blank=True)
 
     class Meta:
@@ -16,7 +16,7 @@ class User(BaseUser):
         verbose_name_plural = 'Users'
 
     def __str__(self):
-        return self.username
+        return self.user_uid if self.user_uid else self.username
 
 
 class Agent(BaseUser):
@@ -26,7 +26,7 @@ class Agent(BaseUser):
         ('rejected', _('Rejected')),
     ]
 
-    agent_uid = models.CharField(max_length=10, unique=True, editable=False)
+    agent_uid = models.CharField(max_length=10, unique=True, editable=False, verbose_name='Agent UID')
     profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
     stage = models.CharField(
         max_length=20,
@@ -79,10 +79,12 @@ class State(BaseModel):
     name = models.CharField(max_length=255)
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='state_country')
-    thumb_image = models.ImageField(upload_to='state/thumb_images/', null=True, default=None, blank=True)
+    thumb_image = models.ImageField(
+        upload_to='state/thumb_images/',
+        null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
         upload_to='state/cover_image/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
         verbose_name = 'State'
@@ -108,10 +110,12 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='city_state')
-    thumb_image = models.ImageField(upload_to='city/thumb_images/', null=True, default=None, blank=True)
+    thumb_image = models.ImageField(
+        upload_to='city/thumb_images/',
+        null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
         upload_to='city/cover_image/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
         verbose_name = 'City'
@@ -147,10 +151,10 @@ class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
     thumb_img = models.ImageField(
         upload_to='package/category/thumb_images/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
         upload_to='package/category/cover_image/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
         verbose_name = 'Package Category'
@@ -165,10 +169,10 @@ class ActivityCategory(BaseModel):
     name = models.CharField(max_length=255)
     thumb_img = models.ImageField(
         upload_to='activity/category/thumb_images/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
         upload_to='activity/category/cover_image/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
         verbose_name = 'Activity Category'
@@ -193,7 +197,7 @@ class Activity(BaseModel):
         ('hour', _('Hours'))
     ]
 
-    activity_uid = models.CharField(max_length=256, null=True, blank=True)
+    activity_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='Activity UID')
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='activity_agent')
     title = models.CharField(max_length=255)
@@ -264,7 +268,7 @@ class Package(BaseModel):
         ('hour', _('Hours'))
     ]
 
-    package_uid = models.CharField(max_length=256, null=True, blank=True)
+    package_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='Package UID')
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='package_agent')
     title = models.CharField(max_length=255)
@@ -600,7 +604,7 @@ class Booking(BaseModel):
           
             )
     
-    booking_id = models.CharField(max_length=256, null=True, blank=True)
+    booking_id = models.CharField(max_length=256, null=True, blank=True, verbose_name='Booking UID')
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
@@ -615,7 +619,9 @@ class Booking(BaseModel):
     payment_id = models.CharField(max_length=100,null=True, blank=True)
     tour_date = models.DateField(null=True, blank=True)
     check_out = models.DateField(null=True, blank=True)
-    booking_status  =  models.CharField(choices = BOOKING_STATUS,max_length=50,blank=True,null=True)
+    booking_status  =  models.CharField(choices = BOOKING_STATUS,
+                                        max_length=50, verbose_name='Booking Status',
+                                        blank=True,null=True)
     refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
@@ -640,7 +646,7 @@ class Transaction(BaseModel):
           
             )
     
-    transaction_uid = models.CharField(max_length=256, null=True, blank=True)
+    transaction_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='Transaction UID')
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
@@ -671,7 +677,7 @@ class UserRefundTransaction(AuditFields):
           
             )
     
-    refund_uid = models.CharField(max_length=256, null=True, blank=True)
+    refund_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='Refund UID')
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
@@ -680,7 +686,8 @@ class UserRefundTransaction(AuditFields):
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='user_refund_transaction_activity')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='user_refund_transaction_booking')
-    refund_status  =  models.CharField(choices = REFUND_STATUS,max_length=50,blank=True,null=True)
+    refund_status  =  models.CharField(choices = REFUND_STATUS, max_length=50,
+                                       blank=True, null=True, verbose_name='Refund Status')
     refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
@@ -702,7 +709,7 @@ class AgentTransactionSettlement(AuditFields):
             ("FAILED","FAILED")
             )
     
-    transaction_id = models.CharField(max_length=256, null=True, blank=True)
+    transaction_id = models.CharField(max_length=256, null=True, blank=True, verbose_name='Transaction UID')
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
@@ -711,12 +718,14 @@ class AgentTransactionSettlement(AuditFields):
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='agent_transaction_settlement_activity')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='agent_transaction_settlement_booking')
-    payment_settlement_status  =  models.CharField(default="PENDING",choices = PAYMENT_SETTLEMENT_STATUS,max_length=50,blank=True,null=True)
+    payment_settlement_status  =  models.CharField(default="PENDING",choices = PAYMENT_SETTLEMENT_STATUS,
+                                                   max_length=50,blank=True,null=True, verbose_name='Payment Settlement Status')
     payment_settlement_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='transaction_settlement_agent',null=True, blank=True)
     payment_settlement_date = models.DateField(null=True, blank=True)
-    booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
+    booking_type  =  models.CharField(choices = BOOKING_TYPE, max_length=50,
+                                      blank=True,null=True, verbose_name='Booking Type')
 
 
     def __str__(self):
@@ -755,10 +764,10 @@ class Attraction(BaseModel):
     overview = models.TextField(blank=True, default="")
     thumb_img = models.ImageField(
         upload_to='attraction/thumb_images/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
         upload_to='attraction/cover_image/', 
-        null=True, default=None, blank=True)
+        null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
         verbose_name = 'Attraction'
@@ -788,8 +797,9 @@ class UserReview(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, null=True, blank=True,related_name='package_review')
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review')
-    rating = models.IntegerField()
+        User, on_delete=models.CASCADE,null=True, blank=True,
+        related_name='user_review', verbose_name='User')
+    rating = models.IntegerField(verbose_name='Rating')
     review = models.TextField(blank=True,null=True )
     is_active = models.BooleanField(default=1)
     is_deleted = models.BooleanField(default=0)

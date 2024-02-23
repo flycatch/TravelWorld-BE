@@ -80,24 +80,38 @@ def start_payment(request):
 
 
 
+
 class CustomerBookingListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = BookingSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['user__username'] 
+    search_fields = ['user__username','booking_id'] 
     filterset_class = BookingFilter
     
     def get_queryset(self):
-        try:
-            queryset = Booking.objects.filter(user=self.kwargs['user_id']).order_by("-id")
-            return queryset
+        queryset = Booking.objects.filter(user=self.kwargs['user_id']).order_by("-id")
+        return queryset
         
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         except Exception as error_message:
-            response_data = {"message": f"Something went wrong: {error_message}",
-                             "status": "error",
-                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
@@ -188,15 +202,30 @@ class AgentBookingListView(ListAPIView):
     filterset_class = BookingFilter
     
     def get_queryset(self):
-        try:
-            queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).order_by("-id")
-            return queryset
         
+        queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).order_by("-id")
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         except Exception as error_message:
-            response_data = {"message": f"Something went wrong: {error_message}",
-                             "status": "error",
-                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+        
         
 
 class AgentBookingDetailsView(APIView):
@@ -238,16 +267,30 @@ class AgentTransactionListView(ListAPIView):
     filterset_class = AgentTransactionSettlementFilter
     
     def get_queryset(self):
+       
+        queryset = AgentTransactionSettlement.objects.filter(agent_id=self.kwargs['agent_id']).order_by("-id")
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
         try:
-            queryset = AgentTransactionSettlement.objects.filter(agent_id=self.kwargs['agent_id']).order_by("-id")
-            return queryset
-        
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         except Exception as error_message:
-            response_data = {"message": f"Something went wrong: {error_message}",
-                             "status": "error",
-                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+        
+        
 
 class AgentTransactionDetailsView(APIView):
     permission_classes = [IsAuthenticated]

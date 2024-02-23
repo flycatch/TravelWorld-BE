@@ -106,16 +106,29 @@ class UserReviewListView(ListAPIView):
 
     
     def get_queryset(self):
+        queryset =  UserReview.objects.filter(created_by=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
         try:
-
-            queryset =  UserReview.objects.filter(created_by=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
-            return queryset
-        
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         except Exception as error_message:
-            response_data = {"message": f"Something went wrong: {error_message}",
-                             "status": "error",
-                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
         
 
 
@@ -173,15 +186,31 @@ class AgentUserReviewReplyListView(ListAPIView):
 
     
     def get_queryset(self):
-        try:
-            booking = self.request.GET.get("booking", None)
-            agent = self.request.GET.get("agent", None)
-            queryset =  UserReview.objects.filter(agent=agent,booking=booking,
-                                                  is_deleted=0, is_active=1).order_by("-id")
-            return queryset
         
+        booking = self.request.GET.get("booking", None)
+        agent = self.request.GET.get("agent", None)
+        queryset =  UserReview.objects.filter(agent=agent,booking=booking,
+                                                is_deleted=0, is_active=1).order_by("-id")
+        return queryset
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         except Exception as error_message:
-            response_data = {"message": f"Something went wrong: {error_message}",
-                             "status": "error",
-                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+            

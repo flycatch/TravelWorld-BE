@@ -132,13 +132,6 @@
                 var submitButton = document.querySelector('input[type="submit"]');
                 submitButton.value = "saving..";
                 submitButton.disabled = true;
-
-                // Set a timeout to revert the button text and re-enable the button after 6 seconds
-                setTimeout(function() {
-                    submitButton.value = "Save";
-                    submitButton.disabled = false;
-                }, 6000);
-
             });
         });
         })(django.jQuery);

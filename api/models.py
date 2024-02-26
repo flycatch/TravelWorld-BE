@@ -346,6 +346,10 @@ class Inclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_package')
+
+    is_deleted = models.BooleanField(default=0)
 
     class Meta:
         verbose_name = 'Inclusions'
@@ -379,6 +383,8 @@ class Exclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
 
     class Meta:
         verbose_name = 'Exclusions'
@@ -857,6 +863,8 @@ class ActivityInclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
 
     class Meta:
         verbose_name = 'Activity Inclusions'
@@ -890,6 +898,9 @@ class ActivityExclusions(BaseModel):
         default='pending',
         verbose_name='Stage'
     )
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+    
 
     class Meta:
         verbose_name = 'Activity Exclusions'

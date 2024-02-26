@@ -28,6 +28,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Q
 
 
 class ActivityViewSet(viewsets.ModelViewSet):
@@ -184,10 +185,32 @@ class ActivityInclusionsViewSet(viewsets.ModelViewSet):
     queryset = ActivityInclusions.objects.all()
     serializer_class = ActivityInclusionsSerializer
 
+    def get_queryset(self, **kwargs):
+        
+        activity = self.request.GET.get("activity",None)
+        queryset = ActivityInclusions.objects.all()
+
+        if activity:
+            queryset = queryset.filter(Q(activity__isnull=True) | Q(activity=activity))
+        else:
+            queryset = queryset.filter(activity__isnull=True)
+        return queryset
+
 
 class ActivityExclusionsViewSet(viewsets.ModelViewSet):
     queryset = ActivityExclusions.objects.all()
     serializer_class = ActivityExclusionsSerializer
+
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity",None)
+
+        queryset = ActivityExclusions.objects.all()
+
+        if activity:
+            queryset = queryset.filter(Q(activity__isnull=True) | Q(activity=activity))
+        else:
+            queryset = queryset.filter(activity__isnull=True)
+        return queryset
 
 
 class ActivityItineraryDayViewSet(viewsets.ModelViewSet):

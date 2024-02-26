@@ -91,13 +91,13 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
 class ActivityInclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityInclusions
-        fields = ['id', 'name',]
+        fields = ['id', 'name','activity']
 
 
 class ActivityExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityExclusions
-        fields = ['id', 'name',]
+        fields = ['id', 'name','activity']
 
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):

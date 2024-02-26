@@ -26,6 +26,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Q
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -180,13 +181,35 @@ class ItineraryViewSet(viewsets.ModelViewSet):
 
 
 class InclusionsViewSet(viewsets.ModelViewSet):
-    queryset = Inclusions.objects.all()
     serializer_class = InclusionsSerializer
+    permission_classes = [IsAuthenticated]
 
 
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = Inclusions.objects.all()
+
+        if package:
+            queryset = queryset.filter(Q(package__isnull=True) | Q(package=package))
+        else:
+            queryset = queryset.filter(package__isnull=True)
+        return queryset
+    
+    
 class ExclusionsViewSet(viewsets.ModelViewSet):
-    queryset = Exclusions.objects.all()
     serializer_class = ExclusionsSerializer
+
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = Exclusions.objects.all()
+
+        if package:
+            queryset = queryset.filter(Q(package__isnull=True) | Q(package=package))
+        else:
+            queryset = queryset.filter(package__isnull=True)
+        return queryset
 
 
 class ItineraryDayViewSet(viewsets.ModelViewSet):

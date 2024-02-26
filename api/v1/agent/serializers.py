@@ -13,7 +13,8 @@ from django.core.validators import FileExtensionValidator, RegexValidator
 
 
 class AgentSerializer(serializers.ModelSerializer):
-    """Serializer for user."""
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
     class Meta:
         """Meta info."""
 

@@ -173,11 +173,11 @@ class ItineraryViewSet(viewsets.ModelViewSet):
 
         queryset = Itinerary.objects.all()
 
+
         if package:
             queryset = queryset.filter(package=package)
-    
+        
         return queryset
-    
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

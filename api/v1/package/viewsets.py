@@ -221,17 +221,35 @@ class ItineraryDayViewSet(viewsets.ModelViewSet):
 
 #Informations
 class PackageInformationsViewSet(viewsets.ModelViewSet):
-    queryset = PackageInformations.objects.all()
     serializer_class = PackageInformationsSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = PackageInformations.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+
 
 class PricingViewSet(viewsets.ModelViewSet):
-    queryset = Pricing.objects.all()
     serializer_class = PricingSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = Pricing.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
 
 
 

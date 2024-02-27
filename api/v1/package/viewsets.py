@@ -164,10 +164,20 @@ class PackageDeleteDraft(viewsets.ModelViewSet):
 
 
 class ItineraryViewSet(viewsets.ModelViewSet):
-    queryset = Itinerary.objects.all()
     serializer_class = ItinerarySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = Itinerary.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+    
+        return queryset
+    
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

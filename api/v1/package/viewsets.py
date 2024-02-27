@@ -261,21 +261,50 @@ class PackageCategoryViewSet(viewsets.ModelViewSet):
 
 
 class PackageTourCategoryViewSet(viewsets.ModelViewSet):
-    queryset = TourCategory.objects.all()
     serializer_class = PackageTourCategorySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = TourCategory.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+
 
 class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
-    queryset = CancellationPolicy.objects.all()
     serializer_class = PackageCancellationPolicySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = CancellationPolicy.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+
 
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
-    queryset = PackageFaqQuestionAnswer.objects.all()
     serializer_class = PackageFaqQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+
+    def get_queryset(self, **kwargs):
+        package = self.request.GET.get("package",None)
+
+        queryset = PackageFaqQuestionAnswer.objects.all()
+
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+

@@ -222,10 +222,19 @@ class ActivityItineraryDayViewSet(viewsets.ModelViewSet):
 
 #Informations
 class ActivityInformationsViewSet(viewsets.ModelViewSet):
-    queryset = ActivityInformations.objects.all()
     serializer_class = ActivityInformationsSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity",None)
+
+        queryset = ActivityInformations.objects.all()
+
+        if activity:
+            queryset = queryset.filter(activity=activity)
+        
+        return queryset
 
 
 class ActivityPricingViewSet(viewsets.ModelViewSet):
@@ -250,14 +259,32 @@ class ActivityTourCategoryViewSet(viewsets.ModelViewSet):
 
 
 class ActivityCancellationPolicyViewSet(viewsets.ModelViewSet):
-    queryset = ActivityCancellationPolicy.objects.all()
     serializer_class = ActivityCancellationPolicySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity",None)
+
+        queryset = ActivityCancellationPolicy.objects.all()
+
+        if activity:
+            queryset = queryset.filter(activity=activity)
+        
+        return queryset
+
 
 class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
-    queryset = ActivityFaqQuestionAnswer.objects.all()
     serializer_class = ActivityFaqQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity",None)
+
+        queryset = ActivityFaqQuestionAnswerSerializer.objects.all()
+
+        if activity:
+            queryset = queryset.filter(activity=activity)
+        
+        return queryset

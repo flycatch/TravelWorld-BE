@@ -14,7 +14,7 @@ from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
                                      ActivityInclusionsViewSet, ActivityExclusionsViewSet)
-
+from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
 
@@ -29,6 +29,11 @@ router.register(r'countries', CountryViewSet, basename='country')
 router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'agent/register', RegisterViewSet, basename='register')
 router.register(r'agent/login', LoginViewSet, basename='login')
+
+#User
+router.register(r'users', UserViewSet, basename='user')
+router.register(r'user/register', UserRegisterViewSet, basename='user-register')
+router.register(r'user/login', UserLoginViewset, basename='user-login')
 
 """
 Package urls

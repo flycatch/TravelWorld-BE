@@ -768,6 +768,12 @@ class AdvanceAmountPercentageSetting(AuditFields):
 class Attraction(BaseModel):
     title = models.CharField(max_length=255, unique=True)
     overview = models.TextField(blank=True, default="")
+    state = models.ForeignKey(
+        State, on_delete=models.CASCADE, related_name='attaction_state',
+        null=True, blank=True)
+    city = models.ForeignKey(
+        City, on_delete=models.CASCADE, related_name='attraction_state',
+        null=True, blank=True)
     thumb_img = models.ImageField(
         upload_to='attraction/thumb_images/', 
         null=True, default=None, blank=True, verbose_name="Thumb Image")

@@ -149,6 +149,7 @@ class ActivityAdmin(CustomModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
                      "city__name", "category__name")
+    exclude = ('is_submitted',)
 
     inlines = [ActivityImageInline]
 
@@ -194,7 +195,7 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
                      "state__name", "city__name", "category__name", "tour_class")
-
+    exclude = ('is_submitted',)
     inlines = [PackageImageInline]
 
     def stage_colour(self, obj):

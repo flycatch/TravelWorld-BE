@@ -12,7 +12,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework import serializers
 
 class AgentViewSet(viewsets.ModelViewSet):
     queryset = Agent.objects.all()
@@ -23,6 +23,21 @@ class AgentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(pk=self.request.user.pk)
+
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response({'status': 'success', 'message': 'Agent updated successfully',
+                             'data': serializer.data, 'StatusCode': status.HTTP_200_OK})
+        except serializers.ValidationError as e:
+            # Extract error messages from the serializer's errors attribute
+            error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
+            return Response({'status': 'error', 'message': error_messages, 'statusCode':status.HTTP_400_BAD_REQUEST})
+        except Exception as e:
+            return Response({'status': 'error', 'message': str(e), 'statusCode': status.HTTP_400_BAD_REQUEST})
 
 
 class RegisterViewSet(viewsets.ModelViewSet):

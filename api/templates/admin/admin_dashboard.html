@@ -1,0 +1,101 @@
+<!-- admin_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* Customize card styles here */
+        .card {
+            margin-bottom: 20px;
+            background-color: #faf8fa !important; /* Light gray background color */
+        }
+        .card-body {
+            color: #333333; /* Dark text color */
+            background-color: #34c93b !important; /* Light green background color */
+        }
+        .card-title {
+            color: #16809b !important; /* Blue title color */
+            font-size: 30px; /* Font size 30px */
+        }
+        .card-text {
+            font-size: 15px; /* Font size 30px */
+            margin-bottom: 5px; /* Add some space between paragraphs */
+            display: flex; /* Use flexbox layout */
+            justify-content: space-between; /* Align items to the left and right */
+            align-items: center; /* Align items vertically */
+        }
+        .card-text span:first-child {
+            flex: 1; /* Allow labels to take available space */
+            text-align: left; /* Align labels to the left */
+        }
+        .card-text span:last-child {
+            flex: 1; /* Allow counts to take available space */
+            text-align: right; /* Align counts to the right */
+        }
+        .dashboard-title {
+            text-align: center; /* Center align the dashboard title */
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="container">
+        <h1 class="mt-4 mb-4 dashboard-title">Admin Dashboard</h1>
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Total Bookings Card -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Bookings </h5>
+                        <p class="card-text"><span>Total Bookings:</span> <span>{{ cards.total_bookings_count }}</span></p>
+                        <p class="card-text"><span>Successful Bookings:</span> <span>{{ cards.successful_bookings }}</span></p>
+                        <p class="card-text"><span>Refunded Bookings:</span> <span>{{ cards.refunded_bookings }}</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <!-- Total Agents Card -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Agents</h5>
+                        <p class="card-text"><span>Total Agents:</span> <span>{{ cards.total_agent_count }}</span></p>
+                        <p class="card-text"><span>Active Agents:</span> <span>{{ cards.active_agents }}</span></p>
+                        <p class="card-text"><span>Inactive Agents:</span> <span>{{ cards.inactive_agents }}</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <!-- Total Agents Transaction Card -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Agent Transaction</h5>
+                        <p class="card-text"><span>Total Transaction:</span> <span>{{ cards.total_agent_transaction_count }}</span></p>
+                        <p class="card-text"><span> Successful Transaction:</span> <span>{{ cards.successful_agent_transaction_count }}</span></p>
+                        <p class="card-text"><span>Failed Transaction:</span> <span>{{ cards.failed_agent_transaction_count }}</span></p>
+                        <p class="card-text"><span>Pending Transaction:</span> <span>{{ cards.pending_agent_transaction_count }}</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <!-- Total User Transaction Card -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">User Transaction</h5>
+                        <p class="card-text"><span>Total Transaction:</span> <span>{{ cards.total_user_transaction_count }}</span></p>
+                        <p class="card-text"><span> Refunded Transaction:</span> <span>{{ cards.refunded_user_transaction_count }}</span></p>
+                        <p class="card-text"><span>Cancelled Transaction:</span> <span>{{ cards.cancelled_user_transaction_count }}</span></p>
+                        <p class="card-text"><span>Pending Transaction:</span> <span>{{ cards.pending_user_transaction_count }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

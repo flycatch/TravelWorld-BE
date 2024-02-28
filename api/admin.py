@@ -590,7 +590,7 @@ class UserReviewAdmin(CustomModelAdmin):
     list_display = ("user", "package", "activity", "rating", "review",)
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
-    exclude = ('status',)
+    exclude = ('status', 'is_deleted', 'is_active')
 
     def has_change_permission(self, request, obj=None):
         return False

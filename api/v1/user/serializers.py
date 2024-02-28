@@ -31,8 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         # Validate that the first name contains only alphabets and is not less than 3 characters
         if not (value.isalpha() and len(value) >= 3):
             raise serializers.ValidationError(
-                "First name should contain only alphabets and be at least 3 characters long, \
-                and no whitespace is allowed.")
+                "The first name must be at least 3 characters long, contain only letters, and no spaces.")
         return value
 
     def validate_last_name(self, value):

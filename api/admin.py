@@ -614,6 +614,59 @@ class TourTypeAdmin(CustomModelAdmin):
     list_display = ("title",)
     search_fields = ( "title",)
 
+from django.shortcuts import render
+
+def dashboard_page(request):
+
+    total_user_count = User.objects.count()
+
+    #Booking
+    total_bookings_count = Booking.objects.count()
+    successful_bookings = Booking.objects.filter(booking_status='SUCCESSFUL').count()
+    failed_bookings = Booking.objects.filter(booking_status='FAILED').count()
+    refunded_bookings = Booking.objects.filter(booking_status='REFUNDED').count()
+
+    #Agents
+    total_agent_count = Agent.objects.count()
+    active_agents = Agent.objects.filter(stage='pending').count()
+    inactive_agents = Agent.objects.filter(stage='approved').count()
+
+    #Agent Transactions
+    total_agent_transaction_count = AgentTransactionSettlement.objects.count()
+    successful_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='SUCCESSFUL').count()
+    failed_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='FAILED').count()
+    pending_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='PENDING').count()
+
+    #User Transactions
+    total_user_transaction_count = UserRefundTransaction.objects.count()
+    refunded_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='REFUNDED').count()
+    cancelled_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='FAILED').count()
+    pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='CANCELLED').count()
+
+  
+
+    cards = {
+        'total_bookings_count': total_bookings_count,
+        'total_agent_count': total_agent_count,
+        'total_user_count': total_user_count,
+        'successful_bookings':successful_bookings,
+        'failed_bookings':failed_bookings,
+        'refunded_bookings':refunded_bookings,
+        'active_agents':active_agents,
+        'inactive_agents':inactive_agents,
+        'total_agent_transaction_count':total_agent_transaction_count,
+        'successful_agent_transaction_count':successful_agent_transaction_count,
+        'failed_agent_transaction_count':failed_agent_transaction_count,
+        'pending_agent_transaction_count':pending_agent_transaction_count,
+        'total_user_transaction_count':total_user_transaction_count,
+        'refunded_user_transaction_count':refunded_user_transaction_count,
+        'cancelled_user_transaction_count':cancelled_user_transaction_count,
+        'pending_user_transaction_count':pending_user_transaction_count
+        
+    }
+
+    return render(request, 'admin/admin_dashboard.html', {
+                                                'cards':cards,})
 
 # Unregister model
 admin.site.unregister(Group)

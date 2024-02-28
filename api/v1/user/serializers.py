@@ -10,11 +10,11 @@ from django.db import transaction
 from api.models import *
 
 
-# class UserSerializer(serializers.ModelSerializer):
+class UserBookingSerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = User
-#         fields = ["id","username","first_name","last_name","email"]
+    class Meta:
+        model = User
+        fields = ["id","username","first_name","last_name","email"]
 
 
 class UserSerializer(serializers.ModelSerializer):

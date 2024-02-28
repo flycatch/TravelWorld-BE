@@ -333,19 +333,19 @@ class PackageImage(BaseModel):
 
 
 class Inclusions(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
+    # STAGES_CHOICES = [
+    #     ('pending', _('Pending')),
+    #     ('approved', _('Approved')),
+    #     ('rejected', _('Rejected')),
+    # ]
 
     name = models.CharField(max_length=255, unique=True)
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
+    # stage = models.CharField(
+    #     max_length=20,
+    #     choices=STAGES_CHOICES,
+    #     default='pending',
+    #     verbose_name='Stage'
+    # )
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_package')
 
@@ -371,18 +371,18 @@ class Inclusions(BaseModel):
 
 
 class Exclusions(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
+    # STAGES_CHOICES = [
+    #     ('pending', _('Pending')),
+    #     ('approved', _('Approved')),
+    #     ('rejected', _('Rejected')),
+    # ]
     name = models.CharField(max_length=255, unique=True)
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
+    # stage = models.CharField(
+    #     max_length=20,
+    #     choices=STAGES_CHOICES,
+    #     default='pending',
+    #     verbose_name='Stage'
+    # )
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
 
@@ -850,19 +850,19 @@ class ActivityImage(BaseModel):
 
 
 class ActivityInclusions(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
+    # STAGES_CHOICES = [
+    #     ('pending', _('Pending')),
+    #     ('approved', _('Approved')),
+    #     ('rejected', _('Rejected')),
+    # ]
 
     name = models.CharField(max_length=255, unique=True)
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
+    # stage = models.CharField(
+    #     max_length=20,
+    #     choices=STAGES_CHOICES,
+    #     default='pending',
+    #     verbose_name='Stage'
+    # )
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
 
@@ -886,18 +886,18 @@ class ActivityInclusions(BaseModel):
 
 
 class ActivityExclusions(BaseModel):
-    STAGES_CHOICES = [
-        ('pending', _('Pending')),
-        ('approved', _('Approved')),
-        ('rejected', _('Rejected')),
-    ]
+    # STAGES_CHOICES = [
+    #     ('pending', _('Pending')),
+    #     ('approved', _('Approved')),
+    #     ('rejected', _('Rejected')),
+    # ]
     name = models.CharField(max_length=255, unique=True)
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name='Stage'
-    )
+    # stage = models.CharField(
+    #     max_length=20,
+    #     choices=STAGES_CHOICES,
+    #     default='pending',
+    #     verbose_name='Stage'
+    # )
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
     

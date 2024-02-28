@@ -6,7 +6,7 @@ from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.package.serializers import (BookingPackageSerializer,
                                         PackageMinFieldsSerializer)
-from api.v1.user.serializers import UserSerializer
+from api.v1.user.serializers import UserBookingSerializer
 from api.v1.bookings.serializers import BookingMinFieldsSerializer
 
 from rest_framework import serializers
@@ -22,7 +22,7 @@ class UserReviewSerializer(serializers.ModelSerializer):
 
 
 class UserReviewDetailSerializer(serializers.ModelSerializer):
-    user = UserSerializer(required=False)
+    user = UserBookingSerializer(required=False)
     package = PackageMinFieldsSerializer(required=False)
     booking = BookingMinFieldsSerializer(required=False)
 

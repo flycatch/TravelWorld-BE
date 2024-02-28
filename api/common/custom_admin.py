@@ -21,5 +21,6 @@ class CustomModelAdmin(admin.ModelAdmin):
         if hasattr(formfield, 'widget') and isinstance(formfield.widget, RelatedFieldWidgetWrapper):
             formfield.widget.can_view_related = False
             formfield.widget.can_change_related = False
+            formfield.widget.can_add_related = False
 
         return formfield

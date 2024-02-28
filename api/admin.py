@@ -89,35 +89,38 @@ class CityAdmin(CustomModelAdmin):
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage_colour", "status_colour")
-    list_filter = ("stage", "status")
+    list_display = ("name", "status_colour")
+    list_filter = ("status",)
     search_fields = ("name",)
+    exclude = ("is_deleted",)
 
-    def stage_colour(self, obj):
-        return stage_colour(obj.stage)
+    # def stage_colour(self, obj):
+    #     return stage_colour(obj.stage)
+
+    # stage_colour.short_description = 'stage'  # Set a custom column header
+    # stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
     def status_colour(self, obj):
         return status_colour(obj.status)
 
-    stage_colour.short_description = 'stage'  # Set a custom column header
-    stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
 
 class ExclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "stage_colour", "status_colour")
-    list_filter = ("stage", "status")
+    list_display = ("name", "status_colour")
+    list_filter = ("status",)
     search_fields = ("name",)
 
-    def stage_colour(self, obj):
-        return stage_colour(obj.stage)
+    # def stage_colour(self, obj):
+    #     return stage_colour(obj.stage)
+
+    # stage_colour.short_description = 'stage'  # Set a custom column header
+    # stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
 
     def status_colour(self, obj):
         return status_colour(obj.status)
 
-    stage_colour.short_description = 'stage'  # Set a custom column header
-    stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
@@ -201,6 +204,7 @@ class PackageAdmin(CustomModelAdmin):
         return status_colour(obj.status)
 
     stage_colour.short_description = 'stage'  # Set a custom column header
+    stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
@@ -266,6 +270,7 @@ class BookingAdmin(CustomModelAdmin):
 
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  
+    agent_id.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
 
@@ -486,6 +491,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
     agent.admin_order_field = 'Agent'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
+    agent_uid.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
 
@@ -576,6 +582,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
+    agent_uid.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
 class UserReviewAdmin(CustomModelAdmin):

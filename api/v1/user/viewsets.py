@@ -39,7 +39,8 @@ class UserViewSet(viewsets.ModelViewSet):
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
             return Response({'status': 'error', 'message': error_messages, 'statusCode':status.HTTP_400_BAD_REQUEST})
         except Exception as e:
-            return Response({'status': 'error', 'message': str(e), 'statusCode': status.HTTP_400_BAD_REQUEST})
+            # Return appropriate status code for other exceptions
+            return Response({'status': 'error', 'message': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR})
 
 
 class UserRegisterViewSet(viewsets.ModelViewSet):

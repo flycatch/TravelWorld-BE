@@ -946,7 +946,7 @@ class ActivityItinerary(BaseModel):
 
 class ActivityInclusionInformation(BaseModel):
     inclusion = models.ForeignKey(
-        Inclusions, on_delete=models.CASCADE, 
+        ActivityInclusions, on_delete=models.CASCADE, 
         related_name='activity_inclusioninformation_inclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 
@@ -957,7 +957,7 @@ class ActivityInclusionInformation(BaseModel):
 
 class ActivityExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
-        Exclusions, on_delete=models.CASCADE, 
+        ActivityExclusions, on_delete=models.CASCADE, 
         related_name='activity_exclusioninformation_exclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 

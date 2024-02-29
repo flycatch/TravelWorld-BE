@@ -14,12 +14,12 @@ from api.v1.general.serializers import *
 
 
 class PackageSerializer(serializers.ModelSerializer):
-    country = serializers.CharField(source='country.name', read_only=True)
-    state = serializers.CharField(source='state.name', read_only=True)
-    city = serializers.CharField(source='city.name', read_only=True)
-    agent = serializers.CharField(source='agent.agent_uid', read_only=True)
-    category = serializers.CharField(source='category.name', read_only=True)
-    city = serializers.CharField(source='city.name', read_only=True)
+    country_name = serializers.CharField(source='country.name', read_only=True)
+    state_name = serializers.CharField(source='state.name', read_only=True)
+    city_name = serializers.CharField(source='city.name', read_only=True)
+    agent_name = serializers.CharField(source='agent.agent_uid', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    city_name = serializers.CharField(source='city.name', read_only=True)
 
     class Meta:
         model = Package

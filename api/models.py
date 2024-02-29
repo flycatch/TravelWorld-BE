@@ -203,7 +203,7 @@ class Activity(BaseModel):
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='activity_city')
     category = models.ForeignKey(
-        ActivityCategory, on_delete=models.CASCADE,
+        PackageCategory, on_delete=models.CASCADE,
         related_name='activity_category',
         blank=True, null=True)
     
@@ -907,8 +907,8 @@ class ActivityItinerary(BaseModel):
     overview = models.TextField(blank=True, default="")
     itinerary_day = models.ManyToManyField(
         ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
-    inclusions = models.ManyToManyField(ActivityInclusions, related_name='activity_itinerary_inclusions', blank=True)
-    exclusions = models.ManyToManyField(ActivityExclusions, related_name='activity_itinerary_exclusions', blank=True)
+    inclusions = models.ManyToManyField(Inclusions, related_name='activity_itinerary_inclusions', blank=True)
+    exclusions = models.ManyToManyField(Exclusions, related_name='activity_itinerary_exclusions', blank=True)
 
     class Meta:
         verbose_name = 'Activity Itinerary'
@@ -917,7 +917,7 @@ class ActivityItinerary(BaseModel):
 
 class ActivityInclusionInformation(BaseModel):
     inclusion = models.ForeignKey(
-        ActivityInclusions, on_delete=models.CASCADE, 
+        Inclusions, on_delete=models.CASCADE, 
         related_name='activity_inclusioninformation_inclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 
@@ -928,7 +928,7 @@ class ActivityInclusionInformation(BaseModel):
 
 class ActivityExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
-        ActivityExclusions, on_delete=models.CASCADE, 
+        Exclusions, on_delete=models.CASCADE, 
         related_name='activity_exclusioninformation_exclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 

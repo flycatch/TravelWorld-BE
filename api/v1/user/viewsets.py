@@ -32,15 +32,23 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(instance, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            print('ok')
             return Response({'status': 'success', 'message': 'User updated successfully',
-                             'data': serializer.data, 'StatusCode': status.HTTP_200_OK})
+                             'data': serializer.data, 'statusCode': status.HTTP_200_OK},
+                             status=status.HTTP_200_OK)
         except serializers.ValidationError as e:
+            print('hi')
             # Extract error messages from the serializer's errors attribute
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
-            return Response({'status': 'error', 'message': error_messages, 'statusCode':status.HTTP_400_BAD_REQUEST})
+            return Response({'status': 'error', 'message': error_messages,
+                             'statusCode':status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print('hiii')
             # Return appropriate status code for other exceptions
-            return Response({'status': 'error', 'message': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR})
+            return Response({'status': 'error', 'message': str(e),
+                             'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserRegisterViewSet(viewsets.ModelViewSet):
@@ -57,7 +65,8 @@ class UserRegisterViewSet(viewsets.ModelViewSet):
         else:
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
             return Response({ 'status': 'error', 'message': error_messages,
-                             'statusCode': status.HTTP_400_BAD_REQUEST })
+                             'statusCode': status.HTTP_400_BAD_REQUEST },
+                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserLoginViewset(viewsets.ModelViewSet):
@@ -70,10 +79,12 @@ class UserLoginViewset(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             response_data = serializer.save()
             return Response({'status': 'success', 'message': 'Login Successful', 
-                             'token': response_data, 'statusCode': status.HTTP_200_OK})
+                             'token': response_data, 'statusCode': status.HTTP_200_OK},
+                             status=status.HTTP_200_OK)
         except Exception as error_message:
             return Response({'status': 'error', 'message': "Invalid username or email, or incorrect password",
-                             'statusCode': status.HTTP_400_BAD_REQUEST})
+                             'statusCode': status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserForgotPassword(APIView):

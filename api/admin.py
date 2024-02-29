@@ -610,10 +610,6 @@ class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
 
-class TourTypeAdmin(CustomModelAdmin):
-    list_display = ("title",)
-    search_fields = ( "title",)
-
 from django.shortcuts import render
 
 def dashboard_page(request):
@@ -688,7 +684,6 @@ admin.site.register(Booking,BookingAdmin)
 admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
-admin.site.register(TourType,TourTypeAdmin)
 
 # admin.site.register(CancellationPolicy)
 

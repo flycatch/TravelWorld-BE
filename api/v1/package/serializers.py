@@ -59,12 +59,6 @@ class PackageImageSerializer(serializers.ModelSerializer):
         exclude = ['status', 'created_on', 'updated_on',]
 
 
-# class PackageTourTypeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = TourType
-#         exclude = ['status']
-
-
 class ItineraryDaySerializer(serializers.ModelSerializer):
     class Meta:
         model = ItineraryDay
@@ -106,13 +100,13 @@ class ItinerarySerializer(serializers.ModelSerializer):
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inclusions
-        fields = ['id', 'name','package']
+        fields = ['id', 'name']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exclusions
-        fields = ['id', 'name','package']
+        fields = ['id', 'name']
 
 
 class InclusionInformationSerializer(serializers.ModelSerializer):

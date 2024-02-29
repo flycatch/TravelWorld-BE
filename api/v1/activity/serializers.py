@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
-                        ActivityImage, ActivityCategory, ActivityInclusions, ActivityExclusions,
+                        ActivityImage, PackageCategory, Inclusions, Exclusions,
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
@@ -97,14 +97,14 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
 
 class ActivityInclusionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ActivityInclusions
-        fields = ['id', 'name','activity']
+        model = Inclusions
+        fields = ['id', 'name']
 
 
 class ActivityExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ActivityExclusions
-        fields = ['id', 'name','activity']
+        model = Exclusions
+        fields = ['id', 'name']
 
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
@@ -226,7 +226,7 @@ class ActivityPricingSerializer(serializers.ModelSerializer):
 
 class ActivityCategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = ActivityCategory
+        model = PackageCategory
         fields = ['id', 'name']
 
 

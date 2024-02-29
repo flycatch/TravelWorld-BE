@@ -1,11 +1,10 @@
 # views.py
 from api.filters.package_activity_filters import *
-from api.models import (Activity, ActivityCancellationPolicy, ActivityCategory,
-                        ActivityExclusions, ActivityFaqQuestionAnswer,
-                        ActivityImage, ActivityInclusions,
+from api.models import (Activity, ActivityCancellationPolicy, PackageCategory,
+                         ActivityFaqQuestionAnswer, ActivityImage,
                         ActivityInformations, ActivityItinerary,
                         ActivityItineraryDay, ActivityPricing,
-                        ActivityTourCategory)
+                        ActivityTourCategory, Inclusions, Exclusions)
 from api.utils.paginator import CustomPagination
 from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
                                          ActivityCategorySerializer,
@@ -159,11 +158,6 @@ class ActivityDeleteDraft(viewsets.ModelViewSet):
             return Response({'message': 'Activity not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class ActivityTourTypeViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = TourType.objects.all()
-#     serializer_class = ActivityTourTypeSerializer
-
-
 class ActivityItineraryViewSet(viewsets.ModelViewSet):
     queryset = ActivityItinerary.objects.all()
     serializer_class = ActivityItinerarySerializer
@@ -182,13 +176,13 @@ class ActivityItineraryViewSet(viewsets.ModelViewSet):
 
 
 class ActivityInclusionsViewSet(viewsets.ModelViewSet):
-    queryset = ActivityInclusions.objects.all()
+    queryset = Inclusions.objects.all()
     serializer_class = ActivityInclusionsSerializer
 
     def get_queryset(self, **kwargs):
         
         activity = self.request.GET.get("activity",None)
-        queryset = ActivityInclusions.objects.all()
+        queryset = Inclusions.objects.all()
 
         if activity:
             queryset = queryset.filter(Q(activity__isnull=True) | Q(activity=activity))
@@ -198,13 +192,13 @@ class ActivityInclusionsViewSet(viewsets.ModelViewSet):
 
 
 class ActivityExclusionsViewSet(viewsets.ModelViewSet):
-    queryset = ActivityExclusions.objects.all()
+    queryset = Exclusions.objects.all()
     serializer_class = ActivityExclusionsSerializer
 
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
 
-        queryset = ActivityExclusions.objects.all()
+        queryset = Exclusions.objects.all()
 
         if activity:
             queryset = queryset.filter(Q(activity__isnull=True) | Q(activity=activity))
@@ -245,7 +239,7 @@ class ActivityPricingViewSet(viewsets.ModelViewSet):
 
 
 class ActivityCategoryViewSet(viewsets.ModelViewSet):
-    queryset = ActivityCategory.objects.all()
+    queryset = PackageCategory.objects.all()
     serializer_class = ActivityCategorySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]

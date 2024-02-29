@@ -315,6 +315,8 @@ class Package(BaseModel):
     )
 
     is_submitted = models.BooleanField(default=False)
+    reject_reason = models.TextField(default="", blank=True, null=True)
+
     class Meta:
         verbose_name = 'Package'
         verbose_name_plural = 'Packages'

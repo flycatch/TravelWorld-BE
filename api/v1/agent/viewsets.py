@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import serializers
 
+
 class AgentViewSet(viewsets.ModelViewSet):
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
@@ -31,13 +32,19 @@ class AgentViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response({'status': 'success', 'message': 'Agent updated successfully',
-                             'data': serializer.data, 'StatusCode': status.HTTP_200_OK})
+                             'data': serializer.data, 'StatusCode': status.HTTP_200_OK},
+                             status=status.HTTP_200_OK)
         except serializers.ValidationError as e:
+            print('hi')
             # Extract error messages from the serializer's errors attribute
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
-            return Response({'status': 'error', 'message': error_messages, 'statusCode':status.HTTP_400_BAD_REQUEST})
+            return Response({'status': 'error', 'message': error_messages,
+                             'statusCode':status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'status': 'error', 'message': str(e), 'statusCode': status.HTTP_400_BAD_REQUEST})
+            return Response({'status': 'error', 'message': str(e),
+                             'statusCode': status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class RegisterViewSet(viewsets.ModelViewSet):
@@ -54,7 +61,8 @@ class RegisterViewSet(viewsets.ModelViewSet):
         else:
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
             return Response({ 'status': 'error', 'message': error_messages,
-                             'statusCode': status.HTTP_400_BAD_REQUEST })
+                             'statusCode': status.HTTP_400_BAD_REQUEST },
+                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginViewSet(viewsets.ModelViewSet):
@@ -75,15 +83,15 @@ class ForgotPassword(APIView):
             email = request.data.get('email')
             if not email:
                 return Response({'message': 'Please provide an email address',
-                                 "status": "error",
-                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+                                 "status": "error", "statusCode": status.HTTP_400_BAD_REQUEST},
+                                 status=status.HTTP_400_BAD_REQUEST)
 
             try:
                 user = Agent.objects.get(email=email)
             except Agent.DoesNotExist:
                 return Response({'message': 'User with that email address does not exist',
-                                 "status": "error",
-                                "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+                                 "status": "error", "statusCode": status.HTTP_404_NOT_FOUND},
+                                status=status.HTTP_404_NOT_FOUND)
             
             token = default_token_generator.make_token(user)
             uidb64 = urlsafe_base64_encode(str(user.id).encode())

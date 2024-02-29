@@ -12,6 +12,13 @@ from api.v1.general.serializers import *
 
 
 class ActivitySerializer(serializers.ModelSerializer):
+    country = serializers.CharField(source='country.name', read_only=True)
+    state = serializers.CharField(source='state.name', read_only=True)
+    city = serializers.CharField(source='city.name', read_only=True)
+    agent = serializers.CharField(source='agent.agent_uid', read_only=True)
+    category = serializers.CharField(source='category.name', read_only=True)
+    city = serializers.CharField(source='city.name', read_only=True)
+
     class Meta:
         model = Activity
         exclude = ['status', 'is_submitted']

@@ -603,8 +603,8 @@ class UserReviewAdmin(CustomModelAdmin):
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
-    list_display = ("category","percentage")
-    search_fields = ( "category", "percentage")
+    list_display = ("id","percentage")
+    search_fields = ( "id", "percentage")
 
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)

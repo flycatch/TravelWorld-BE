@@ -754,8 +754,6 @@ class TourType(AuditFields):
         return self.title
     
 class AdvanceAmountPercentageSetting(AuditFields):
-    category = models.ForeignKey(
-        TourType, on_delete=models.CASCADE, related_name='tour_catgory',null=True, blank=True)
     percentage = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     
 

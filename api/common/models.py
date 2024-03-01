@@ -59,7 +59,7 @@ class BaseModel(models.Model):
         return encode(self.id)
 
 
-class BaseUser(AbstractUser):
+class BaseUser (AbstractBaseUser,PermissionsMixin):
     STATUS_CHOICES = [
         ('active', _('Active')),
         ('inactive', _('Inactive')),
@@ -68,19 +68,25 @@ class BaseUser(AbstractUser):
     first_name = models.CharField(_("First Name"), max_length=150, blank=True)
     last_name = models.CharField(_("Last Name"), max_length=150, blank=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
-    email = models.EmailField(unique=True)
+    unique_username = models.CharField(_("Username"), max_length=256, null=True, blank=True, unique=True)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default='active',
         verbose_name='Status'
     )
+    is_staff = models.BooleanField(default=False)
+
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'unique_username'
     class Meta:
         verbose_name = _('Base User')
         verbose_name_plural = _('Base Users')
 
     def __str__(self):
-        return self.username
+        return self.unique_username
     
 
 class AuditFields(models.Model):

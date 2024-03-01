@@ -16,7 +16,7 @@ class BaseUserModelBackend(ModelBackend):
 
         if not user and username:
             try:
-                user = UserModel.objects.get(username=username)
+                user = UserModel.objects.get(unique_username=username)
             except UserModel.DoesNotExist:
                 pass
 

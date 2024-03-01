@@ -587,7 +587,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package", "activity", "rating", "review",)
+    list_display = ("user", "package", "activity", "rating",)
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')

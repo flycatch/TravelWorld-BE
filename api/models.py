@@ -722,10 +722,9 @@ class AgentTransactionSettlement(AuditFields):
 class AdvanceAmountPercentageSetting(AuditFields):
     percentage = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
     
-
     class Meta:
-        verbose_name = "Advance Amount Percentage Setting"
-        verbose_name_plural = "Advance Amount Percentage Settings"
+        verbose_name = "Advance Amount Percentage"
+        verbose_name_plural = "Advance Amount Percentage"
 
 
 

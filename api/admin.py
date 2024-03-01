@@ -18,7 +18,7 @@ class AgentAdmin(CustomModelAdmin):
         ('Profile Details', {'fields': ('agent_uid', 'username', 'first_name',
          'last_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage')}),
-        ('Activity History', {'fields': ('date_joined', 'last_login')}),
+        # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
     list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
@@ -44,11 +44,10 @@ class AgentAdmin(CustomModelAdmin):
 
 class UserAdmin(CustomModelAdmin):
     fieldsets = (
-        ('Profile Details', {'fields': ('username', 'first_name',
-         'last_name', 'phone', 'email', 'profile_image')}),
-        ('Permissions', {'fields': ('status', 'user_permissions',)}),
-        ('Activity History', {'fields': ('date_joined', 'last_login')}),
-        # Add your custom fieldsets here
+        ('Profile Details', {'fields': ('user_uid', 'username', 'first_name',
+         'last_name', 'phone', 'email', 'profile_image', 'status')}),
+        # ('Permissions', {'fields': ('status', 'user_permissions',)}),
+        # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
     list_display = ("user_uid", "username", "first_name", "last_name", "email", "phone", "status_colour")
@@ -89,16 +88,10 @@ class CityAdmin(CustomModelAdmin):
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("id", "name", "status_colour")
+    list_display = ("name", "status_colour")
     list_filter = ("status",)
     search_fields = ("name",)
-    exclude = ("is_deleted",)
-
-    # def stage_colour(self, obj):
-    #     return stage_colour(obj.stage)
-
-    # stage_colour.short_description = 'stage'  # Set a custom column header
-    # stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    exclude = ("is_deleted", "package", "activity")
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -111,12 +104,7 @@ class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
     list_filter = ("status",)
     search_fields = ("name",)
-
-    # def stage_colour(self, obj):
-    #     return stage_colour(obj.stage)
-
-    # stage_colour.short_description = 'stage'  # Set a custom column header
-    # stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    exclude = ("package", "activity")
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -683,9 +671,6 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
-admin.site.register(ActivityItinerary)
-
-admin.site.register(ActivityInclusionInformation)
 admin.site.register(UserReview,UserReviewAdmin)
 
 # admin.site.register(CancellationPolicy)

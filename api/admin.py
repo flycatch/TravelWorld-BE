@@ -89,7 +89,7 @@ class CityAdmin(CustomModelAdmin):
 
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "status_colour")
+    list_display = ("id", "name", "status_colour")
     list_filter = ("status",)
     search_fields = ("name",)
     exclude = ("is_deleted",)
@@ -683,6 +683,7 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
+admin.site.register(ActivityInclusionInformation)
 admin.site.register(UserReview,UserReviewAdmin)
 
 # admin.site.register(CancellationPolicy)

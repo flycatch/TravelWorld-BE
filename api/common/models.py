@@ -1,10 +1,11 @@
-from django.db import models
-from django.conf import settings
-from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-
 from api.common.library import encode
+from api.managers import CustomUserManager
+from django.conf import settings
+from django.contrib.auth.models import (AbstractBaseUser, AbstractUser,
+                                        PermissionsMixin)
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class BaseModel(models.Model):

@@ -10,6 +10,8 @@ from api.utils.choices import *
 class User(BaseUser):
     user_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='User UID')
     profile_image = models.ImageField(upload_to='profile_images/user/', null=True, blank=True)
+    username = models.CharField(max_length=256, null=True, blank=True, unique=True)
+    email = models.EmailField(unique=True,null=True, blank=True)
 
     class Meta:
         verbose_name = 'User'
@@ -17,6 +19,13 @@ class User(BaseUser):
 
     def __str__(self):
         return self.user_uid if self.user_uid else self.username
+    
+    def save(self, *args, **kwargs):
+        
+        if not self.unique_username:
+            self.unique_username = self.username
+            
+        super().save(*args, **kwargs)
 
 
 class Agent(BaseUser):
@@ -34,6 +43,8 @@ class Agent(BaseUser):
         default='pending',
         verbose_name=_('Stage'),
     )
+    username = models.CharField(max_length=256, null=True, blank=True, unique=True)
+    email = models.EmailField(unique=True,null=True, blank=True)
 
     class Meta:
         verbose_name = 'Agent'
@@ -49,6 +60,10 @@ class Agent(BaseUser):
             last_id = last_agent.agent_uid[4:] if last_agent else '0'
             new_id = str(int(last_id) + 1)
             self.agent_uid = f'EWAG{new_id}'
+
+        if not self.unique_username:
+            self.unique_username = self.username
+
         super().save(*args, **kwargs)
 
 

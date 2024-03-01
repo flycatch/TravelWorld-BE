@@ -49,17 +49,17 @@ class Agent(BaseUser):
         return self.agent_uid
 
     #Generate unique agent id
-    def save(self, *args, **kwargs):
-        if not self.agent_uid:
-            last_agent = Agent.objects.order_by('-agent_uid').first()
-            last_id = last_agent.agent_uid[4:] if last_agent else '0'
-            new_id = str(int(last_id) + 1)
-            self.agent_uid = f'EWAG{new_id}'
+    # def save(self, *args, **kwargs):
+    #     if not self.agent_uid:
+    #         last_agent = Agent.objects.order_by('-agent_uid').first()
+    #         last_id = last_agent.agent_uid[4:] if last_agent else '0'
+    #         new_id = str(int(last_id) + 1)
+    #         self.agent_uid = f'EWAG{new_id}'
 
-        if not self.unique_username:
-            self.unique_username = f'{self.username}_{new_id}'
+    #     if not self.unique_username:
+    #         self.unique_username = f'{self.username}_{new_id}'
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
 
 
 class Country(BaseModel):

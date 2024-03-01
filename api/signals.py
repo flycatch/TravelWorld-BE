@@ -63,4 +63,5 @@ def user_code_created(sender, instance, created, **kwargs):
     if created:
         user_uid = f"EWUSR-{instance.id}"
         instance.user_uid = user_uid
+        instance.unique_username = f'{instance.username}_{instance.id}'
         instance.save()

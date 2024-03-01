@@ -20,12 +20,7 @@ class User(BaseUser):
     def __str__(self):
         return self.user_uid if self.user_uid else self.username
     
-    def save(self, *args, **kwargs):
-        
-        if not self.unique_username:
-            self.unique_username = self.username
-            
-        super().save(*args, **kwargs)
+   
 
 
 class Agent(BaseUser):
@@ -62,7 +57,7 @@ class Agent(BaseUser):
             self.agent_uid = f'EWAG{new_id}'
 
         if not self.unique_username:
-            self.unique_username = self.username
+            self.unique_username = f'{self.username}_{new_id}'
 
         super().save(*args, **kwargs)
 

@@ -158,11 +158,6 @@ class PackageDeleteDraft(viewsets.ModelViewSet):
             return Response({'message': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# class PackageTourTypeViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = TourType.objects.all()
-#     serializer_class = PackageTourTypeSerializer
-
-
 class ItineraryViewSet(viewsets.ModelViewSet):
     serializer_class = ItinerarySerializer
     permission_classes = [IsAuthenticated]

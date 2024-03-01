@@ -136,17 +136,6 @@ class City(BaseModel):
                 {'name': _('City name should contain only alphabetic characters.')})
 
 
-# class TourType(BaseModel):
-#     name = models.CharField(max_length=255)
-
-#     class Meta:
-#         verbose_name = 'Tour Type'
-#         verbose_name_plural = 'Tour Type'
-
-#     def __str__(self):
-#         return self.name
-
-
 class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
     thumb_img = models.ImageField(
@@ -157,8 +146,8 @@ class PackageCategory(BaseModel):
         null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
-        verbose_name = 'Package Category'
-        verbose_name_plural = 'Package Category'
+        verbose_name = 'Tour Category'
+        verbose_name_plural = 'Tour Category'
 
     def __str__(self):
         return self.name
@@ -214,7 +203,7 @@ class Activity(BaseModel):
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='activity_city')
     category = models.ForeignKey(
-        ActivityCategory, on_delete=models.CASCADE,
+        PackageCategory, on_delete=models.CASCADE,
         related_name='activity_category',
         blank=True, null=True)
     
@@ -278,9 +267,6 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    # tour_type = models.ForeignKey(
-    #     TourType, on_delete=models.CASCADE,
-    #     related_name='packages', verbose_name='Tour Type')
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE, related_name='package_country')
     state = models.ForeignKey(
@@ -334,22 +320,11 @@ class PackageImage(BaseModel):
 
 
 class Inclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
-
     name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_package')
-
+    activity = models.ForeignKey(
+        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
 
     class Meta:
@@ -372,20 +347,11 @@ class Inclusions(BaseModel):
 
 
 class Exclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
     name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
+    activity = models.ForeignKey(
+        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
 
     class Meta:
         verbose_name = 'Exclusions'
@@ -743,15 +709,15 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
-class TourType(AuditFields):
-    title = models.CharField(max_length=256, null=True, blank=True)
+# class TourType(AuditFields):
+#     title = models.CharField(max_length=256, null=True, blank=True)
 
-    class Meta:
-        verbose_name = "Tour Type"
-        verbose_name_plural = "Tour Type"
+#     class Meta:
+#         verbose_name = "Tour Type"
+#         verbose_name_plural = "Tour Type"
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
     
 class AdvanceAmountPercentageSetting(AuditFields):
     percentage = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
@@ -941,8 +907,8 @@ class ActivityItinerary(BaseModel):
     overview = models.TextField(blank=True, default="")
     itinerary_day = models.ManyToManyField(
         ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
-    inclusions = models.ManyToManyField(ActivityInclusions, related_name='activity_itinerary_inclusions', blank=True)
-    exclusions = models.ManyToManyField(ActivityExclusions, related_name='activity_itinerary_exclusions', blank=True)
+    inclusions = models.ManyToManyField(Inclusions, related_name='activity_itinerary_inclusions', blank=True)
+    exclusions = models.ManyToManyField(Exclusions, related_name='activity_itinerary_exclusions', blank=True)
 
     class Meta:
         verbose_name = 'Activity Itinerary'
@@ -951,7 +917,7 @@ class ActivityItinerary(BaseModel):
 
 class ActivityInclusionInformation(BaseModel):
     inclusion = models.ForeignKey(
-        ActivityInclusions, on_delete=models.CASCADE, 
+        Inclusions, on_delete=models.CASCADE, 
         related_name='activity_inclusioninformation_inclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 
@@ -962,7 +928,7 @@ class ActivityInclusionInformation(BaseModel):
 
 class ActivityExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
-        ActivityExclusions, on_delete=models.CASCADE, 
+        Exclusions, on_delete=models.CASCADE, 
         related_name='activity_exclusioninformation_exclusion', null=True, blank=True)
     details = models.TextField(blank=True, null=True, default="")
 

@@ -41,7 +41,6 @@ Package urls
 router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
-# router.register(r'packages/tourtype/', PackageTourTypeViewSet, basename='tour_type'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
 
 # Itinerary
@@ -69,7 +68,6 @@ Activity urls
 router.register(r'activity/create', ActivityViewSet, basename='activity') #activity crud operations
 router.register(r'activity/upload', ActivityImageViewSet, basename='activity_image_upload')
 router.register(r'activity/delete-draft', ActivityDeleteDraft, basename='delete_draft_activity'),
-# router.register(r'activity/tourtype/', ActivityTourTypeViewSet, basename='tour_type'),
 router.register(r'activity/category', ActivityCategoryViewSet, basename='activity_category'),
 
 # Itinerary

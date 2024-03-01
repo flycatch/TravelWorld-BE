@@ -139,23 +139,24 @@ class ActivityDeleteDraft(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         try:
-            activity = self.get_object()
-            # Check if the activity belongs to the authenticated user
-            if activity.user == request.user:
+            activity = Activity.objects.get(pk=kwargs['pk'])
+            # Check if the package belongs to the authenticated user
+            if activity.agent.id == request.user.id:
                 if not activity.is_submitted:
                     activity.delete()
-                    return Response({'message': 'Activity deleted successfully'},
-                                    status=status.HTTP_204_NO_CONTENT)
+                    return Response({'status':'success', 'message': 'Package deleted successfully',
+                                     'statusCode':status.HTTP_200_OK}, status=status.HTTP_200_OK)
                 else:
-                    return Response({'message': 'Cannot delete a submitted activity'},
-                                    status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'status':'error', 'message': 'Cannot delete a submitted package',
+                                     'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response({'message': 'You do not have permission to delete this activity'},
-                                status=status.HTTP_403_FORBIDDEN)
-        except Activity.DoesNotExist:
-            return Response({'message': 'Activity not found'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'status':'error', 'message': 'You do not have permission to delete this package',
+                                 'statusCode':status.HTTP_403_FORBIDDEN}, status=status.HTTP_403_FORBIDDEN)
+        except Package.DoesNotExist:
+            return Response({'status':'error', 'message': 'Package not found',
+                             'statusCode':status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
 
 
 class ActivityItineraryViewSet(viewsets.ModelViewSet):

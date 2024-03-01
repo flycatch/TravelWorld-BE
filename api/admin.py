@@ -683,6 +683,8 @@ admin.site.register(Booking,BookingAdmin)
 
 admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
+admin.site.register(ActivityItinerary)
+
 admin.site.register(ActivityInclusionInformation)
 admin.site.register(UserReview,UserReviewAdmin)
 

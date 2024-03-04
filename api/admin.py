@@ -24,7 +24,7 @@ class AgentAdmin(CustomModelAdmin):
     list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
     list_filter = ("status", "stage")
     search_fields = ("agent_uid", "username", "first_name", "email", "phone")
-    readonly_fields = ("agent_uid",)
+    readonly_fields = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "profile_image",)
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
@@ -116,6 +116,7 @@ class ExclusionsAdmin(CustomModelAdmin):
 class ActivityImageInline(admin.TabularInline):
     model = ActivityImage
     extra = 3
+    exclude = ("status",)
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -126,6 +127,7 @@ class AttractionImageInline(admin.TabularInline):
 class PackageImageInline(admin.TabularInline):
     model = PackageImage
     extra = 3
+    exclude = ("status",)
 
 
 class ActivityAdmin(CustomModelAdmin):
@@ -152,6 +154,8 @@ class ActivityAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class AttractionAdmin(CustomModelAdmin):
@@ -267,7 +271,7 @@ class BookingAdmin(CustomModelAdmin):
         return False
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -574,17 +578,25 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     agent_uid.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
 class UserReviewAdmin(CustomModelAdmin):
     list_display = ("user", "package", "activity", "rating",)
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
-
-    def has_change_permission(self, request, obj=None):
-        return False
+    readonly_fields = ("user", "package", "activity", "rating", "review",
+                       "booking", "agent", "agent_comment")
+    fieldsets = (
+        (None, {
+            'fields': ("user", "package", "activity", "rating", "review",
+                       "booking", "agent", "agent_comment", "homepage_display")
+        }),
+        )
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return True

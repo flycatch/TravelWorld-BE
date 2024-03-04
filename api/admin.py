@@ -4,10 +4,11 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.template.defaultfilters import truncatewords
 from django.utils.html import format_html
+from django.template.defaultfilters import truncatechars
 
 from rest_framework.authtoken.models import TokenProxy
 
-from api.common.custom_admin import CustomModelAdmin
+from api.common.custom_admin import *
 from api.models import *
 from api.tasks import *
 from api.utils.admin import stage_colour, status_colour, booking_status_colour, refund_status_colour
@@ -116,25 +117,8 @@ class ExclusionsAdmin(CustomModelAdmin):
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
 
-class ActivityImageInline(admin.TabularInline):
-    model = ActivityImage
-    extra = 3
-    exclude = ("status",)
-
-
-class AttractionImageInline(admin.TabularInline):
-    model = AttractionImage
-    extra = 3
-
-
-class PackageImageInline(admin.TabularInline):
-    model = PackageImage
-    extra = 3
-    exclude = ("status",)
-
-
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("agent", "title", "tour_class", "state",
+    list_display = ("agent", "truncated_title", "tour_class", "state",
                     "city", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
@@ -143,8 +127,18 @@ class ActivityAdmin(CustomModelAdmin):
     search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
                      "city__name", "category__name")
     exclude = ('is_submitted',)
+    readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
+                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+    inlines = [ActivityImageInline, 
+            #    ActivityPricingInline, ActivityTourCategoryInline,
+            #    ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
+               ]
 
-    inlines = [ActivityImageInline]
+    def truncated_title(self, obj):
+        # Truncate title to 60 characters using truncatechars filter
+        return truncatechars(obj.title, 60)
+    truncated_title.short_description = 'Title'
+    truncated_title.admin_order_field = 'title'
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
@@ -160,29 +154,37 @@ class ActivityAdmin(CustomModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 class AttractionAdmin(CustomModelAdmin):
-    list_display = ("title", "status_colour",)
+    list_display = ("truncated_title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
 
     inlines = [AttractionImageInline]
 
-    def truncated_overview(self, obj):
-        # Display truncated overview in the admin list view
-        return truncatewords(obj.overview, 80)
-
     def status_colour(self, obj):
         return status_colour(obj.status)
+
+    def truncated_title(self, obj):
+        # Truncate title to 60 characters using truncatechars filter
+        return truncatechars(obj.title, 150)
+    truncated_title.short_description = 'Title'
+    truncated_title.admin_order_field = 'title'
+
+    # def truncated_overview(self, obj):
+    #     # Truncate title to 60 characters using truncatechars filter
+    #     return truncatechars(obj.overview, 450)
+    # truncated_overview.short_description = 'overview'
+    # truncated_overview.admin_order_field = 'overview'
 
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
-    truncated_overview.short_description = 'Overview'
-
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "title", "tour_class", "state",
+    list_display = ("agent", "truncated_title", "tour_class", "state",
                     "city", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class",  "country", "state", "category",
@@ -190,8 +192,21 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
                      "state__name", "city__name", "category__name", "tour_class")
+    readonly_fields = [field.name for field in Package._meta.fields if field.name not in \
+                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     exclude = ('is_submitted',)
-    inlines = [PackageImageInline]
+
+    inlines = [
+        PackageImageInline,
+        # ItineraryInline, PricingInline, TourCategoryInline, 
+        # CancellationPolicyInline, PackageFaqQuestionAnswerInline,
+        ]
+
+    def truncated_title(self, obj):
+        # Truncate title to 60 characters using truncatechars filter
+        return truncatechars(obj.title, 60)
+    truncated_title.short_description = 'Title'
+    truncated_title.admin_order_field = 'title'
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
@@ -208,6 +223,8 @@ class PackageAdmin(CustomModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 class BookingAdmin(CustomModelAdmin):
     list_display = ("booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
@@ -251,7 +268,7 @@ class BookingAdmin(CustomModelAdmin):
     display_created_on.short_description = "Booking date"
 
     def package_name(self, obj):
-        return obj.package.title if obj.package else None
+        return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
 
     # def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -402,7 +419,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     package_uid.short_description = "Package UID"
 
     def package_name(self, obj):
-        return obj.package.title if obj.package else None
+        return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
     
 
@@ -529,7 +546,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     package_uid.short_description = "Package UID"
 
     def package_name(self, obj):
-        return obj.package.title if obj.package else None
+        return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
     
 

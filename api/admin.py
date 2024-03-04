@@ -11,7 +11,10 @@ from api.common.custom_admin import CustomModelAdmin
 from api.models import *
 from api.tasks import *
 from api.utils.admin import stage_colour, status_colour, booking_status_colour, refund_status_colour
-
+from django.shortcuts import render
+from datetime import datetime
+from django.db.models import Case, CharField, Count, F, Subquery, Value, When
+import calendar
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -610,7 +613,7 @@ class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
 
-from django.shortcuts import render
+
 
 def dashboard_page(request):
 
@@ -661,8 +664,42 @@ def dashboard_page(request):
         
     }
 
+
+    current_year = datetime.now().year
+
+    selected_year = request.GET.get('year',current_year)
+    if selected_year:
+        selected_year = int(selected_year)
+        start_date = datetime(selected_year, 1, 1)
+        end_date = datetime(selected_year, 12, 31)
+
+     
+        # Filter bookings based on booking_status if provided in the URL
+        booking_status_filter = request.GET.get('booking_status')
+        if booking_status_filter:
+            bookings_count_by_month = Booking.objects.filter(
+                created_on__range=[start_date, end_date], booking_status=booking_status_filter
+            ).values('created_on__month').annotate(count=Count('id'))
+        else:
+            # Use the original query if no filter is provided
+            bookings_count_by_month = Booking.objects.filter(
+                created_on__range=[start_date, end_date]
+            ).values('created_on__month').annotate(count=Count('id'))
+
+        barchart_booking = [
+            {
+                'month': calendar.month_name[item['created_on__month']],
+                'count': item['count']
+            }
+            for item in bookings_count_by_month
+        ]
+
+    print({
+        'cards':cards,
+        'barchart_booking':barchart_booking,})
     return render(request, 'admin/admin_dashboard.html', {
-                                                'cards':cards,})
+                                                'cards':cards,
+                                                'barchart_booking':barchart_booking,})
 
 # Unregister model
 admin.site.unregister(Group)

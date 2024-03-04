@@ -70,7 +70,7 @@ class UserAdmin(CustomModelAdmin):
 class CountryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
-    exclude = ("status",)
+    exclude = ("status", "image",)
 
     def has_add_permission(self, request):
         return False

@@ -79,7 +79,7 @@ class AgentLoginSerializer(serializers.Serializer):
         password = validated_data.get('password')
 
         # Authenticate user using either email or username
-        user = authenticate(username=username_or_email, email=username_or_email, password=password)
+        user = authenticate(username=username_or_email, email=username_or_email, password=password, model=Agent)
         if not user:
             raise serializers.ValidationError({"message": "Invalid credentials"})
 

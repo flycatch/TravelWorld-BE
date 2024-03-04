@@ -21,9 +21,9 @@ class BaseUserModelBackend(ModelBackend):
             try:
                 user = UserModel.objects.get(username=username)
 
-            except UserModel.DoesNotExist:
+            except:
                 user = BaseUser.objects.get(unique_username=username)
-                pass
+               
 
         if user and user.check_password(password):
             return user

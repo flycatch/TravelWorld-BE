@@ -122,13 +122,14 @@
         <label for="bookingStatusFilter">Filter by Booking Status:</label>
         <select id="bookingStatusFilter" onchange="applyFilter()">
             <option value="">Show All</option>
-            <option value="SUCCESSFUL">SUCCESSFUL</option>
-            <option value="REFUNDED">REFUNDED</option>
-            <option value="FAILED">FAILED</option>
+            <option value="SUCCESSFUL" {% if request.GET.booking_status == "SUCCESSFUL" %}selected{% endif %}>SUCCESSFUL</option>
+            <option value="REFUNDED" {% if request.GET.booking_status == "REFUNDED" %}selected{% endif %}>REFUNDED</option>
+            <option value="FAILED" {% if request.GET.booking_status == "FAILED" %}selected{% endif %}>FAILED</option>
         </select>
         <!-- Add the reset button -->
         <span id="resetFilter" class="reset-filter" style="display: {% if request.GET.booking_status %}inline{% else %}none{% endif %}">Reset Filters</span>
     </div>
+    
     
 
 <!-- Chart container and script remain the same -->

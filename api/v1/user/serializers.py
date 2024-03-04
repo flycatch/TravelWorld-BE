@@ -85,7 +85,7 @@ class UserLoginSerializer(serializers.Serializer):
             password = validated_data.get('password')
 
             # Authenticate user using either email or username
-            user = authenticate(username=username_or_email, email=username_or_email, password=password)
+            user = authenticate(username=username_or_email, email=username_or_email, password=password, model=User)
             if not user:
                 raise serializers.ValidationError("Invalid username or email, or incorrect password")
 

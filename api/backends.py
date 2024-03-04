@@ -17,7 +17,6 @@ class BaseUserModelBackend(ModelBackend):
                 pass
 
         if not user and username:
-            print(request)
             try:
                 user = UserModel.objects.get(username=username)
 

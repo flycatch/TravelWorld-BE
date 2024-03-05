@@ -89,7 +89,7 @@ class UserLoginSerializer(serializers.Serializer):
             user = authenticate(username=None, email=mobile_or_email, password=password, model=User,mobile=mobile_or_email)
          
             if not user:
-                raise serializers.ValidationError("Invalid username or email, or incorrect password")
+                raise serializers.ValidationError("Invalid mobile or email, or incorrect password")
 
             token, created = Token.objects.get_or_create(user=user)
             return token.key

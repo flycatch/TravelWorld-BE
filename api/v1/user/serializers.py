@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         model = User
         fields = [ "id", "first_name", "last_name",
-                  "username", "email", "phone", "password", "profile_image","user_uid","mobile"]
+                  "username", "email","password", "profile_image","user_uid","mobile"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters

@@ -96,6 +96,30 @@ class ItinerarySerializer(serializers.ModelSerializer):
 
         return itinerary
 
+    def update(self, instance, validated_data):
+        itinerary_day_data = validated_data.pop('itinerary_day', [])
+        inclusions_data = validated_data.pop('inclusions', [])
+        exclusions_data = validated_data.pop('exclusions', [])
+
+        # Update the main Itinerary instance
+        instance.overview = validated_data.get('overview', instance.overview)
+
+        # Update or create itinerary day objects
+        instance.itinerary_day.all().delete()  # Delete existing itinerary days
+        for day_data in itinerary_day_data:
+            day_serializer = ItineraryDaySerializer(data=day_data)
+            day_serializer.is_valid(raise_exception=True)
+            day_instance = day_serializer.save()
+            instance.itinerary_day.add(day_instance)
+
+        # Update inclusions and exclusions
+        instance.inclusions.clear()
+        instance.inclusions.add(*inclusions_data)
+        instance.exclusions.clear()
+        instance.exclusions.add(*exclusions_data)
+
+        instance.save()
+        return instance
 
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:

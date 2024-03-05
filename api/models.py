@@ -40,6 +40,8 @@ class Agent(BaseUser):
     )
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
+    agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True,null=True)
+
 
     class Meta:
         verbose_name = 'Agent'

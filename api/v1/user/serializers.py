@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         model = User
         fields = [ "id", "first_name", "last_name",
-                  "username", "email", "phone", "password", "profile_image","user_uid"]
+                  "username", "email", "phone", "password", "profile_image","user_uid","mobile"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters
@@ -75,17 +75,19 @@ class UserSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     """Serializer for agent login."""
 
-    username_or_email = serializers.CharField(write_only=True)
+    mobile_or_email = serializers.CharField(write_only=True)
     password = serializers.CharField(write_only=True)
 
     @transaction.atomic
     def create(self, validated_data):
         try:
-            username_or_email = validated_data.get('username_or_email')
+            mobile_or_email = validated_data.get('mobile_or_email')
             password = validated_data.get('password')
 
             # Authenticate user using either email or username
-            user = authenticate(username=username_or_email, email=username_or_email, password=password, model=User)
+            print("h1")
+            user = authenticate(username=None, email=mobile_or_email, password=password, model=User,mobile=mobile_or_email)
+         
             if not user:
                 raise serializers.ValidationError("Invalid username or email, or incorrect password")
 

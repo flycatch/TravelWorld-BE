@@ -12,6 +12,8 @@ class User(BaseUser):
     profile_image = models.ImageField(upload_to='profile_images/user/', null=True, blank=True)
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
+    mobile = models.CharField(unique=True,max_length=15, blank=True, null=True)
+
 
     class Meta:
         verbose_name = 'User'

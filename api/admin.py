@@ -49,14 +49,14 @@ class AgentAdmin(CustomModelAdmin):
 class UserAdmin(CustomModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('user_uid', 'username', 'first_name',
-         'last_name', 'phone', 'email', 'profile_image', 'status')}),
+         'last_name', 'mobile', 'email', 'profile_image', 'status')}),
         # ('Permissions', {'fields': ('status', 'user_permissions',)}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("user_uid", "username", "first_name", "last_name", "email", "phone", "status_colour")
+    list_display = ("user_uid", "username", "first_name", "last_name", "email", "mobile", "status_colour")
     list_filter = ("status",)
-    search_fields = ("user_uid", "username", "first_name", "email", "phone")
+    search_fields = ("user_uid", "username", "first_name", "email", "mobile")
 
     def has_change_permission(self, request, obj=None):
         return False

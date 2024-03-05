@@ -19,16 +19,16 @@ import calendar
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
-        ('Profile Details', {'fields': ('agent_uid', 'username', 'first_name',
-         'last_name', 'phone', 'email', 'profile_image')}),
+        ('Profile Details', {'fields': ('agent_uid', 
+         'agent_name', 'username', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage')}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "status_colour", "stage_colour")
+    list_display = ("agent_uid", "username", "agent_name", "email", "phone", "status_colour", "stage_colour")
     list_filter = ("status", "stage")
-    search_fields = ("agent_uid", "username", "first_name", "email", "phone")
-    readonly_fields = ("agent_uid", "username", "first_name", "last_name", "email", "phone", "profile_image",)
+    search_fields = ("agent_uid", "username", "agent_name", "email", "phone")
+    readonly_fields = ("agent_uid", "username", "agent_name","email", "phone", "profile_image",)
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)

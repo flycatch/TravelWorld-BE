@@ -106,7 +106,7 @@ class UserForgotPassword(APIView):
             
             token = default_token_generator.make_token(user)
             uidb64 = urlsafe_base64_encode(str(user.id).encode())
-            reset_url = f"{DEFAULT_BASE_URL}/reset-password?uidb64={uidb64}&token={token}"
+            reset_url = f"{DEFAULT_BASE_URL_USER_FRONTEND}/reset-password?uidb64={uidb64}&token={token}"
 
           
             send_email.delay('Reset your password',

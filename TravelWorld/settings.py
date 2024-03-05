@@ -259,3 +259,4 @@ result_serializer= 'json'
 broker_connection_retry_on_startup = True
 
 DEFAULT_BASE_URL = config('DEFAULT_BASE_URL',default='')
+DEFAULT_BASE_URL_USER_FRONTEND = config('DEFAULT_BASE_URL_USER_FRONTEND',default='')

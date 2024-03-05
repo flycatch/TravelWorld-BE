@@ -382,19 +382,30 @@
 {% endif %}
 
 {% block extrajs %}
-<!-- <script>
-    $(document).ready(function() {
-        // Get the selected nav-link
-        var selectedNavLink = $(".nav-link.active");
-        console.log(selectedNavLink);
-        // Scroll to the selected nav-link
-        if (selectedNavLink.length > 0) {
-            var offsetTop = selectedNavLink.offset().top - selectedNavLink.parent().offset().top;
-            console.log(offsetTop);
-            $(".sidebar-scroll").scrollTop(offsetTop);
-        }
-    });
-</script> -->
+
+<script>
+// document.addEventListener("DOMContentLoaded", function() {
+//     var activeNavItem = document.getElementsByClassName("nav-link active");
+//     console.log(activeNavItem);
+//     // if (activeNavItems) {
+//         console.log('1');
+//         var activeNavItem = activeNavItems[0];
+//         console.log('2');
+//         activeNavItem.scrollIntoView();
+//     // }
+// });
+
+// document.addEventListener("DOMContentLoaded", function() {
+//     var activeNavItem = document.getElementsByClassName("nav-link active");
+//     console.log(activeNavItem);
+//     if (activeNavItem) {
+//         var sidebarScroll = document.getElementsByClassName("sidebar-scroll");
+//         sidebarScroll.scrollTop = activeNavItem.offsetTop - sidebarScroll.offsetTop;
+//     }
+// });
+
+</script>
+
 {% endblock %}
 
 </body>

@@ -392,6 +392,8 @@ class ItineraryDay(BaseModel):
         verbose_name = 'Itinerary Day'
         verbose_name_plural = 'Itinerary Day'
 
+    def __str__(self):
+        return f"{self.day} - {self.place} - {self.description}"
 
 class Itinerary(BaseModel):
     package = models.ForeignKey(
@@ -762,10 +764,10 @@ class Attraction(BaseModel):
     def __str__(self):
         return self.title
 
-    def clean(self):
-        # Check if the title contains only alphabetic characters
-        if not self.title.replace(' ', '').isalpha():
-            raise ValidationError({'title': _('Title should contain only alphabetic characters.')})
+    # def clean(self):
+    #     # Check if the title contains only alphabetic characters
+    #     if not self.title.replace(' ', '').isalpha():
+    #         raise ValidationError({'title': _('Title should contain only alphabetic characters.')})
 
 
 class AttractionImage(models.Model):
@@ -826,7 +828,7 @@ class ActivityImage(BaseModel):
     image = models.ImageField(upload_to='activity_images/', null=True, default=None, blank=True)
 
     def __str__(self):
-        return f"Image for {self.activity.name}"
+        return f"Image for {self.activity.title}"
 
 
 class ActivityInclusions(BaseModel):

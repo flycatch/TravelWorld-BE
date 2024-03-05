@@ -14,7 +14,7 @@ from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
                                      ActivityInclusionsViewSet, ActivityExclusionsViewSet)
-from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset)
+from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
 
@@ -112,6 +112,8 @@ urlpatterns = [
     path('v1/forgot-password-link/', ForgotPassword.as_view(), name='forgot-password'),
     path('v1/reset-password/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
+    path('v1/user/forgot-password-link/', UserForgotPassword.as_view(), name='user-forgot-password'),
+    path('v1/user/reset-password/', UserCustomPasswordResetConfirmView.as_view(), name='user-password_reset_confirm'),
 
     #User Review
     path('v1/<int:user_id>/user-review/', UserReviewView.as_view

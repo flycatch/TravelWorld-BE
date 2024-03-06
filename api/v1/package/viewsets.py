@@ -185,6 +185,18 @@ class ItineraryViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ItinerarySerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Itinerary updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
 
 class InclusionsViewSet(viewsets.ModelViewSet):
     serializer_class = InclusionsSerializer

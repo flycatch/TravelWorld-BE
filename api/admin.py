@@ -130,8 +130,8 @@ class ActivityAdmin(CustomModelAdmin):
     readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     inlines = [ActivityImageInline, 
-            #    ActivityPricingInline, ActivityTourCategoryInline,
-            #    ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
+               ActivityPricingInline, ActivityTourCategoryInline,
+               ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
                ]
 
     def truncated_title(self, obj):
@@ -198,8 +198,8 @@ class PackageAdmin(CustomModelAdmin):
 
     inlines = [
         PackageImageInline,
-        # ItineraryInline, PricingInline, TourCategoryInline, 
-        # CancellationPolicyInline, PackageFaqQuestionAnswerInline,
+        ItineraryInline, PricingInline, TourCategoryInline, 
+        CancellationPolicyInline, PackageFaqQuestionAnswerInline,
         ]
 
     def truncated_title(self, obj):
@@ -227,7 +227,7 @@ class PackageAdmin(CustomModelAdmin):
         return False
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id","user","package_name","agent","agent_id","booking_status_colour","tour_date", "display_created_on")
+    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid","package_name","agent_id","booking_status_colour",)
     list_filter = ("booking_status",)
     search_fields = ("booking_id", "user__user_uid",)
     exclude = ("status",)
@@ -259,6 +259,9 @@ class BookingAdmin(CustomModelAdmin):
     def agent_id(self, obj):
         return obj.package.agent.agent_uid if obj.package else None
 
+    def user_uid(self, obj):
+        return obj.user.user_uid if obj.user else None
+
     def package_uid(self, obj):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
@@ -286,6 +289,7 @@ class BookingAdmin(CustomModelAdmin):
     agent_id.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
+    user_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -402,7 +406,17 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     def cancellation_policies(self, obj):
         if obj.package:
             policies = CancellationPolicy.objects.filter(package=obj.package)
-            formatted_policies = "\n".join([f"The cancellation policy from {policy.from_day} to {policy.to_day} days : {policy.amount_percent} %" for policy in policies])
+            formatted_policies = ""
+            for policy in policies:
+                categories = policy.category.all()
+                formatted_categories = []
+                for category in categories:
+                    if category.to_day == 0:
+                        formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
+                    else:
+                        formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
+                    formatted_categories.append(formatted_category)
+                formatted_policies += "\n".join(formatted_categories) + "\n"
             return formatted_policies
         return None
     
@@ -526,8 +540,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("transaction_id", "booking_uid","booking_type","package_name", "package_uid",
-                     "agent", "agent_uid","payment_settlement_status_colour", "payment_settlement_date",)
+    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "agent_uid",
+                    "payment_settlement_date", "payment_settlement_status_colour",)
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "package__title", "package__package_uid", 
@@ -567,7 +581,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                 'display_created_on', 'package_name','booking_amount')
+                                 'display_created_on', 'package_name','booking_amount', 'booking_type')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -740,8 +754,9 @@ admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
 
 # admin.site.register(CancellationPolicy)
+# admin.site.register(PackageCancellationCategory)
 
-admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
+# admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
 
 
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)

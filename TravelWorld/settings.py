@@ -148,7 +148,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Kolkata'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -224,8 +224,8 @@ ADMIN_REORDER = (
 
 
     {'app': 'api', 
-     'models': ('api.Country', 'api.State', 'api.City','api.CancellationPolicy',
-                'api.AdvanceAmountPercentageSetting', 'api.ActivityInclusionInformation', 'api.ActivityItinerary'),
+     'models': ('api.Country', 'api.State', 'api.City','api.CancellationPolicy', 'api.PackageCancellationCategory',
+                'api.ActivityItinerary', 'api.PackageFaqQuestionAnswer'),
      'label': 'General Settings'},
 
     # {'app': 'api', 

@@ -42,14 +42,14 @@ class UserReviewView(viewsets.GenericViewSet):
             Response: The HTTP response containing the serialized user review data.
 
         """
-        request.data['user'] = kwargs['user_id']
+        # request.data['user'] = kwargs['user_id']
         try:
             with transaction.atomic():
                 serializer = self.get_serializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
 
                 if serializer.is_valid():
-                    serializer.save()
+                    serializer.save(is_active=True)
                 else:
                     return Response({ "results": serializer.errors,
                                     "message": "Something went wrong",
@@ -106,7 +106,7 @@ class UserReviewListView(ListAPIView):
 
     
     def get_queryset(self):
-        queryset =  UserReview.objects.filter(created_by=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
+        queryset =  UserReview.objects.filter(user=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")
         return queryset
     
     def list(self, request, *args, **kwargs):

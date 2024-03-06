@@ -783,6 +783,9 @@ class AttractionImage(models.Model):
         return f"Image for {self.attraction.title}"
 
 
+
+
+
 class UserReview(BaseModel):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
@@ -808,6 +811,10 @@ class UserReview(BaseModel):
         verbose_name = 'User Review'
         verbose_name_plural = 'User Reviews'
 
+
+class UserReviewImage(models.Model):
+    images = models.ImageField(upload_to='user_review_images/',null=True, default=None, blank=True)
+    review = models.ForeignKey(UserReview, on_delete=models.CASCADE, related_name='review_images',null=True, blank=True)
 
 class ContactPerson(AuditFields):
     object_id = models.UUIDField(

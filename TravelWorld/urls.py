@@ -23,6 +23,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/dashboard/', api.admin.dashboard_page, name='dashboard_page'),
+    path('population-chart/', api.admin.agent_bar_chart, name='agent-chart'),
+
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 

@@ -130,8 +130,8 @@ class ActivityAdmin(CustomModelAdmin):
     readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     inlines = [ActivityImageInline, 
-            #    ActivityPricingInline, ActivityTourCategoryInline,
-            #    ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
+               ActivityPricingInline, ActivityTourCategoryInline,
+               ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
                ]
 
     def truncated_title(self, obj):
@@ -198,8 +198,8 @@ class PackageAdmin(CustomModelAdmin):
 
     inlines = [
         PackageImageInline,
-        # ItineraryInline, PricingInline, TourCategoryInline, 
-        # CancellationPolicyInline, PackageFaqQuestionAnswerInline,
+        ItineraryInline, PricingInline, TourCategoryInline, 
+        CancellationPolicyInline, PackageFaqQuestionAnswerInline,
         ]
 
     def truncated_title(self, obj):
@@ -406,7 +406,17 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     def cancellation_policies(self, obj):
         if obj.package:
             policies = CancellationPolicy.objects.filter(package=obj.package)
-            formatted_policies = "\n".join([f"The cancellation policy from {policy.from_day} to {policy.to_day} days : {policy.amount_percent} %" for policy in policies])
+            formatted_policies = ""
+            for policy in policies:
+                categories = policy.category.all()
+                formatted_categories = []
+                for category in categories:
+                    if category.to_day == 0:
+                        formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
+                    else:
+                        formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
+                    formatted_categories.append(formatted_category)
+                formatted_policies += "\n".join(formatted_categories) + "\n"
             return formatted_policies
         return None
     
@@ -744,6 +754,7 @@ admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
 
 # admin.site.register(CancellationPolicy)
+# admin.site.register(PackageCancellationCategory)
 
 # admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
 

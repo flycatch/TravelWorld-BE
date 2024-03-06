@@ -551,6 +551,12 @@ class PackageCancellationCategory(BaseModel):
     to_day = models.IntegerField(null=True, blank=True)
     amount_percent = models.CharField(max_length=255)
 
+    def __str__(self):
+        if self.to_day != 0:
+            return f"{self.from_day} (Days) - {self.to_day} - {self.amount_percent} %"
+        else:
+            return f"{self.from_day} (Days) - {self.amount_percent} %"
+
 
 class CancellationPolicy(BaseModel):
     package = models.ForeignKey(
@@ -571,6 +577,9 @@ class PackageFaqCategory(BaseModel):
     class Meta:
         verbose_name = 'FAQAnswer'
         verbose_name_plural = 'FAQAnswers'
+
+    def __str__(self):
+        return f"{self.question} - {self.answer}"
 
 
 class PackageFaqQuestionAnswer(BaseModel):
@@ -683,7 +692,7 @@ class UserRefundTransaction(AuditFields):
     refund_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.refund_uid
+        return self.refund_uid if self.refund_uid else ''
 
     class Meta:
         verbose_name = 'User Transaction'
@@ -1054,6 +1063,12 @@ class ActivityCancellationCategory(BaseModel):
     to_day = models.IntegerField(null=True, blank=True)
     amount_percent = models.CharField(max_length=255)
 
+    def __str__(self):
+        if self.to_day != 0:
+            return f"{self.from_day} (Days) - {self.to_day} - {self.amount_percent} %"
+        else:
+            return f"{self.from_day} (Days) - {self.amount_percent} %"
+
 
 class ActivityCancellationPolicy(BaseModel):
     activity = models.ForeignKey(
@@ -1074,6 +1089,9 @@ class ActivityFaqCategory(BaseModel):
     class Meta:
         verbose_name = 'Activity FAQAnswer'
         verbose_name_plural = 'Activity FAQAnswers'
+
+    def __str__(self):
+        return f"{self.question} - {self.answer}"
 
 
 class ActivityFaqQuestionAnswer(BaseModel):

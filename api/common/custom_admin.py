@@ -31,26 +31,36 @@ class CustomModelAdmin(admin.ModelAdmin):
         return formfield
 
 
-class ActivityImageInline(admin.TabularInline):
+class CustomStackedInline(admin.StackedInline):
+    extra = 0
+    exclude = ('status',)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class CustomTabularImageInline(admin.TabularInline):
+    extra = 0
+    exclude = ("status",)
+    readonly_fields = ('image',)
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+class ActivityImageInline(CustomTabularImageInline):
     model = ActivityImage
-    extra = 0
-    exclude = ("status",)
-    readonly_fields = ('image',)
-    can_delete = False
-
-    def has_add_permission(self, request, obj=None):
-        return False
 
 
-class PackageImageInline(admin.TabularInline):
+class PackageImageInline(CustomTabularImageInline):
     model = PackageImage
-    extra = 0
-    exclude = ("status",)
-    readonly_fields = ('image',)
-    can_delete = False
-
-    def has_add_permission(self, request, obj=None):
-        return False
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -58,47 +68,38 @@ class AttractionImageInline(admin.TabularInline):
     extra = 3
 
 
-class ItineraryInline(admin.StackedInline):  # or StackedInline
+class ItineraryInline(CustomStackedInline):
     model = Itinerary
-    extra = 0
 
-class PricingInline(admin.StackedInline):
+
+class PricingInline(CustomStackedInline):
     model = Pricing
-    extra = 0
-    exclude = ("status",)
 
-class TourCategoryInline(admin.StackedInline):
+
+class TourCategoryInline(CustomStackedInline):
     model = TourCategory
-    extra = 0
-    exclude = ("status",)
 
-class CancellationPolicyInline(admin.StackedInline):
+
+class CancellationPolicyInline(CustomStackedInline):
     model = CancellationPolicy
-    extra = 0
-    exclude = ("status",)
 
-class PackageFaqQuestionAnswerInline(admin.StackedInline):
+
+class PackageFaqQuestionAnswerInline(CustomStackedInline):
     model = PackageFaqQuestionAnswer
-    extra = 0
-    exclude = ("status",)
 
 
-class ActivityPricingInline(admin.StackedInline):
+class ActivityPricingInline(CustomStackedInline):
     model = ActivityPricing
-    extra = 0
-    exclude = ("status",)
 
-class ActivityTourCategoryInline(admin.StackedInline):
+
+class ActivityTourCategoryInline(CustomStackedInline):
     model = ActivityTourCategory
-    extra = 0
-    exclude = ("status",)
 
-class ActivityFaqQuestionAnswerInline(admin.StackedInline):
+
+class ActivityFaqQuestionAnswerInline(CustomStackedInline):
     model = ActivityFaqQuestionAnswer
-    extra = 0
-    exclude = ("status",)
 
-class ActivityCancellationPolicyInline(admin.StackedInline):
+
+class ActivityCancellationPolicyInline(CustomStackedInline):
     model = ActivityCancellationPolicy
-    extra = 0
-    exclude = ("status",)
+

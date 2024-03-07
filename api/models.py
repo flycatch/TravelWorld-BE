@@ -627,7 +627,6 @@ class Booking(BaseModel):
     payment_id = models.CharField(max_length=100,null=True, blank=True)
     tour_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    check_out = models.DateField(null=True, blank=True)
     booking_status  =  models.CharField(choices = BOOKING_STATUS,
                                         max_length=50, verbose_name='Booking Status',
                                         blank=True,null=True)

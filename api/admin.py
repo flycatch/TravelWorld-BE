@@ -396,7 +396,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("refund_uid", "booking_uid", "user","package_name", "package_uid",
+    list_display = ("refund_uid", "booking_uid", "user","refund_amount", "package_uid",
                      "agent", "agent_uid","refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
@@ -528,9 +528,9 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         if obj:  # Detail page
             return (
                 (None, {
-                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount","booking_type",
-                                'package_name','package_uid',
-                                'payment_settlement_status', 'payment_settlement_amount','payment_settlement_date')
+                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
+                               "booking_type", 'package_name','package_uid', 'payment_settlement_status',
+                               'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
                 }),
             )
         else:  # Add page
@@ -549,6 +549,24 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                      "agent__agent_uid", "agent__username")
     exclude = ('status',)
 
+    def cancellation_policies(self, obj):
+        if obj.package:
+            policies = CancellationPolicy.objects.filter(package=obj.package)
+            formatted_policies = ""
+            for policy in policies:
+                categories = policy.category.all()
+                formatted_categories = []
+                for category in categories:
+                    if category.to_day == 0:
+                        formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
+                    else:
+                        formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
+                    formatted_categories.append(formatted_category)
+                formatted_policies += "\n".join(formatted_categories) + "\n"
+            return formatted_policies
+        return None
+    
+    cancellation_policies.short_description = "Cancellation Policies"
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
@@ -582,7 +600,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                 'display_created_on', 'package_name','booking_amount', 'booking_type')
+                                 'display_created_on', 'package_name','booking_amount', 'booking_type',
+                                 'cancellation_policies')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -633,8 +652,11 @@ class UserReviewAdmin(CustomModelAdmin):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
     def has_delete_permission(self, request, obj=None):
-        return True
+        return False
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
@@ -772,7 +794,7 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(CancellationPolicy)
 # admin.site.register(PackageCancellationCategory)
 
-# admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
+admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
 
 
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)

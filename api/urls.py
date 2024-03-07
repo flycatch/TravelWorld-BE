@@ -146,4 +146,7 @@ urlpatterns = [
     path("v1/google/callback", GoogleLoginApi.as_view(), name="callback-raw"),
     path("v1/google/redirect/", GoogleLoginRedirectApi.as_view(), name="redirect-raw"),
 
+    path("v1/facebook/redirect/", FacebookLoginRedirectApi.as_view(), name="facebook-redirect-raw"),
+    path('v1/facebook/callback', fb_login,name='fb_login'),
+
 ]

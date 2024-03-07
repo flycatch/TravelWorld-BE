@@ -683,7 +683,7 @@ class UserRefundTransaction(AuditFields):
 
     REFUND_STATUS =(
             ("PENDING", "PENDING"),
-            ("CANCELLED", "CANCELLED"),
+            ("REJECTED", "REJECTED"),
             ("REFUNDED", "REFUNDED"),
           
             )
@@ -699,7 +699,8 @@ class UserRefundTransaction(AuditFields):
         Booking, on_delete=models.CASCADE, related_name='user_refund_transaction_booking')
     refund_status  =  models.CharField(choices = REFUND_STATUS, max_length=50,
                                        blank=True, null=True, verbose_name='Refund Status')
-    refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,null=True, blank=True)
+    refund_amount = models.DecimalField(default=0,  max_digits=10, decimal_places=2,
+                                        null=True, blank=True, verbose_name='Refund Amount')
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
     refund_date = models.DateField(null=True, blank=True)
@@ -717,7 +718,7 @@ class AgentTransactionSettlement(AuditFields):
     PAYMENT_SETTLEMENT_STATUS =(
             ("PENDING", "PENDING"),
             ("SUCCESSFUL", "SUCCESSFUL"),
-            ("FAILED","FAILED")
+            ("REJECTED","REJECTED")
             )
     
     transaction_id = models.CharField(max_length=256, null=True, blank=True, verbose_name='Transaction UID')

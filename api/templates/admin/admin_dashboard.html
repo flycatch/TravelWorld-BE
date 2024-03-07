@@ -130,11 +130,16 @@
         <span id="resetFilter" class="reset-filter" style="display: {% if request.GET.booking_status %}inline{% else %}none{% endif %}">Reset Filters</span>
     </div>
     
-    
+
+
+<!-- Agent BarChart div -->
+
+    <div id="container" style="width: 75%;">
+        <canvas id="agent-chart" data-url="{% url 'agent-chart' %}"></canvas>
+      </div>
 
 <!-- Chart container and script remain the same -->
 
-    
 
 <script>
     var ctx = document.getElementById('bookingChart').getContext('2d');
@@ -192,6 +197,56 @@
     });
 </script>
 
+
+<!-- Agent BarChart scripts with cdn -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script>
+
+    $(function () {
+
+      var $agentChart = $("#agent-chart");
+      $.ajax({
+        url: $agentChart.data("url"),
+        success: function (agent_data) {
+            console.log(agent_data.labels);
+          var ctx = $agentChart[0].getContext("2d");
+
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: agent_data.labels,
+              datasets: [{
+                label: 'Agent',
+                backgroundColor: 'rgb(30, 144, 255)',
+                data: agent_data.data
+              }]          
+            },
+            options: {
+              responsive: true,
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Agent Bar Chart'
+              },
+              scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true // Ensure the y-axis starts from 0
+                    }
+                }]
+            }
+            }
+          });
+
+        }
+      });
+
+    });
+
+  </script>
 
 </body>
 </html>

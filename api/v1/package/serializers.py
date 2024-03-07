@@ -176,10 +176,28 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
 
         return package_informations
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
-    #     data['packageinformation_id'] = instance.id
-    #     return data
+    def update(self, instance, validated_data):
+        inclusion_details_data = validated_data.pop('inclusiondetails', [])
+        exclusion_details_data = validated_data.pop('exclusiondetails', [])
+
+        instance.important_message = validated_data.get('important_message', instance.important_message)
+        instance.save()
+
+        # Clear existing relationships
+        instance.inclusiondetails.clear()
+        instance.exclusiondetails.clear()
+
+        # Add new relationships
+        for inclusion_data in inclusion_details_data:
+            inclusion_obj, _ = InclusionInformation.objects.get_or_create(**inclusion_data)
+            instance.inclusiondetails.add(inclusion_obj)
+
+        for exclusion_data in exclusion_details_data:
+            exclusion_obj, _ = ExclusionInformation.objects.get_or_create(**exclusion_data)
+            instance.exclusiondetails.add(exclusion_obj)
+
+        return instance
+
 
 
 class PricingSerializer(serializers.ModelSerializer):
@@ -301,7 +319,6 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
             cancellation_policy = CancellationPolicy.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 cancellation_category_data = PackageCancellationCategory.objects.create(**data)
                 cancellation_policy.category.add(cancellation_category_data)
         except Exception as error:
@@ -309,25 +326,18 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
 
         return cancellation_policy
 
-    # def validate(self, data):
-    #     from_day = data.get('from_day')
-    #     to_day = data.get('to_day')
-    #     amount_percent = data.get('amount_percent')
-
-    #     # Add your custom validation logic here
-    #     if from_day is not None and to_day is not None:
-    #         if from_day >= to_day:
-    #             raise ValidationError("The 'from_day' must be less than 'to_day'.")
-
-    #     if amount_percent is not None:
-    #         try:
-    #             amount_percent = float(amount_percent)
-    #             if amount_percent < 0 or amount_percent > 100:
-    #                 raise ValidationError("The 'amount percentage' must be between 0 and 100.")
-    #         except ValueError:
-    #             raise ValidationError("Invalid value for 'amount percentage'. Must be a number.")
-
-    #     return data
+    def update(self, instance, validated_data):
+        category_data = validated_data.pop('category', [])
+        # Update the main CancellationPolicy instance
+        instance.package = validated_data.get('package', instance.package)
+        instance.save()
+        # Clear existing categories
+        instance.category.clear()
+        # Add new categories
+        for data in category_data:
+            category_instance, _ = PackageCancellationCategory.objects.get_or_create(**data)
+            instance.category.add(category_instance)
+        return instance
 
 
 
@@ -358,6 +368,18 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
 
         return package_faq_data
 
+    def update(self, instance, validated_data):
+        category_data = validated_data.pop('category', [])
+        # Update the main PackageFaqQuestionAnswer instance
+        instance.package = validated_data.get('package', instance.package)
+        instance.save()
+        # Clear existing categories
+        instance.category.clear()
+        # Add new categories
+        for data in category_data:
+            category_instance, _ = PackageFaqCategory.objects.get_or_create(**data)
+            instance.category.add(category_instance)
+        return instance
 
 class BookingPackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)

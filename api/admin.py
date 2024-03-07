@@ -1,4 +1,5 @@
 from decimal import Decimal
+from django.http import JsonResponse
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
@@ -625,7 +626,7 @@ class UserReviewAdmin(CustomModelAdmin):
     fieldsets = (
         (None, {
             'fields': ("user", "package", "activity", "rating", "review",
-                       "booking", "agent", "agent_comment", "homepage_display")
+                       "booking", "agent", "agent_comment",)
         }),
         )
 
@@ -731,6 +732,21 @@ def dashboard_page(request):
     return render(request, 'admin/admin_dashboard.html', {
                                                 'cards':cards,
                                                 'barchart_booking':barchart_booking,})
+
+
+
+def agent_bar_chart(request):
+
+    total_agent_count = Agent.objects.count()
+    active_agents = Agent.objects.filter(stage='approved').count()
+    inactive_agents = Agent.objects.filter(stage='pending').count()
+
+    labels = ['Total Agents', 'Active Agents', 'Inactive Agents']
+    data = [total_agent_count, active_agents, inactive_agents]
+    agent_data = {'labels': labels, 'data': data}
+
+    return JsonResponse(agent_data)
+
 
 # Unregister model
 admin.site.unregister(Group)

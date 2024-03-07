@@ -17,6 +17,8 @@ from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
 from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
+from api.v1.social_logins.viewsets import *
+
 
 router = DefaultRouter()
 
@@ -100,6 +102,7 @@ urlpatterns = [
     path('v1/<int:user_id>/customer-list-bookings/', CustomerBookingListView.as_view(), name='customer-list-bookings'),
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 
+
     # Agent View booking
     path('v1/<int:agent_id>/agent-list-bookings/', AgentBookingListView.as_view(), name='agent-list-bookings'),
     path('v1/<int:agent_id>/agent-booking-details/<str:object_id>/', AgentBookingDetailsView.as_view(), name='agent-booking-details'),
@@ -138,5 +141,9 @@ urlpatterns = [
     path('v1/advance-amount-percentage-list/', AdvanceAmountPercentageSettingListView.as_view(), name='advance-amount-percentage-list'),
 
     path('v1/welcome/', WelcomeView.as_view(), name='index'),
+
+    # google logins
+    path("v1/google/callback", GoogleLoginApi.as_view(), name="callback-raw"),
+    path("v1/google/redirect/", GoogleLoginRedirectApi.as_view(), name="redirect-raw"),
 
 ]

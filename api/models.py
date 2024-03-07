@@ -13,7 +13,7 @@ class User(BaseUser):
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
     mobile = models.CharField(unique=True,max_length=15, blank=True, null=True)
-
+    
 
     class Meta:
         verbose_name = 'User'
@@ -602,6 +602,16 @@ class Booking(BaseModel):
           
             )
     
+    CANCELLATION_REASON =(
+            ("ORDERED", "ORDERED"),
+            ("SUCCESSFUL", "SUCCESSFUL"),
+            ("CANCELLED", "CANCELLED"),
+            ("REFUNDED REQUESTED", "REFUNDED REQUESTED"),
+            ("REFUNDED", "REFUNDED"),
+            ("FAILED","FAILED")
+          
+            )
+    
     booking_id = models.CharField(max_length=256, null=True, blank=True, verbose_name='Booking UID')
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
@@ -624,6 +634,9 @@ class Booking(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
     cancellation_description = models.TextField(blank=True, null=True)
+    cancellation_reason  =  models.CharField(choices = CANCELLATION_REASON,
+                                        max_length=50, verbose_name='CANCELLATION REASON',
+                                        blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
 
 

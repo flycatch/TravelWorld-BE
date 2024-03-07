@@ -260,3 +260,8 @@ broker_connection_retry_on_startup = True
 
 DEFAULT_BASE_URL = config('DEFAULT_BASE_URL',default='')
 DEFAULT_BASE_URL_USER_FRONTEND = config('DEFAULT_BASE_URL_USER_FRONTEND',default='')
+
+
+GOOGLE_OAUTH2_CLIENT_ID = config("GOOGLE_OAUTH2_CLIENT_ID", default="")
+GOOGLE_OAUTH2_CLIENT_SECRET = config("GOOGLE_OAUTH2_CLIENT_SECRET", default="")
+GOOGLE_OAUTH2_PROJECT_ID = config("GOOGLE_OAUTH2_PROJECT_ID", default="")

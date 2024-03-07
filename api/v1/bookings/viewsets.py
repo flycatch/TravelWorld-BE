@@ -163,7 +163,7 @@ class CustomerBookingDetailsView(APIView):
                                         "user_id":request.user.id,
                                         "package":instance.package,
                                         "refund_status":"PENDING"}
-                    Transaction.objects.create(**transaction_data)
+                    UserRefundTransaction.objects.create(**transaction_data)
 
                 subject = "Request for Cancellation"
                 message = f'Cancellation Received for booking {instance.booking_id}'

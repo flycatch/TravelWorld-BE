@@ -239,7 +239,7 @@ class BookingAdmin(CustomModelAdmin):
                 (None, {
                     'fields': ('user','booking_id', 'package_uid', 'package_name', 
                                'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
-                               'booking_status','display_created_on','tour_date', 
+                               'booking_status','display_created_on','tour_date', 'end_date',
                                 'adult', 'child', 'infant', 'refund_amount',)
                 }),
             )

@@ -68,9 +68,7 @@ class ApplicationError(Exception):
 
 
 class GoogleRawLoginFlowService:
-    # API_URI = reverse_lazy("api:google-oauth2:login-raw:callback-raw")
-    # print(API_URI)
-
+    
     GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
     GOOGLE_ACCESS_TOKEN_OBTAIN_URL = "https://oauth2.googleapis.com/token"
     GOOGLE_USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
@@ -91,21 +89,20 @@ class GoogleRawLoginFlowService:
         state = "".join(rand.choice(chars) for _ in range(length))
         return state
 
-    # def _get_redirect_uri(self):
-    #     # domain = settings.BASE_BACKEND_URL
-    #     api_uri = self.API_URI
-    #     redirect_uri = "http://127.0.0.1:8000/api/callback"
-    #     return redirect_uri
+    def _get_redirect_uri(self):
+        domain = settings.DJANGO_BASE_BACKEND_URL
+        redirect_uri = f"{domain}/api/v1/google/callback"
+        return redirect_uri
 
     def get_authorization_url(self):
-        # redirect_uri = self._get_redirect_uri()
+        redirect_uri = self._get_redirect_uri()
 
         state = self._generate_state_session_token()
 
         params = {
             "response_type": "code",
             "client_id": self._credentials.client_id,
-            "redirect_uri": "http://127.0.0.1:8000/api/v1/google/callback",
+            "redirect_uri": redirect_uri,
             "scope": " ".join(self.SCOPES),
             "state": state,
             "access_type": "offline",
@@ -119,14 +116,14 @@ class GoogleRawLoginFlowService:
         return authorization_url, state
 
     def get_tokens(self, *, code: str) -> GoogleAccessTokens:
-        # redirect_uri = self._get_redirect_uri()
+        redirect_uri = self._get_redirect_uri()
 
         # Reference: https://developers.google.com/identity/protocols/oauth2/web-server#obtainingaccesstokens
         data = {
             "code": code,
             "client_id": self._credentials.client_id,
             "client_secret": self._credentials.client_secret,
-            "redirect_uri": "http://127.0.0.1:8000/api/v1/google/callback",
+            "redirect_uri": redirect_uri,
             "grant_type": "authorization_code",
         }
 

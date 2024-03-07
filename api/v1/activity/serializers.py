@@ -94,6 +94,32 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
 
         return itinerary
 
+    def update(self, instance, validated_data):
+        itinerary_day_data = validated_data.pop('itinerary_day', [])
+        inclusions_data = validated_data.pop('inclusions', [])
+        exclusions_data = validated_data.pop('exclusions', [])
+
+        # Update the main ActivityItinerary instance
+        instance.overview = validated_data.get('overview', instance.overview)
+        instance.save()
+
+        # Update or create itinerary day objects
+        instance.itinerary_day.all().delete()  # Delete existing itinerary days
+        for day_data in itinerary_day_data:
+            day_serializer = ActivityItineraryDaySerializer(data=day_data)
+            day_serializer.is_valid(raise_exception=True)
+            day_instance = day_serializer.save()
+            instance.itinerary_day.add(day_instance)
+
+        # Update inclusions and exclusions
+        instance.inclusions.clear()
+        instance.inclusions.add(*inclusions_data)
+        instance.exclusions.clear()
+        instance.exclusions.add(*exclusions_data)
+
+        instance.save()
+        return instance
+
 
 class ActivityInclusionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -150,6 +176,27 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
         return activity_informations
 
+    def update(self, instance, validated_data):
+        inclusion_details_data = validated_data.pop('inclusiondetails', [])
+        exclusion_details_data = validated_data.pop('exclusiondetails', [])
+
+        instance.important_message = validated_data.get('important_message', instance.important_message)
+        instance.save()
+
+        # Clear existing relationships
+        instance.inclusiondetails.clear()
+        instance.exclusiondetails.clear()
+
+        # Add new relationships
+        for inclusion_data in inclusion_details_data:
+            inclusion_obj, _ = ActivityInclusionInformation.objects.get_or_create(**inclusion_data)
+            instance.inclusiondetails.add(inclusion_obj)
+
+        for exclusion_data in exclusion_details_data:
+            exclusion_obj, _ = ActivityExclusionInformation.objects.get_or_create(**exclusion_data)
+            instance.exclusiondetails.add(exclusion_obj)
+
+        return instance
 
 class ActivityPricingSerializer(serializers.ModelSerializer):
     class Meta:
@@ -270,7 +317,6 @@ class ActivityCancellationPolicySerializer(serializers.ModelSerializer):
             cancellation_policy = ActivityCancellationPolicy.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 cancellation_category_data = ActivityCancellationCategory.objects.create(**data)
                 cancellation_policy.category.add(cancellation_category_data)
 
@@ -279,6 +325,18 @@ class ActivityCancellationPolicySerializer(serializers.ModelSerializer):
 
         return cancellation_policy
 
+    def update(self, instance, validated_data):
+        category_data = validated_data.pop('category', [])
+        # Update the main CancellationPolicy instance
+        instance.activity = validated_data.get('activity', instance.activity)
+        instance.save()
+        # Clear existing categories
+        instance.category.clear()
+        # Add new categories
+        for data in category_data:
+            category_instance, _ = ActivityCancellationCategory.objects.get_or_create(**data)
+            instance.category.add(category_instance)
+        return instance
 
 class ActivityFaqCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -306,6 +364,19 @@ class ActivityFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Error creating Activity FAQ: {error}")
 
         return activity_faq_data
+
+    def update(self, instance, validated_data):
+        category_data = validated_data.pop('category', [])
+        # Update the main ActivityFaqQuestionAnswer instance
+        instance.activity = validated_data.get('activity', instance.activity)
+        instance.save()
+        # Clear existing categories
+        instance.category.clear()
+        # Add new categories
+        for data in category_data:
+            category_instance, _ = ActivityFaqCategory.objects.get_or_create(**data)
+            instance.category.add(category_instance)
+        return instance
 
 
 class ActivityBookingSerializer(serializers.ModelSerializer):

@@ -165,6 +165,13 @@ class ActivityItineraryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity", None)
+        queryset = super().get_queryset()
+        if activity:
+            queryset = queryset.filter(activity=activity)
+        return queryset
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -174,6 +181,18 @@ class ActivityItineraryViewSet(viewsets.ModelViewSet):
             'message': 'Itinerary saved',
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Itinerary updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 
 
 class ActivityInclusionsViewSet(viewsets.ModelViewSet):
@@ -231,6 +250,27 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'ActivityInformations saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = ActivityInformationsSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'ActivityInformations updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 
 class ActivityPricingViewSet(viewsets.ModelViewSet):
     queryset = ActivityPricing.objects.all()
@@ -268,6 +308,29 @@ class ActivityCancellationPolicyViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Cancellation Policy saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED
+        }, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Cancellation Policy updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
 
 class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = ActivityFaqQuestionAnswerSerializer
@@ -277,9 +340,32 @@ class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
 
-        queryset = ActivityFaqQuestionAnswerSerializer.objects.all()
+        queryset = ActivityFaqQuestionAnswer.objects.all()
 
         if activity:
             queryset = queryset.filter(activity=activity)
         
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Activity FAQ saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED
+        }, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Activity FAQ updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)

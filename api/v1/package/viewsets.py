@@ -244,14 +244,36 @@ class PackageInformationsViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self, **kwargs):
-        package = self.request.GET.get("package",None)
+        package = self.request.GET.get("package", None)
 
         queryset = PackageInformations.objects.all()
 
         if package:
             queryset = queryset.filter(package=package)
-        
+
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'PackageInformations saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PackageInformationsSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'PackageInformations updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 
 
 class PricingViewSet(viewsets.ModelViewSet):
@@ -300,14 +322,35 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
     def get_queryset(self, **kwargs):
-        package = self.request.GET.get("package",None)
-
+        package = self.request.GET.get("package", None)
         queryset = CancellationPolicy.objects.all()
-
         if package:
             queryset = queryset.filter(package=package)
-        
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Cancellation Policy saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED
+        }, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Cancellation Policy updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
 
 
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
@@ -316,13 +359,34 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
 
+
     def get_queryset(self, **kwargs):
-        package = self.request.GET.get("package",None)
-
+        package = self.request.GET.get("package", None)
         queryset = PackageFaqQuestionAnswer.objects.all()
-
         if package:
             queryset = queryset.filter(package=package)
-        
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Package FAQ saved',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED
+        }, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Package FAQ updated',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
 

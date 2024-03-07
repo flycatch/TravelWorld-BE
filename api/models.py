@@ -603,13 +603,9 @@ class Booking(BaseModel):
             )
     
     CANCELLATION_REASON =(
-            ("ORDERED", "ORDERED"),
-            ("SUCCESSFUL", "SUCCESSFUL"),
-            ("CANCELLED", "CANCELLED"),
-            ("REFUNDED REQUESTED", "REFUNDED REQUESTED"),
-            ("REFUNDED", "REFUNDED"),
-            ("FAILED","FAILED")
-          
+            ("Change in Travel Plans", "Change in Travel Plans"),
+            ("Found another Better Deal ", "Found another Better Deal "),
+            ("Others", "Others"),
             )
     
     booking_id = models.CharField(max_length=256, null=True, blank=True, verbose_name='Booking UID')
@@ -635,7 +631,7 @@ class Booking(BaseModel):
         User, on_delete=models.CASCADE, related_name='bookings_user',null=True, blank=True)
     cancellation_description = models.TextField(blank=True, null=True)
     cancellation_reason  =  models.CharField(choices = CANCELLATION_REASON,
-                                        max_length=50, verbose_name='CANCELLATION REASON',
+                                        max_length=100, verbose_name='CANCELLATION REASON',
                                         blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
 

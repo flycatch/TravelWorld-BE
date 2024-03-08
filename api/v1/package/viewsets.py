@@ -81,13 +81,20 @@ class PackageViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        
-        # Check if the instance has already been submitted
-        if instance.is_submitted:
-            raise ValidationError({'detail': 'This package has already been submitted.'})
-        
-        serializer.save(is_submitted=True)  # Set is_submitted to True for final submission
-        return Response({'id': instance.id, 'status': 'submitted'})
+
+        if instance.stage == 'rejected':
+            serializer.save(stage="pending") 
+        elif not instance.is_submitted:
+            serializer.save(is_submitted=True)  # Set is_submitted to True for final submission
+        else:
+            # Package already submitted, return message
+            return Response({'id': instance.id, 
+                             'message': 'This package has already been submitted.', 'status': 'Failed',
+                             'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'id': instance.id, 
+                         'message': 'Successfully submitted package', 'status': 'success', 
+                         'statusCode':status.HTTP_200_OK}, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         """

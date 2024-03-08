@@ -634,6 +634,8 @@ class Booking(BaseModel):
                                         max_length=100, verbose_name='CANCELLATION REASON',
                                         blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
+    is_trip_completed = models.BooleanField(default=0)
+
 
 
     def __str__(self):

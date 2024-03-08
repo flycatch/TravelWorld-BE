@@ -234,10 +234,10 @@ class Activity(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
+    pickup_time = models.TimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
+    drop_time = models.TimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,
@@ -302,10 +302,10 @@ class Package(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
+    pickup_time = models.TimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
+    drop_time = models.TimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,

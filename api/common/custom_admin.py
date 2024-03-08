@@ -4,7 +4,8 @@ from api.models import (Itinerary, Pricing, ActivityPricing,
                         TourCategory, ActivityTourCategory,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
                         CancellationPolicy, ActivityCancellationPolicy,
-                        PackageImage, ActivityImage, AttractionImage)
+                        PackageImage, ActivityImage, AttractionImage,
+                        PackageInformations,ActivityItinerary, ActivityInformations)
 
 
 admin.site.site_header = 'Explore World'
@@ -72,6 +73,10 @@ class ItineraryInline(CustomStackedInline):
     model = Itinerary
 
 
+class PackageInformationsInline(CustomStackedInline):
+    model = PackageInformations
+
+
 class PricingInline(CustomStackedInline):
     model = Pricing
 
@@ -82,10 +87,19 @@ class TourCategoryInline(CustomStackedInline):
 
 class CancellationPolicyInline(CustomStackedInline):
     model = CancellationPolicy
+    template = 'admin/inline_admin.html'
 
 
 class PackageFaqQuestionAnswerInline(CustomStackedInline):
     model = PackageFaqQuestionAnswer
+    template = 'admin/inline_admin.html'
+
+class ActivityItineraryInline(CustomStackedInline):
+    model = ActivityItinerary
+
+
+class ActivityInformationsInline(CustomStackedInline):
+    model = ActivityInformations
 
 
 class ActivityPricingInline(CustomStackedInline):
@@ -98,8 +112,10 @@ class ActivityTourCategoryInline(CustomStackedInline):
 
 class ActivityFaqQuestionAnswerInline(CustomStackedInline):
     model = ActivityFaqQuestionAnswer
+    template = 'admin/inline_admin.html'
 
 
 class ActivityCancellationPolicyInline(CustomStackedInline):
     model = ActivityCancellationPolicy
+    template = 'admin/inline_admin.html'
 

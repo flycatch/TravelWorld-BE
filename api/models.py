@@ -234,10 +234,10 @@ class Activity(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
+    pickup_time = models.TimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
+    drop_time = models.TimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,
@@ -302,10 +302,10 @@ class Package(BaseModel):
     duration_hour = models.IntegerField(verbose_name='Duration Hours', null=True, blank=True)
     pickup_point = models.CharField(max_length=255, blank=True, null=True,
                                     verbose_name='Pickup Point')
-    pickup_time = models.DateTimeField(verbose_name='Pickup Time', blank=True, null=True)
+    pickup_time = models.TimeField(verbose_name='Pickup Time', blank=True, null=True)
     drop_point = models.CharField(max_length=255, blank=True, null=True,
                                   verbose_name='Drop Point')
-    drop_time = models.DateTimeField(verbose_name='Drop Time', blank=True, null=True)
+    drop_time = models.TimeField(verbose_name='Drop Time', blank=True, null=True)
 
     stage = models.CharField(
         max_length=20,
@@ -423,6 +423,8 @@ class InclusionInformation(BaseModel):
         verbose_name = 'Inclusion Information'
         verbose_name_plural = 'Inclusion Information'
 
+    def __str__(self):
+        return f"{self.inclusion} - {self.details}"
 
 class ExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
@@ -433,6 +435,9 @@ class ExclusionInformation(BaseModel):
     class Meta:
         verbose_name = 'Exclusion Information'
         verbose_name_plural = 'Exclusion Information'
+
+    def __str__(self):
+        return f"{self.exclusion} - {self.details}"
 
 
 class PackageInformations(BaseModel):
@@ -569,6 +574,22 @@ class CancellationPolicy(BaseModel):
         verbose_name = 'Cancellation Policy'
         verbose_name_plural = 'Cancellation Policies'
 
+    def __str__(self):
+        # Get all related PackageCancellationCategory instances
+        category_info = []
+        categories = self.category.all()
+        for category in categories:
+            if category.to_day == 0:
+                category_info.append(
+                    f"<tr><td style='padding-right: 30px;'>If cancelled before {category.from_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                )
+            else:
+                category_info.append(
+                    f"<tr><td style='padding-right: 30px;'>If cancelled between {category.from_day} - {category.to_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                )
+        # Join the category info strings into a single string separated by newlines
+        return '<table>' + ''.join(category_info) + '</table>'
+
 
 class PackageFaqCategory(BaseModel):
     question = models.CharField(max_length=255)
@@ -588,6 +609,17 @@ class PackageFaqQuestionAnswer(BaseModel):
     category = models.ManyToManyField(PackageFaqCategory,
                                       related_name='package_faq_category',
                                       blank=True)
+
+    def __str__(self):
+        # Get all related PackageCancellationCategory instances
+        category_info = []
+        categories = self.category.all()
+        for category in categories:
+                category_info.append(
+                    f"<li>{category.question}<br><br>{category.answer}</li>"
+                )
+        # Join the category info strings into a single string separated by newlines
+        return '<br><br>'.join(category_info)
 
 
 class Booking(BaseModel):
@@ -943,6 +975,9 @@ class ActivityItineraryDay(BaseModel):
         verbose_name = 'Itinerary Day'
         verbose_name_plural = 'Itinerary Day'
 
+    def __str__(self):
+        return f"Day {self.day} - {self.place} - {self.description}"
+
 
 class ActivityItinerary(BaseModel):
     activity = models.ForeignKey(
@@ -968,6 +1003,8 @@ class ActivityInclusionInformation(BaseModel):
         verbose_name = 'Activity Inclusion Information'
         verbose_name_plural = 'Activity Inclusion Information'
 
+    def __str__(self):
+        return f"{self.inclusion} - {self.details}"
 
 class ActivityExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
@@ -978,6 +1015,9 @@ class ActivityExclusionInformation(BaseModel):
     class Meta:
         verbose_name = 'Activity Exclusion Information'
         verbose_name_plural = 'Activity Exclusion Information'
+
+    def __str__(self):
+        return f"{self.inclusion} - {self.details}"
 
 
 class ActivityInformations(BaseModel):
@@ -1093,6 +1133,22 @@ class ActivityCancellationPolicy(BaseModel):
         verbose_name = 'Activity Cancellation Policy'
         verbose_name_plural = 'Activity Cancellation Policies'
 
+    def __str__(self):
+        # Get all related PackageCancellationCategory instances
+        category_info = []
+        categories = self.category.all()
+        for category in categories:
+            if category.to_day == 0:
+                category_info.append(
+                    f"<tr><td style='padding-right: 30px;'>If cancelled before {category.from_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                )
+            else:
+                category_info.append(
+                    f"<tr><td style='padding-right: 30px;'>If cancelled between {category.from_day} - {category.to_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                )
+        # Join the category info strings into a single string separated by newlines
+        return '<table>' + ''.join(category_info) + '</table>'
+
 
 class ActivityFaqCategory(BaseModel):
     question = models.CharField(max_length=255)
@@ -1112,3 +1168,14 @@ class ActivityFaqQuestionAnswer(BaseModel):
     category = models.ManyToManyField(ActivityFaqCategory,
                                       related_name='activity_faq_category',
                                       blank=True)
+
+    def __str__(self):
+        # Get all related PackageCancellationCategory instances
+        category_info = []
+        categories = self.category.all()
+        for category in categories:
+                category_info.append(
+                    f"<li>{category.question}<br><br>{category.answer}</li>"
+                )
+        # Join the category info strings into a single string separated by newlines
+        return '<br><br>'.join(category_info)

@@ -130,7 +130,7 @@ class ActivityAdmin(CustomModelAdmin):
     exclude = ('is_submitted',)
     readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
-    inlines = [ActivityImageInline, 
+    inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
                ActivityPricingInline, ActivityTourCategoryInline,
                ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
                ]
@@ -198,9 +198,9 @@ class PackageAdmin(CustomModelAdmin):
     exclude = ('is_submitted',)
 
     inlines = [
-        PackageImageInline,
-        ItineraryInline, PricingInline, TourCategoryInline, 
-        CancellationPolicyInline, PackageFaqQuestionAnswerInline,
+        PackageImageInline, ItineraryInline, PackageInformationsInline,
+        PricingInline, TourCategoryInline, CancellationPolicyInline, 
+        PackageFaqQuestionAnswerInline,
         ]
 
     def truncated_title(self, obj):

@@ -104,22 +104,20 @@ class ItinerarySerializer(serializers.ModelSerializer):
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
 
-        # Update or create itinerary day objects
-        instance.itinerary_day.all().delete()  # Delete existing itinerary days
-        for day_data in itinerary_day_data:
-            day_serializer = ItineraryDaySerializer(data=day_data)
-            day_serializer.is_valid(raise_exception=True)
-            day_instance = day_serializer.save()
-            instance.itinerary_day.add(day_instance)
+        # Update or create itinerary day objects using id
+        for itinerary_day in instance.itinerary_day.all():
+            itinerary_day_id = itinerary_day.id
+            for day_data in itinerary_day_data:
+                day_serializer = ItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
+                day_serializer.is_valid(raise_exception=True)
+                day_instance = day_serializer.save()
+                instance.itinerary_day.add(day_instance)
 
-        # Update inclusions and exclusions
-        instance.inclusions.clear()
-        instance.inclusions.add(*inclusions_data)
-        instance.exclusions.clear()
-        instance.exclusions.add(*exclusions_data)
-
+        instance.inclusions.set(inclusions_data) # Update inclusions
+        instance.exclusions.set(exclusions_data) # Update exclusions
         instance.save()
         return instance
+
 
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -245,32 +243,32 @@ class PricingSerializer(serializers.ModelSerializer):
             raise ValidationError("Infant commission cannot be negative.")
         return value
         
-    def validate(self, data):
-        # Ensure that group_commission <= group_rate
-        group_rate = data.get('group_rate')
-        group_commission = data.get('group_commission')
-        if group_rate is not None and group_commission is not None and group_commission > group_rate:
-            raise ValidationError("Group commission cannot be greater than group rate.")
+    # def validate(self, data):
+    #     # Ensure that group_commission <= group_rate
+    #     group_rate = data.get('group_rate')
+    #     group_commission = data.get('group_commission')
+    #     if group_rate is not None and group_commission is not None and group_commission > group_rate:
+    #         raise ValidationError("Group commission cannot be greater than group rate.")
 
-        # Ensure that adult_commission <= adult_rate
-        adult_rate = data.get('adult_rate')
-        adult_commission = data.get('adult_commission')
-        if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
-            raise ValidationError("Adult commission cannot be greater than adult rate.")
+    #     # Ensure that adult_commission <= adult_rate
+    #     adult_rate = data.get('adult_rate')
+    #     adult_commission = data.get('adult_commission')
+    #     if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
+    #         raise ValidationError("Adult commission cannot be greater than adult rate.")
 
-        # Ensure that child_commission <= child_rate
-        child_rate = data.get('child_rate')
-        child_commission = data.get('child_commission')
-        if child_rate is not None and child_commission is not None and child_commission > child_rate:
-            raise ValidationError("Child commission cannot be greater than child rate.")
+    #     # Ensure that child_commission <= child_rate
+    #     child_rate = data.get('child_rate')
+    #     child_commission = data.get('child_commission')
+    #     if child_rate is not None and child_commission is not None and child_commission > child_rate:
+    #         raise ValidationError("Child commission cannot be greater than child rate.")
 
-        # Ensure that infant_commission <= infant_rate
-        infant_rate = data.get('infant_rate')
-        infant_commission = data.get('infant_commission')
-        if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
-            raise ValidationError("Infant commission cannot be greater than infant rate.")
+    #     # Ensure that infant_commission <= infant_rate
+    #     infant_rate = data.get('infant_rate')
+    #     infant_commission = data.get('infant_commission')
+    #     if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
+    #         raise ValidationError("Infant commission cannot be greater than infant rate.")
 
-        return data
+    #     return data
 
 
 class PackageCategorySerializer(serializers.ModelSerializer):

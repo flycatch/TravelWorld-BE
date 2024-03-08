@@ -1,9 +1,13 @@
+from datetime import datetime
+
 import razorpay
 from api.filters.booking_filters import *
 from api.models import *
 from api.tasks import *
 from api.utils.paginator import CustomPagination
 from api.v1.bookings.serializers import *
+from django.db import transaction
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -15,7 +19,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
-from django.db import transaction
 
 
 @api_view(['POST'])
@@ -91,7 +94,12 @@ class CustomerBookingListView(ListAPIView):
     filterset_class = BookingFilter
     
     def get_queryset(self):
-        queryset = Booking.objects.filter(user=self.kwargs['user_id']).order_by("-id")
+        today_date = datetime.now().date()
+
+        queryset = Booking.objects.filter(user=self.kwargs['user_id'],
+                                          is_trip_completed=0,
+                                          tour_date__gt=today_date,
+                                          booking_status__in=["SUCCESSFUL","REFUNDED REQUESTED"]).order_by("-id")
         return queryset
         
         
@@ -114,6 +122,43 @@ class CustomerBookingListView(ListAPIView):
             }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+
+
+class CustomerBookingHistoryListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = BookingSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['user__username','booking_id'] 
+    filterset_class = BookingFilter
+    
+    def get_queryset(self):
+        queryset = Booking.objects.filter(
+            Q(user=self.kwargs['user_id'],),
+            Q(is_trip_completed=True) | Q(booking_status__in=["FAILED", "REFUNDED"])
+        ).order_by("-id")
+        return queryset
+        
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as error_message:
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CustomerBookingDetailsView(APIView):
     permission_classes = [IsAuthenticated]

@@ -17,6 +17,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
 from django.shortcuts import get_object_or_404
+from api.filters.review_filters import ReviewFilter
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -103,7 +104,7 @@ class UserReviewListView(ListAPIView):
     authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewDetailSerializer
     pagination_class = CustomPagination
-
+    filterset_class = ReviewFilter
     
     def get_queryset(self):
         queryset =  UserReview.objects.filter(user=self.kwargs['user_id'],is_deleted=0, is_active=1).order_by("-id")

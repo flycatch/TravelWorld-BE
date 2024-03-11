@@ -203,45 +203,45 @@ class PricingSerializer(serializers.ModelSerializer):
         model = Pricing
         exclude = ['status', 'created_on', 'updated_on',]
 
-    def validate_group_rate(self, value):
-        if value < 0:
-            raise ValidationError("Group rate cannot be negative.")
-        return value
+    # def validate_group_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group rate cannot be negative.")
+    #     return value
 
-    def validate_group_commission(self, value):
-        if value < 0:
-            raise ValidationError("Group commission cannot be negative.")
-        return value
+    # def validate_group_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group commission cannot be negative.")
+    #     return value
 
-    def validate_adult_rate(self, value):
-        if value < 0:
-            raise ValidationError("Adult rate cannot be negative.")
-        return value
+    # def validate_adult_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult rate cannot be negative.")
+    #     return value
 
-    def validate_adult_commission(self, value):
-        if value < 0:
-            raise ValidationError("Adult commission cannot be negative.")
-        return value
+    # def validate_adult_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult commission cannot be negative.")
+    #     return value
 
-    def validate_child_rate(self, value):
-        if value < 0:
-            raise ValidationError("Child rate cannot be negative.")
-        return value
+    # def validate_child_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child rate cannot be negative.")
+    #     return value
 
-    def validate_child_commission(self, value):
-        if value < 0:
-            raise ValidationError("Child commission cannot be negative.")
-        return value
+    # def validate_child_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child commission cannot be negative.")
+    #     return value
 
-    def validate_infant_rate(self, value):
-        if value < 0:
-            raise ValidationError("Infant rate cannot be negative.")
-        return value
+    # def validate_infant_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant rate cannot be negative.")
+    #     return value
 
-    def validate_infant_commission(self, value):
-        if value < 0:
-            raise ValidationError("Infant commission cannot be negative.")
-        return value
+    # def validate_infant_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant commission cannot be negative.")
+    #     return value
         
     # def validate(self, data):
     #     # Ensure that group_commission <= group_rate

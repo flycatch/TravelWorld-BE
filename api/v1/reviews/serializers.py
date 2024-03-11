@@ -26,7 +26,7 @@ class UserReviewSerializer(serializers.ModelSerializer):
         images_data = validated_data.pop('images', [])
         review = UserReview.objects.create(**validated_data)
         for image_data in images_data:
-            UserReviewImage.objects.create(review=review, image=image_data)
+            UserReviewImage.objects.create(review=review, images=image_data)
         return review
 
 

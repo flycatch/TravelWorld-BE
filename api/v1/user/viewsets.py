@@ -113,7 +113,7 @@ class UserForgotPassword(APIView):
                              f'Please click the following link to reset your password: {reset_url}',
                              email
                              )
-            return Response({'message': 'Password reset email and verification code has been sent.',
+            return Response({'message': 'Password reset email has been sent to your registered email address',
                               "status": "success",
                             "statusCode": status.HTTP_200_OK})
     

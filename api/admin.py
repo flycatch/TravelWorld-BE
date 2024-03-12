@@ -3,6 +3,8 @@ from django.http import JsonResponse
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.contrib.admin import AdminSite
+from django.contrib.admin.sites import site
 from django.template.defaultfilters import truncatewords
 from django.utils.html import format_html
 from django.template.defaultfilters import truncatechars
@@ -747,14 +749,17 @@ def dashboard_page(request):
             }
             for item in bookings_count_by_month
         ]
+    
+    context = {'cards':cards,
+                'barchart_booking':barchart_booking,}
+
+    admin_site: AdminSite = site
+    context.update(**admin_site.each_context(request))
 
     print({
         'cards':cards,
         'barchart_booking':barchart_booking,})
-    return render(request, 'admin/admin_dashboard.html', {
-                                                'cards':cards,
-                                                'barchart_booking':barchart_booking,})
-
+    return render(request, 'admin/admin_dashboard.html', context=context)
 
 
 def agent_bar_chart(request):

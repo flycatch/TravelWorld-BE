@@ -244,6 +244,14 @@ CORS_ALLOW_METHODS = [
    'DELETE',
    'OPTIONS',
 ]
+CORS_ALLOWED_ORIGINS = [
+    'https://dev-exagent.flycatchtech.in',
+    'http://localhost:5173',
+    'https://qa-exagent.flycatchtech.in',
+    'http://localhost:3000',
+    'https://dev-explore.flycatchtech.in',
+    'https://dev-exapi.flycatchtech.in',
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 

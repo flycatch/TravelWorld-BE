@@ -859,7 +859,7 @@ class UserReview(BaseModel):
     agent_comment = models.TextField(blank=True,null=True )
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='activity_review')
-    is_viewed = models.BooleanField(default=0)
+    is_reviewed = models.BooleanField(default=0)
 
     class Meta:
         verbose_name = 'User Review'

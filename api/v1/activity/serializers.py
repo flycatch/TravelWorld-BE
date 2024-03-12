@@ -210,72 +210,72 @@ class ActivityPricingSerializer(serializers.ModelSerializer):
         model = ActivityPricing
         exclude = ['status', 'created_on', 'updated_on',]
 
-    def validate_group_rate(self, value):
-        if value < 0:
-            raise ValidationError("Group rate cannot be negative.")
-        return value
+    # def validate_group_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group rate cannot be negative.")
+    #     return value
 
-    def validate_group_commission(self, value):
-        if value < 0:
-            raise ValidationError("Group commission cannot be negative.")
-        return value
+    # def validate_group_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group commission cannot be negative.")
+    #     return value
 
-    def validate_adult_rate(self, value):
-        if value < 0:
-            raise ValidationError("Adult rate cannot be negative.")
-        return value
+    # def validate_adult_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult rate cannot be negative.")
+    #     return value
 
-    def validate_adult_commission(self, value):
-        if value < 0:
-            raise ValidationError("Adult commission cannot be negative.")
-        return value
+    # def validate_adult_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult commission cannot be negative.")
+    #     return value
 
-    def validate_child_rate(self, value):
-        if value < 0:
-            raise ValidationError("Child rate cannot be negative.")
-        return value
+    # def validate_child_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child rate cannot be negative.")
+    #     return value
 
-    def validate_child_commission(self, value):
-        if value < 0:
-            raise ValidationError("Child commission cannot be negative.")
-        return value
+    # def validate_child_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child commission cannot be negative.")
+    #     return value
 
-    def validate_infant_rate(self, value):
-        if value < 0:
-            raise ValidationError("Infant rate cannot be negative.")
-        return value
+    # def validate_infant_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant rate cannot be negative.")
+    #     return value
 
-    def validate_infant_commission(self, value):
-        if value < 0:
-            raise ValidationError("Infant commission cannot be negative.")
-        return value
+    # def validate_infant_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant commission cannot be negative.")
+    #     return value
         
-    def validate(self, data):
-        # Ensure that group_commission <= group_rate
-        group_rate = data.get('group_rate')
-        group_commission = data.get('group_commission')
-        if group_rate is not None and group_commission is not None and group_commission > group_rate:
-            raise ValidationError("Group commission cannot be greater than group rate.")
+    # def validate(self, data):
+    #     # Ensure that group_commission <= group_rate
+    #     group_rate = data.get('group_rate')
+    #     group_commission = data.get('group_commission')
+    #     if group_rate is not None and group_commission is not None and group_commission > group_rate:
+    #         raise ValidationError("Group commission cannot be greater than group rate.")
 
-        # Ensure that adult_commission <= adult_rate
-        adult_rate = data.get('adult_rate')
-        adult_commission = data.get('adult_commission')
-        if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
-            raise ValidationError("Adult commission cannot be greater than adult rate.")
+    #     # Ensure that adult_commission <= adult_rate
+    #     adult_rate = data.get('adult_rate')
+    #     adult_commission = data.get('adult_commission')
+    #     if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
+    #         raise ValidationError("Adult commission cannot be greater than adult rate.")
 
-        # Ensure that child_commission <= child_rate
-        child_rate = data.get('child_rate')
-        child_commission = data.get('child_commission')
-        if child_rate is not None and child_commission is not None and child_commission > child_rate:
-            raise ValidationError("Child commission cannot be greater than child rate.")
+    #     # Ensure that child_commission <= child_rate
+    #     child_rate = data.get('child_rate')
+    #     child_commission = data.get('child_commission')
+    #     if child_rate is not None and child_commission is not None and child_commission > child_rate:
+    #         raise ValidationError("Child commission cannot be greater than child rate.")
 
-        # Ensure that infant_commission <= infant_rate
-        infant_rate = data.get('infant_rate')
-        infant_commission = data.get('infant_commission')
-        if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
-            raise ValidationError("Infant commission cannot be greater than infant rate.")
+    #     # Ensure that infant_commission <= infant_rate
+    #     infant_rate = data.get('infant_rate')
+    #     infant_commission = data.get('infant_commission')
+    #     if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
+    #         raise ValidationError("Infant commission cannot be greater than infant rate.")
 
-        return data
+    #     return data
 
 
 class ActivityCategorySerializer(serializers.ModelSerializer):

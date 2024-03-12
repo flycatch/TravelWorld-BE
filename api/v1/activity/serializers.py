@@ -1,6 +1,7 @@
 # serializers.py
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 
 from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
@@ -150,7 +151,7 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', None)
-        exclusion_details_data = validated_data.pop('exclusiondetails', None)
+        # exclusion_details_data = validated_data.pop('exclusiondetails', None)
 
         try:
             activity_informations = ActivityInformations.objects.create(**validated_data)
@@ -160,10 +161,10 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
                     inclusion_details_obj = ActivityInclusionInformation.objects.create(**inclusion_data)
                     activity_informations.inclusiondetails.add(inclusion_details_obj)
 
-            if exclusion_details_data:
-                for exclusion_data in exclusion_details_data:
-                    exclusion_details_obj = ActivityExclusionInformation.objects.create(**exclusion_data)
-                    activity_informations.exclusiondetails.add(exclusion_details_obj)
+            # if exclusion_details_data:
+            #     for exclusion_data in exclusion_details_data:
+            #         exclusion_details_obj = ActivityExclusionInformation.objects.create(**exclusion_data)
+            #         activity_informations.exclusiondetails.add(exclusion_details_obj)
 
             activity_informations.save()
 
@@ -174,24 +175,34 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', [])
-        exclusion_details_data = validated_data.pop('exclusiondetails', [])
+        # exclusion_details_data = validated_data.pop('exclusiondetails', [])
 
         instance.important_message = validated_data.get('important_message', instance.important_message)
         instance.save()
 
-        # Clear existing relationships
-        instance.inclusiondetails.clear()
-        instance.exclusiondetails.clear()
-
-        # Add new relationships
+        # Update or create inclusion details
         for inclusion_data in inclusion_details_data:
-            inclusion_obj, _ = ActivityInclusionInformation.objects.get_or_create(**inclusion_data)
-            instance.inclusiondetails.add(inclusion_obj)
+            inclusion_id = inclusion_data.get('id')
+            if inclusion_id:
+                try:
+                    inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
+                    ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
+                except ObjectDoesNotExist:
+                    pass
+            else:
+                inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
+                inclusion_serializer.is_valid(raise_exception=True)
+                inclusion_instance = inclusion_serializer.save()
+                instance.inclusiondetails.add(inclusion_instance)
 
-        for exclusion_data in exclusion_details_data:
-            exclusion_obj, _ = ActivityExclusionInformation.objects.get_or_create(**exclusion_data)
-            instance.exclusiondetails.add(exclusion_obj)
-
+        # Update or create exclusion details
+        # for exclusion_details in instance.exclusiondetails.all():
+        #     for exclusion_data in exclusion_details_data:
+        #         exclusion_serializer = ExclusionInformationSerializer(instance=exclusion_details, data=exclusion_data, partial=True)
+        #         exclusion_serializer.is_valid(raise_exception=True)
+        #         exclusion_instance = inclusion_serializer.save()
+        #         instance.exclusiondetails.add(exclusion_instance)
+        instance.save()
         return instance
 
 class ActivityPricingSerializer(serializers.ModelSerializer):

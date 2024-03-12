@@ -257,6 +257,7 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -267,6 +268,7 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = ActivityInformationsSerializer(instance, data=request.data, partial=True)

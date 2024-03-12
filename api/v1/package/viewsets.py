@@ -27,6 +27,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
+from rest_framework.views import exception_handler
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -115,6 +116,21 @@ class PackageViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
+    def handle_exception(self, exc):
+        # Call the default exception handler first to get the standard error response
+        response = super().handle_exception(exc)
+        
+        # Check if the exception is a validation error
+        if isinstance(exc, ValidationError):
+            # Extract error messages
+            error_messages = []
+            for field, errors in exc.detail.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
+
+        return Response({'message': error_messages, 'status': 'Failed',
+                         'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PackageImageViewSet(viewsets.ModelViewSet):
     queryset = PackageImage.objects.all()
@@ -182,6 +198,7 @@ class ItineraryViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -192,6 +209,7 @@ class ItineraryViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = ItinerarySerializer(instance, data=request.data, partial=True)

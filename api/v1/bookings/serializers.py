@@ -15,18 +15,17 @@ class ContactPersonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class BookingUserReviewSerializer(serializers.ModelSerializer):
-    images = serializers.ListField(child=serializers.ImageField(), write_only=True,required=False)
+# class BookingUserReviewSerializer(serializers.ModelSerializer):
+#     images = serializers.ListField(child=serializers.ImageField(), write_only=True,required=False)
 
-    class Meta:
-        model = UserReview
-        fields = "__all__"
+#     class Meta:
+#         model = UserReview
+#         fields = "__all__"
 
 class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)
     user = UserBookingSerializer(required=False)
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
-    user_review_booking = BookingUserReviewSerializer(required=False)
 
     class Meta:
         model = Booking

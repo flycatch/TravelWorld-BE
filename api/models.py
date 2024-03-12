@@ -847,7 +847,7 @@ class UserReview(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,null=True, blank=True,
         related_name='user_review', verbose_name='User')
-    rating = models.IntegerField(verbose_name='Rating')
+    rating = models.IntegerField(verbose_name='Rating',blank=True,null=True )
     review = models.TextField(blank=True,null=True )
     is_active = models.BooleanField(default=1)
     is_deleted = models.BooleanField(default=0)

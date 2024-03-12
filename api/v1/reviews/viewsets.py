@@ -96,6 +96,21 @@ class UserReviewView(viewsets.GenericViewSet):
         return Response({"message" : message,
                           "status": "success",
                         "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
+    
+
+    def update(self, request, *args, **kwargs):
+       
+        instance = get_object_or_404(
+            self.get_queryset(), object_id=kwargs.get('object_id'))
+        serializer = self.serializer_class(
+            instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        message = 'updated successfully'
+        return Response({"message" : message,
+                          "status": "success",
+                        "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
+
         
 
 

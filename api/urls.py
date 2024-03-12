@@ -129,7 +129,7 @@ urlpatterns = [
     path('v1/<int:user_id>/user-review-list/', UserReviewListView.as_view(), name='user-review-list'),
 
     path('v1/<int:user_id>/user-review/<str:object_id>/', UserReviewView.as_view
-         ({
+         ({  'put': 'update',
              'delete': 'destroy'
          }), name='user-review-detail'),
 

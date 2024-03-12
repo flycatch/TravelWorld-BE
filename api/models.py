@@ -326,7 +326,7 @@ class Package(BaseModel):
 
 class PackageImage(BaseModel):
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='packageimage_package')
+        Package, on_delete=models.CASCADE, related_name='package_image')
     image = models.ImageField(upload_to='package_images/', null=True, default=None, blank=True)
 
     def __str__(self):

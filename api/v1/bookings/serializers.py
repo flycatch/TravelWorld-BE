@@ -15,17 +15,32 @@ class ContactPersonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# class BookingUserReviewSerializer(serializers.ModelSerializer):
-#     images = serializers.ListField(child=serializers.ImageField(), write_only=True,required=False)
+class BookingUserReviewImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserReviewImage
+        fields = ['id','images']
 
-#     class Meta:
-#         model = UserReview
-#         fields = "__all__"
+
+class BookingUserReviewSerializer(serializers.ModelSerializer):
+    review_images = BookingUserReviewImageSerializer(many=True,required=False)
+    agent = BookingAgentSerializer(required=False)
+
+    
+
+
+    class Meta:
+        model = UserReview
+        fields = ['object_id','is_reviewed','booking','rating','review',
+                  'homepage_display','agent','agent_comment','review_images']
 
 class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)
     user = UserBookingSerializer(required=False)
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
+    user_review_booking = BookingUserReviewSerializer(read_only=True)
+
+    
+
 
     class Meta:
         model = Booking

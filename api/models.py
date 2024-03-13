@@ -858,7 +858,7 @@ class UserReview(BaseModel):
     is_active = models.BooleanField(default=1)
     is_deleted = models.BooleanField(default=0)
     homepage_display = models.BooleanField(default=0)
-    booking = models.ForeignKey(
+    booking = models.OneToOneField(
         Booking, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_booking')
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_agent')

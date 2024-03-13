@@ -3,6 +3,8 @@ from django.http import JsonResponse
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.contrib.admin import AdminSite
+from django.contrib.admin.sites import site
 from django.template.defaultfilters import truncatewords
 from django.utils.html import format_html
 from django.template.defaultfilters import truncatechars
@@ -747,14 +749,57 @@ def dashboard_page(request):
             }
             for item in bookings_count_by_month
         ]
+    
+    context = {'cards':cards,
+                'barchart_booking':barchart_booking,}
+
+    admin_site: AdminSite = site
+    context_data = admin_site.each_context(request)
+
+    # Initialize an empty list to store the reordered available apps
+    reordered_available_apps = []
+
+    # Create a dictionary to map model names to their positions in ADMIN_REORDER
+    model_order_map = {}
+    for idx, item in enumerate(ADMIN_REORDER):
+        for model_name in item['models']:
+            model_order_map[model_name] = idx
+
+    # Iterate through the ADMIN_REORDER settings
+    for item in ADMIN_REORDER:
+        # Get the app_label and models for the current item
+        models = item['models']
+
+        # Find the corresponding available app using app_label
+        for available_app in context_data['available_apps']:
+            # Filter and reorder models for the current app based on the models in the ADMIN_REORDER setting
+            reordered_models = []
+            for model_name in models:
+                for model_info in available_app['models']:
+                    model_class = model_info['model']
+                    current_model_name = f"{model_class._meta.app_label}.{model_class.__name__}"
+                    if current_model_name == model_name:
+                        reordered_models.append(model_info)
+                        break 
+
+            reordered_available_apps.append({
+                'name': item['label'],
+                'app_label': item['app'],
+                'app_url': '/admin/api/',
+                'has_module_perms': True,
+                'models': reordered_models
+            })
+            break
+
+    context_data['available_apps'] = reordered_available_apps
+
+    # Update the context with the modified context data
+    context.update(**context_data)
 
     print({
         'cards':cards,
         'barchart_booking':barchart_booking,})
-    return render(request, 'admin/admin_dashboard.html', {
-                                                'cards':cards,
-                                                'barchart_booking':barchart_booking,})
-
+    return render(request, 'admin/admin_dashboard.html', context=context)
 
 
 def agent_bar_chart(request):

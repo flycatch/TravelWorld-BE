@@ -104,7 +104,8 @@ class ActivityInformationsInline(CustomStackedInline):
 
 
 class ActivityPricingInline(CustomStackedInline):
-    model = ActivityPricing
+    model = Pricing
+    exclude = ['package']
 
 
 class ActivityTourCategoryInline(CustomStackedInline):

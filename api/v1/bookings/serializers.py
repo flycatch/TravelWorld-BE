@@ -58,7 +58,7 @@ class BookingMinFieldsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Booking
-        fields = ['id','booking_id']
+        fields = ['id','object_id','booking_id']
 
 
 class AgentTransactionSettlementSerializer(serializers.ModelSerializer):

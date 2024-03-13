@@ -104,7 +104,7 @@ class GoogleRawLoginFlowService:
             "client_id": self._credentials.client_id,
             "redirect_uri": redirect_uri,
             "scope": " ".join(self.SCOPES),
-            "state": state,
+            # "state": state,
             "access_type": "offline",
             "include_granted_scopes": "true",
             "prompt": "select_account",
@@ -113,7 +113,7 @@ class GoogleRawLoginFlowService:
         query_params = urlencode(params)
         authorization_url = f"{self.GOOGLE_AUTH_URL}?{query_params}"
 
-        return authorization_url, state
+        return authorization_url
 
     def get_tokens(self, *, code: str) -> GoogleAccessTokens:
         redirect_uri = self._get_redirect_uri()
@@ -159,9 +159,9 @@ class GoogleLoginRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
         google_login_flow = GoogleRawLoginFlowService()
 
-        authorization_url, state = google_login_flow.get_authorization_url()
+        authorization_url= google_login_flow.get_authorization_url()
 
-        request.session["google_oauth2_state"] = state
+        # request.session["google_oauth2_state"] = state
 
 
         return redirect(authorization_url)
@@ -179,32 +179,32 @@ class GoogleLoginApi(PublicApi):
 
             code = validated_data.get("code")
             error = validated_data.get("error")
-            state = validated_data.get("state")
+            # state = validated_data.get("state")
 
             if error is not None:
                 return Response({ "message": error,
                                 "status": "error",
                                 "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
-            if code is None or state is None:
+            if code is None :
                 return Response({ "message": "Code and state are required.",
                                 "status": "error",
                                 "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
-            session_state = request.session.get("google_oauth2_state")
+            # session_state = request.session.get("google_oauth2_state")
 
-            if session_state is None:
-                return Response({ "message": "CSRF check failed",
-                                "status": "error",
-                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            # if session_state is None:
+            #     return Response({ "message": "CSRF check failed",
+            #                     "status": "error",
+            #                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
                 
 
-            del request.session["google_oauth2_state"]
+            # del request.session["google_oauth2_state"]
 
-            if state != session_state:
-                return Response({ "message": "CSRF check failed.",
-                                "status": "error",
-                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            # if state != session_state:
+            #     return Response({ "message": "CSRF check failed.",
+            #                     "status": "error",
+            #                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
             google_login_flow = GoogleRawLoginFlowService()
 

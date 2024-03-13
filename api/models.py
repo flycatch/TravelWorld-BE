@@ -863,6 +863,7 @@ class UserReview(BaseModel):
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_agent')
     agent_comment = models.TextField(blank=True,null=True )
+    agent_reply_date = models.DateField(null=True, blank=True)
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='activity_review')
     is_reviewed = models.BooleanField(default=0)

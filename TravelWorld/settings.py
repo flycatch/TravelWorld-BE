@@ -252,7 +252,6 @@ CORS_ALLOWED_ORIGINS = [
     'https://dev-explore.flycatchtech.in',
     'https://dev-exapi.flycatchtech.in',
 ]
-CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 RAZOR_PUBLIC_KEY=  config('RAZOR_PUBLIC_KEY')

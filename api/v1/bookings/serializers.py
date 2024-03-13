@@ -31,7 +31,7 @@ class BookingUserReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserReview
         fields = ['object_id','is_reviewed','booking','rating','review',
-                  'homepage_display','agent','agent_comment','review_images']
+                  'homepage_display','agent','agent_comment','created_on','review_images']
 
 class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)

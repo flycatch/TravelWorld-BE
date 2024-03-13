@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from TravelWorld.settings import *
 from django.shortcuts import get_object_or_404
 from api.filters.review_filters import ReviewFilter
+from django.utils import timezone
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -168,13 +169,15 @@ class AgentUserReviewReplyView(viewsets.GenericViewSet):
         """
 
         try:
+
             instance = get_object_or_404(self.get_queryset(), object_id=kwargs.get('object_id'))
             serializer = self.serializer_class(
                 instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(agent_reply_date=timezone.now())
+
             else:
                 return Response({ "results": serializer.errors,
                                 "message": "Something went wrong",

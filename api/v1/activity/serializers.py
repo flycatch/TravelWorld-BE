@@ -96,24 +96,31 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day', [])
-        inclusions_data = validated_data.pop('inclusions', [])
-        exclusions_data = validated_data.pop('exclusions', [])
+        itinerary_day_data = validated_data.pop('itinerary_day', None)
+        inclusions_data = validated_data.pop('inclusions', None)
+        exclusions_data = validated_data.pop('exclusions', None)
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
 
-        # Update or create itinerary day objects using id
-        for itinerary_day in instance.itinerary_day.all():
-            itinerary_day_id = itinerary_day.id
-            for day_data in itinerary_day_data:
-                day_serializer = ActivityItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
-                day_serializer.is_valid(raise_exception=True)
-                day_instance = day_serializer.save()
-                instance.itinerary_day.add(day_instance)
+        # Update or create itinerary day objects using id if data provided
+        if itinerary_day_data is not None:
+            for itinerary_day in instance.itinerary_day.all():
+                itinerary_day_id = itinerary_day.id
+                for day_data in itinerary_day_data:
+                    day_serializer = ActivityItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
+                    day_serializer.is_valid(raise_exception=True)
+                    day_instance = day_serializer.save()
+                    instance.itinerary_day.add(day_instance)
 
-        instance.inclusions.set(inclusions_data) # Update inclusions
-        instance.exclusions.set(exclusions_data) # Update exclusions
+        # Update inclusions if data provided
+        if inclusions_data is not None:
+            instance.inclusions.set(inclusions_data)
+
+        # Update exclusions if data provided
+        if exclusions_data is not None:
+            instance.exclusions.set(exclusions_data)
+
         instance.save()
         return instance
 
@@ -131,20 +138,23 @@ class ActivityExclusionsSerializer(serializers.ModelSerializer):
 
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
+
     class Meta:
         model = ActivityInclusionInformation
-        fields = ['inclusion', 'details',]
+        fields = ['id', 'inclusion', 'details',]
 
 
 class ActivityExclusionInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityExclusionInformation
-        fields = ['exclusion', 'details',]
+        fields = ['id', 'exclusion', 'details',]
 
 
 class ActivityInformationsSerializer(serializers.ModelSerializer):
     inclusiondetails = ActivityInclusionInformationSerializer(many=True, required=False)
-    exclusiondetails = ActivityExclusionInformationSerializer(many=True, required=False)
+
     class Meta:
         model = ActivityInformations
         exclude = ['status', 'created_on', 'updated_on',]
@@ -175,33 +185,45 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', [])
-        # exclusion_details_data = validated_data.pop('exclusiondetails', [])
 
         instance.important_message = validated_data.get('important_message', instance.important_message)
-        instance.save()
 
-        # Update or create inclusion details
-        for inclusion_data in inclusion_details_data:
-            inclusion_id = inclusion_data.get('id')
-            if inclusion_id:
-                try:
-                    inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
-                    ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
-                except ObjectDoesNotExist:
-                    pass
-            else:
-                inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
-                inclusion_serializer.is_valid(raise_exception=True)
-                inclusion_instance = inclusion_serializer.save()
-                instance.inclusiondetails.add(inclusion_instance)
+        if inclusion_details_data:
+            # Update or create inclusion details
+            new_inclusion_details_ids = set()
+            for inclusion_data in inclusion_details_data:
+                inclusion_id = inclusion_data.get('id')
+                inclusion_instance = inclusion_data.get('inclusion')
 
-        # Update or create exclusion details
-        # for exclusion_details in instance.exclusiondetails.all():
-        #     for exclusion_data in exclusion_details_data:
-        #         exclusion_serializer = ExclusionInformationSerializer(instance=exclusion_details, data=exclusion_data, partial=True)
-        #         exclusion_serializer.is_valid(raise_exception=True)
-        #         exclusion_instance = inclusion_serializer.save()
-        #         instance.exclusiondetails.add(exclusion_instance)
+                if inclusion_id:
+                    print(1)
+                    try:
+                        inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
+                        ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
+                    except ObjectDoesNotExist:
+                        raise ValidationError(f"InclusionInformation with ID {inclusion_id} does not exist.")
+                else:
+                    print(2)
+                    if inclusion_instance:
+                        inclusion_id = inclusion_instance.id
+                        inclusion_data['inclusion'] = inclusion_id
+                        print(inclusion_data)
+                    inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
+                    inclusion_serializer.is_valid(raise_exception=True)
+                    inclusion_instance = inclusion_serializer.save()
+                    instance.inclusiondetails.add(inclusion_instance)
+                    new_inclusion_details_ids.add(inclusion_instance.id)
+
+            # Remove old inclusion details that are not present in the request
+            old_inclusion_details_ids = instance.inclusiondetails.values_list('id', flat=True)
+            inclusion_details_to_delete = set(old_inclusion_details_ids) - set([item.get('id') for item in inclusion_details_data])
+
+            # Exclude newly created inclusion details from deletion
+            inclusion_details_to_delete -= new_inclusion_details_ids
+
+            if inclusion_details_to_delete:
+                instance.inclusiondetails.filter(id__in=inclusion_details_to_delete).delete()
+
         instance.save()
         return instance
 
@@ -210,72 +232,72 @@ class ActivityPricingSerializer(serializers.ModelSerializer):
         model = ActivityPricing
         exclude = ['status', 'created_on', 'updated_on',]
 
-    def validate_group_rate(self, value):
-        if value < 0:
-            raise ValidationError("Group rate cannot be negative.")
-        return value
+    # def validate_group_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group rate cannot be negative.")
+    #     return value
 
-    def validate_group_commission(self, value):
-        if value < 0:
-            raise ValidationError("Group commission cannot be negative.")
-        return value
+    # def validate_group_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Group commission cannot be negative.")
+    #     return value
 
-    def validate_adult_rate(self, value):
-        if value < 0:
-            raise ValidationError("Adult rate cannot be negative.")
-        return value
+    # def validate_adult_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult rate cannot be negative.")
+    #     return value
 
-    def validate_adult_commission(self, value):
-        if value < 0:
-            raise ValidationError("Adult commission cannot be negative.")
-        return value
+    # def validate_adult_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Adult commission cannot be negative.")
+    #     return value
 
-    def validate_child_rate(self, value):
-        if value < 0:
-            raise ValidationError("Child rate cannot be negative.")
-        return value
+    # def validate_child_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child rate cannot be negative.")
+    #     return value
 
-    def validate_child_commission(self, value):
-        if value < 0:
-            raise ValidationError("Child commission cannot be negative.")
-        return value
+    # def validate_child_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Child commission cannot be negative.")
+    #     return value
 
-    def validate_infant_rate(self, value):
-        if value < 0:
-            raise ValidationError("Infant rate cannot be negative.")
-        return value
+    # def validate_infant_rate(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant rate cannot be negative.")
+    #     return value
 
-    def validate_infant_commission(self, value):
-        if value < 0:
-            raise ValidationError("Infant commission cannot be negative.")
-        return value
+    # def validate_infant_commission(self, value):
+    #     if value < 0:
+    #         raise ValidationError("Infant commission cannot be negative.")
+    #     return value
         
-    def validate(self, data):
-        # Ensure that group_commission <= group_rate
-        group_rate = data.get('group_rate')
-        group_commission = data.get('group_commission')
-        if group_rate is not None and group_commission is not None and group_commission > group_rate:
-            raise ValidationError("Group commission cannot be greater than group rate.")
+    # def validate(self, data):
+    #     # Ensure that group_commission <= group_rate
+    #     group_rate = data.get('group_rate')
+    #     group_commission = data.get('group_commission')
+    #     if group_rate is not None and group_commission is not None and group_commission > group_rate:
+    #         raise ValidationError("Group commission cannot be greater than group rate.")
 
-        # Ensure that adult_commission <= adult_rate
-        adult_rate = data.get('adult_rate')
-        adult_commission = data.get('adult_commission')
-        if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
-            raise ValidationError("Adult commission cannot be greater than adult rate.")
+    #     # Ensure that adult_commission <= adult_rate
+    #     adult_rate = data.get('adult_rate')
+    #     adult_commission = data.get('adult_commission')
+    #     if adult_rate is not None and adult_commission is not None and adult_commission > adult_rate:
+    #         raise ValidationError("Adult commission cannot be greater than adult rate.")
 
-        # Ensure that child_commission <= child_rate
-        child_rate = data.get('child_rate')
-        child_commission = data.get('child_commission')
-        if child_rate is not None and child_commission is not None and child_commission > child_rate:
-            raise ValidationError("Child commission cannot be greater than child rate.")
+    #     # Ensure that child_commission <= child_rate
+    #     child_rate = data.get('child_rate')
+    #     child_commission = data.get('child_commission')
+    #     if child_rate is not None and child_commission is not None and child_commission > child_rate:
+    #         raise ValidationError("Child commission cannot be greater than child rate.")
 
-        # Ensure that infant_commission <= infant_rate
-        infant_rate = data.get('infant_rate')
-        infant_commission = data.get('infant_commission')
-        if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
-            raise ValidationError("Infant commission cannot be greater than infant rate.")
+    #     # Ensure that infant_commission <= infant_rate
+    #     infant_rate = data.get('infant_rate')
+    #     infant_commission = data.get('infant_commission')
+    #     if infant_rate is not None and infant_commission is not None and infant_commission > infant_rate:
+    #         raise ValidationError("Infant commission cannot be greater than infant rate.")
 
-        return data
+    #     return data
 
 
 class ActivityCategorySerializer(serializers.ModelSerializer):

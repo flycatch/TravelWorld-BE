@@ -839,6 +839,8 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(CancellationPolicy)
 # admin.site.register(PackageCancellationCategory)
 admin.site.register(ContactPerson)
+admin.site.register(Pricing)
+
 
 
 admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)

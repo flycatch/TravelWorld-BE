@@ -217,7 +217,7 @@ ADMIN_REORDER = (
 
     {'app': 'api', 'models': ('api.Booking','api.ContactPerson'),'label': 'Bookings'},
 
-    {'app': 'api', 'models': ('api.AgentTransactionSettlement','api.UserRefundTransaction'),'label': 'Transactions'},
+    {'app': 'api', 'models': ('api.AgentTransactionSettlement','api.UserRefundTransaction','api.Pricing'),'label': 'Transactions'},
 
     {'app': 'api', 'models': ('api.UserReview',),'label': 'Reviews'},
 
@@ -244,12 +244,24 @@ CORS_ALLOW_METHODS = [
    'DELETE',
    'OPTIONS',
 ]
+CORS_ALLOWED_ORIGINS = [
+    'https://dev-exagent.flycatchtech.in',
+    'http://localhost:5173',
+    'https://qa-exagent.flycatchtech.in',
+    'http://localhost:3000',
+    'https://dev-explore.flycatchtech.in',
+    'https://dev-exapi.flycatchtech.in',
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 RAZOR_PUBLIC_KEY=  config('RAZOR_PUBLIC_KEY')
 RAZOR_SECRET_KEY = config('RAZOR_SECRET_KEY')
 
+print("helo")
+print(CORS_ORIGIN_WHITELIST)
+print(CORS_ORIGIN_REGEX_WHITELIST)
+print(CORS_ALLOW_ALL_ORIGINS)
 
 # Celery Configuration
 CELERY_BROKER_URL = config('CELERY_BROKER_URL')

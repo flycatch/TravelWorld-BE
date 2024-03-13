@@ -471,20 +471,22 @@ class Currency(BaseModel):
     def __str__(self):
         return self.name
 
+def default_blackout_dates():
+    return {'weeks': {}, 'custom_date': {}}
 
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [
         ('per_person', 'Per Person'),
-        ('per_group', 'Per Group'),
+        # ('per_group', 'Per Group'),
     ]
 
     #field for group pricing
-    group_rate = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
-    group_commission = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
-    group_agent_amount = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_rate = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_commission = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_agent_amount = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
 
     #field for per-person pricing
     package = models.ForeignKey(
@@ -516,6 +518,10 @@ class Pricing(BaseModel):
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     total = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    blackout_dates = models.JSONField(default=default_blackout_dates, null=True, blank=True)
+
 
     class Meta:
         verbose_name = 'Pricing'
@@ -1039,16 +1045,16 @@ class ActivityInformations(BaseModel):
 class ActivityPricing(BaseModel):
     PRICING_GROUP_CHOICE = [
         ('per_person', 'Per Person'),
-        ('per_group', 'Per Group'),
+        # ('per_group', 'Per Group'),
     ]
 
     #field for group pricing
-    group_rate = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
-    group_commission = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
-    group_agent_amount = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_rate = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_commission = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    # group_agent_amount = models.DecimalField(
+    #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
 
     #field for per-person pricing
     activity = models.ForeignKey(

@@ -157,14 +157,26 @@ class PublicApi(APIView):
 
 class GoogleLoginRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
-        google_login_flow = GoogleRawLoginFlowService()
+        try:
+            google_login_flow = GoogleRawLoginFlowService()
 
-        authorization_url= google_login_flow.get_authorization_url()
+            authorization_url= google_login_flow.get_authorization_url()
 
-        # request.session["google_oauth2_state"] = state
+            # request.session["google_oauth2_state"] = state
 
+            return Response({
+                    "status": "success",
+                    "message": "Listed successfully",
+                    "statusCode": status.HTTP_200_OK,
+                    "results": authorization_url,
+                }, status=status.HTTP_200_OK)
+        
+        except Exception as error_message:
+                response_data = {"message": f"Something went wrong: {error_message}",
+                                "status": "error",
+                                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return redirect(authorization_url)
     
 
 class GoogleLoginApi(PublicApi):

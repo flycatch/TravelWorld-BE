@@ -287,6 +287,16 @@ class ActivityPricingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_queryset(self, **kwargs):
+        activity = self.request.GET.get("activity",None)
+
+        queryset = ActivityPricing.objects.all()
+
+        if activity:
+            queryset = queryset.filter(activity=activity)
+        
+        return queryset
+
 
 class ActivityCategoryViewSet(viewsets.ModelViewSet):
     queryset = PackageCategory.objects.all()

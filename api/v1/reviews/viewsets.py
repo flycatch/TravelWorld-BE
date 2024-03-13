@@ -52,17 +52,20 @@ class UserReviewView(viewsets.GenericViewSet):
 
                 if serializer.is_valid():
                     serializer.save(is_active=True)
+                    message = 'Created successfully'
+                    return Response({"message": message,
+                                  "status": "success",
+                                "statusCode": status.HTTP_201_CREATED
+                                  }, status=status.HTTP_201_CREATED)
+                
+
                 else:
                     return Response({ "results": serializer.errors,
                                     "message": "Something went wrong",
                                     "status": "error",
                                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
-                message = 'Created successfully'
-                return Response({"message": message,
-                                  "status": "success",
-                                "statusCode": status.HTTP_201_CREATED
-                                  }, status=status.HTTP_201_CREATED)
+                
             
         
         

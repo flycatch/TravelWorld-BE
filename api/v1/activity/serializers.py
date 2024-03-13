@@ -138,20 +138,23 @@ class ActivityExclusionsSerializer(serializers.ModelSerializer):
 
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
+
     class Meta:
         model = ActivityInclusionInformation
-        fields = ['inclusion', 'details',]
+        fields = ['id', 'inclusion', 'details',]
 
 
 class ActivityExclusionInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityExclusionInformation
-        fields = ['exclusion', 'details',]
+        fields = ['id', 'exclusion', 'details',]
 
 
 class ActivityInformationsSerializer(serializers.ModelSerializer):
     inclusiondetails = ActivityInclusionInformationSerializer(many=True, required=False)
-    exclusiondetails = ActivityExclusionInformationSerializer(many=True, required=False)
+
     class Meta:
         model = ActivityInformations
         exclude = ['status', 'created_on', 'updated_on',]
@@ -182,33 +185,45 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', [])
-        # exclusion_details_data = validated_data.pop('exclusiondetails', [])
 
         instance.important_message = validated_data.get('important_message', instance.important_message)
-        instance.save()
 
-        # Update or create inclusion details
-        for inclusion_data in inclusion_details_data:
-            inclusion_id = inclusion_data.get('id')
-            if inclusion_id:
-                try:
-                    inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
-                    ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
-                except ObjectDoesNotExist:
-                    pass
-            else:
-                inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
-                inclusion_serializer.is_valid(raise_exception=True)
-                inclusion_instance = inclusion_serializer.save()
-                instance.inclusiondetails.add(inclusion_instance)
+        if inclusion_details_data:
+            # Update or create inclusion details
+            new_inclusion_details_ids = set()
+            for inclusion_data in inclusion_details_data:
+                inclusion_id = inclusion_data.get('id')
+                inclusion_instance = inclusion_data.get('inclusion')
 
-        # Update or create exclusion details
-        # for exclusion_details in instance.exclusiondetails.all():
-        #     for exclusion_data in exclusion_details_data:
-        #         exclusion_serializer = ExclusionInformationSerializer(instance=exclusion_details, data=exclusion_data, partial=True)
-        #         exclusion_serializer.is_valid(raise_exception=True)
-        #         exclusion_instance = inclusion_serializer.save()
-        #         instance.exclusiondetails.add(exclusion_instance)
+                if inclusion_id:
+                    print(1)
+                    try:
+                        inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
+                        ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
+                    except ObjectDoesNotExist:
+                        raise ValidationError(f"InclusionInformation with ID {inclusion_id} does not exist.")
+                else:
+                    print(2)
+                    if inclusion_instance:
+                        inclusion_id = inclusion_instance.id
+                        inclusion_data['inclusion'] = inclusion_id
+                        print(inclusion_data)
+                    inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
+                    inclusion_serializer.is_valid(raise_exception=True)
+                    inclusion_instance = inclusion_serializer.save()
+                    instance.inclusiondetails.add(inclusion_instance)
+                    new_inclusion_details_ids.add(inclusion_instance.id)
+
+            # Remove old inclusion details that are not present in the request
+            old_inclusion_details_ids = instance.inclusiondetails.values_list('id', flat=True)
+            inclusion_details_to_delete = set(old_inclusion_details_ids) - set([item.get('id') for item in inclusion_details_data])
+
+            # Exclude newly created inclusion details from deletion
+            inclusion_details_to_delete -= new_inclusion_details_ids
+
+            if inclusion_details_to_delete:
+                instance.inclusiondetails.filter(id__in=inclusion_details_to_delete).delete()
+
         instance.save()
         return instance
 

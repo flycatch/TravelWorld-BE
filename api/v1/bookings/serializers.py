@@ -16,6 +16,15 @@ class ContactPersonSerializer(serializers.ModelSerializer):
 
 
 class BookingUserReviewImageSerializer(serializers.ModelSerializer):
+
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        if request is not None and obj.images:
+            return request.build_absolute_uri(obj.images.url)
+        return None
+    
     class Meta:
         model = UserReviewImage
         fields = ['id','images']
@@ -37,7 +46,7 @@ class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)
     user = UserBookingSerializer(required=False)
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
-    user_review_booking = BookingUserReviewSerializer(read_only=True)
+    user_review_booking = BookingUserReviewSerializer(required=False)
 
     
 

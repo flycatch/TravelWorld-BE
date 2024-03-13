@@ -98,24 +98,31 @@ class ItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day', [])
-        inclusions_data = validated_data.pop('inclusions', [])
-        exclusions_data = validated_data.pop('exclusions', [])
+        itinerary_day_data = validated_data.pop('itinerary_day', None)
+        inclusions_data = validated_data.pop('inclusions', None)
+        exclusions_data = validated_data.pop('exclusions', None)
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
 
-        # Update or create itinerary day objects using id
-        for itinerary_day in instance.itinerary_day.all():
-            itinerary_day_id = itinerary_day.id
-            for day_data in itinerary_day_data:
-                day_serializer = ItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
-                day_serializer.is_valid(raise_exception=True)
-                day_instance = day_serializer.save()
-                instance.itinerary_day.add(day_instance)
+        # Update or create itinerary day objects using id if data provided
+        if itinerary_day_data is not None:
+            for itinerary_day in instance.itinerary_day.all():
+                itinerary_day_id = itinerary_day.id
+                for day_data in itinerary_day_data:
+                    day_serializer = ItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
+                    day_serializer.is_valid(raise_exception=True)
+                    day_instance = day_serializer.save()
+                    instance.itinerary_day.add(day_instance)
 
-        instance.inclusions.set(inclusions_data) # Update inclusions
-        instance.exclusions.set(exclusions_data) # Update exclusions
+        # Update inclusions if data provided
+        if inclusions_data is not None:
+            instance.inclusions.set(inclusions_data)
+
+        # Update exclusions if data provided
+        if exclusions_data is not None:
+            instance.exclusions.set(exclusions_data)
+
         instance.save()
         return instance
 

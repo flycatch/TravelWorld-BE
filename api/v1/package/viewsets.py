@@ -28,6 +28,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework.views import exception_handler
+from rest_framework.views import APIView
+from rest_framework.generics import get_object_or_404
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -305,7 +307,6 @@ class PricingViewSet(viewsets.ModelViewSet):
     serializer_class = PricingSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package",None)
 
@@ -317,6 +318,91 @@ class PricingViewSet(viewsets.ModelViewSet):
         return queryset
 
 
+class PricingNewView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    serializer_class = PricingSerializer
+    
+
+    def post(self, request, *args, **kwargs):
+        try:
+            if isinstance(request.data, list):
+
+                with transaction.atomic():
+                    serializer = self.serializer_class(data=request.data, many=True)
+                    serializer.is_valid(raise_exception=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                    
+                        return Response({"message":"Pricing created successfully",
+                                    "status": "success",
+                                    "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+                    
+                    else:
+                        return Response({ "message": f"Something went wrong : {serializer.errors}",
+                                        "status": "error",
+                                        "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def get(self, request, *args, **kwargs):
+        try:
+            package = self.request.GET.get('package',None)
+            activity = self.request.GET.get('activity',None)
+
+            if package:
+                queryset = Pricing.objects.filter(package=package)
+            else:
+                queryset = Pricing.objects.filter(activity=activity)
+
+            serializer = self.serializer_class(queryset, many=True)
+            return Response({"results":serializer.data,
+                            "message":"Listed successfully",
+                            "status": "success",
+                            "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+    
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def put(self, request, *args, **kwargs):
+        try:
+            if isinstance(request.data, list):
+                with transaction.atomic():
+
+                    # Update existing objects or create new ones
+                    updated_data = []
+                    for data_item in request.data:
+                        instance_id = data_item.get('id')
+                        if instance_id is not None:
+                            instance = get_object_or_404(Pricing, id=instance_id)
+                            serializer = self.serializer_class(instance, data=data_item, partial=True)
+                        else:
+                            serializer = self.serializer_class(data=data_item)
+
+                        serializer.is_valid(raise_exception=True)
+                        updated_instance = serializer.save()
+                        updated_data.append(self.serializer_class(updated_instance).data)
+                   
+                    return Response({"message":"Pricing updated successfully",
+                                    "status": "success",
+                                    "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 class PackageCategoryViewSet(viewsets.ModelViewSet):
     queryset = PackageCategory.objects.all()

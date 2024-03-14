@@ -411,6 +411,9 @@
         // Get the URL of the current page
         var currentUrl = window.location.href;
         
+        // Get the height of the sidebar
+        var sidebarHeight = $('#sidebar').height();
+        
         // Loop through all sidebar links
         $('#sidebar .nav-link').each(function() {
             // Get the href attribute of the link
@@ -418,16 +421,31 @@
             
             // Check if the current page URL matches the link URL
             if (currentUrl.includes(linkUrl)) {
-                $(this).closest('#sidebar').animate({
-                    scrollTop: $(this).closest('.nav-item').offset().top - $(this).closest('.main-sidebar').offset().top
-                }, 100);
-                
+                // Check if the selected link is already visible in the sidebar
+                if (!isTheElementVisible($(this).closest('.nav-item'))) {
+                    // Scroll the sidebar to the selected link
+                    var scrollTopOffset = $(this).closest('.nav-item').offset().top - $('#sidebar').offset().top;
+                    var scrollTarget = scrollTopOffset - (sidebarHeight * 0.25);
+                    $('#sidebar').animate({
+                        scrollTop: scrollTarget
+                    }, 1000);
+                }
                 return false;
             }
         });
     });
-</script>   
-    
+
+    function isTheElementVisible(el) {
+        var rect = el[0].getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= $('#sidebar').height() &&
+            rect.right <= $('#sidebar').width()
+        );
+    }
+</script>
+
 {% endblock %}
 
 </body>

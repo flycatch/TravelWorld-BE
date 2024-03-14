@@ -133,9 +133,10 @@ urlpatterns = [
              'delete': 'destroy'
          }), name='user-review-detail'),
 
-    path('v1/agent/user-review-reply/<str:object_id>/', AgentUserReviewReplyView.as_view
+    path('v1/user-reviews/<str:object_id>/', UserReviewActionView.as_view
          ({
-             'patch': 'update'
+            'patch': 'update',
+            'delete': 'destroy'
          }), name='user-review-reply'),
     
     path('v1/agent/user-review-reply-list/', AgentUserReviewReplyListView.as_view(), name='user-review-reply-list'),

@@ -154,7 +154,7 @@ class UserReviewListView(ListAPIView):
 
 
 
-class AgentUserReviewReplyView(viewsets.GenericViewSet):
+class UserReviewActionView(viewsets.GenericViewSet):
     """
     This API view handles CRUD operations related to UserReview Reply Views.
 
@@ -197,6 +197,32 @@ class AgentUserReviewReplyView(viewsets.GenericViewSet):
                                 "status": "error",
                                 "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Handle DELETE request to mark a user_review as deleted.
+
+        Args:
+            **kwargs: Additional keyword arguments, including 'object_id'.
+
+        Returns:
+            Response: The HTTP response indicating successful deletion.
+
+        """
+        queryset = self.get_queryset()
+        object_id = self.kwargs.get('object_id')
+        
+        instance = get_object_or_404(queryset, object_id=object_id)
+
+        queryset.filter(object_id=object_id).update(
+            is_deleted=True,
+            is_active=False
+        )
+        message = 'Deleted successfully'
+        return Response({"message" : message,
+                          "status": "success",
+                        "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
 
 
 

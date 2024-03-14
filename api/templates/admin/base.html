@@ -197,7 +197,7 @@
                     <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
                 </a>
 
-                <div class="sidebar">
+                <div class="sidebar" id="sidebar">
                     <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div class="image">
                             {% if jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
@@ -406,6 +406,28 @@
 
 </script>
 
+<script>
+    $(document).ready(function() {
+        // Get the URL of the current page
+        var currentUrl = window.location.href;
+        
+        // Loop through all sidebar links
+        $('#sidebar .nav-link').each(function() {
+            // Get the href attribute of the link
+            var linkUrl = $(this).attr('href');
+            
+            // Check if the current page URL matches the link URL
+            if (currentUrl.includes(linkUrl)) {
+                $(this).closest('#sidebar').animate({
+                    scrollTop: $(this).closest('.nav-item').offset().top - $(this).closest('.main-sidebar').offset().top
+                }, 100);
+                
+                return false;
+            }
+        });
+    });
+</script>   
+    
 {% endblock %}
 
 </body>

@@ -8,7 +8,7 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet)
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
@@ -151,5 +151,9 @@ urlpatterns = [
 
     path("v1/facebook/redirect/", FacebookLoginRedirectApi.as_view(), name="facebook-redirect-raw"),
     path('v1/facebook/callback', fb_login,name='fb_login'),
+
+    #pricing revamp
+    path('v1/pricing/new/', PricingNewView.as_view(), name='pricing-package-activity'),
+
 
 ]

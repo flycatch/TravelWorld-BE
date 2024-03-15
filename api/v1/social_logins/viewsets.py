@@ -250,7 +250,7 @@ class GoogleLoginApi(PublicApi):
 
             # print(user_info)
 
-            user_email = user_info["email"]
+            user_email = idinfo["email"]
             
             print("z1")
             print(user_email)
@@ -263,7 +263,7 @@ class GoogleLoginApi(PublicApi):
                 # create a user 
                 user = User.objects.create(
                         email=user_email,
-                        first_name=user_info["name"],
+                        first_name=idinfo["name"],
                 
                 )    
 
@@ -273,7 +273,7 @@ class GoogleLoginApi(PublicApi):
 
            
             return Response({'status': 'success', 'message': 'Login Successful', 
-                             "user_info": user_info,
+                             "user_info": idinfo,
                              'token': token.key, 'statusCode': status.HTTP_200_OK},
                              status=status.HTTP_200_OK)
         

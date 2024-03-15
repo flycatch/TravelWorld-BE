@@ -118,20 +118,20 @@ class PackageViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
-    # def handle_exception(self, exc):
-    #     # Call the default exception handler first to get the standard error response
-    #     response = super().handle_exception(exc)
-    #     error_messages = []
+    def handle_exception(self, exc):
+        # Call the default exception handler first to get the standard error response
+        response = super().handle_exception(exc)
         
-    #     # Check if the exception is a validation error
-    #     if isinstance(exc, ValidationError):
-    #         # Extract error messages
-    #         for field, errors in exc.detail.items():
-    #             for error in errors:
-    #                 error_messages.append(f"{field}: {error}")
+        # Check if the exception is a validation error
+        if isinstance(exc, ValidationError):
+            # Extract error messages
+            error_messages = []
+            for field, errors in exc.detail.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
 
-    #     return Response({'message': error_messages, 'status': 'Failed',
-    #                      'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': error_messages, 'status': 'Failed',
+                         'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PackageImageViewSet(viewsets.ModelViewSet):

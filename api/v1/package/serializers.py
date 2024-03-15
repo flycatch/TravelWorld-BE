@@ -4,21 +4,23 @@ import decimal
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import transaction
 
 from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
-                        PackageImage, PackageCategory, Inclusions, Exclusions, Location,
+                        PackageImage, PackageCategory, Inclusions, Exclusions,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
-from api.v1.general.serializers import LocationSerializer
+
 
 
 class PackageSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source='country.name', read_only=True)
+    state_name = serializers.CharField(source='state.name', read_only=True)
+    city_name = serializers.CharField(source='city.name', read_only=True)
     agent_name = serializers.CharField(source='agent.agent_uid', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    locations = LocationSerializer(many=True, required=False)
+    city_name = serializers.CharField(source='city.name', read_only=True)
 
     class Meta:
         model = Package
@@ -37,51 +39,20 @@ class PackageSerializer(serializers.ModelSerializer):
 
         return data
 
-    @transaction.atomic
     def create(self, validated_data):
-        locations_data = validated_data.pop('locations', [])
-        package = Package.objects.create(**validated_data)
+        try:
+            is_submitted = self.context['request'].data.get('is_submitted', False)
 
-        for location_data in locations_data:
-            try:
-                destination_ids = location_data.pop('destinations', [])
-                locations_obj = Location.objects.create(**location_data)
-                locations_obj.destinations.set(destination_ids)
-                package.locations.add(locations_obj)
+            if not is_submitted:
+                return super().create(validated_data)
 
-            except Exception as error:
-                raise serializers.ValidationError(error)
-
-        return package
-
-
-    def update(self, instance, validated_data):
-        locations_data = validated_data.pop('locations', [])
-        # new_location_objs = []  # Track newly created location objects
+            validated_data['is_submitted'] = False
+            instance = super().create(validated_data)
+            return instance
         
-        # Update or create related locations
-        for location_data in locations_data:
-            location_id = location_data.get('id')
-            if location_id:
-                try:
-                    location_obj = Location.objects.get(pk=location_id)
-                    LocationSerializer().update(instance=location_obj, validated_data=location_data)
-                except Location.DoesNotExist:
-                    raise serializers.ValidationError(f"Location with id {location_id} does not exist.")
-            else:
-                destination_ids = location_data.pop('destinations', [])
-                locations_obj = Location.objects.create(**location_data)
-                locations_obj.destinations.set(destination_ids)
-                instance.locations.add(locations_obj)
-                # new_location_objs.append(locations_obj)  # Add newly created location to the list
+        except Exception as error:
+            raise ValidationError("Error creating package: {}".format(str(error)))
 
-        # # Remove existing locations that are not present in the updated data and newly created one.
-        # updated_location_ids = [location_data.get('id') for location_data in locations_data if location_data.get('id')]
-        # for location in instance.locations.all():
-        #     if location.id not in updated_location_ids and location not in new_location_objs:
-        #         instance.locations.remove(location)
-
-        return instance
 
 class PackageImageSerializer(serializers.ModelSerializer):
     class Meta:

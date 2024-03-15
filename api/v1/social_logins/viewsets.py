@@ -229,17 +229,17 @@ class GoogleLoginApi(PublicApi):
             print("a0")
             print(google_login_flow)
 
-            google_tokens = google_login_flow.get_tokens(code=code)
+            # google_tokens = google_login_flow.get_tokens(code=code)
 
-            print("a1")
-            print(google_tokens)
+            # print("a1")
+            # print(google_tokens)
 
-            id_token_decoded = google_tokens.decode_id_token()
-            user_info = google_login_flow.get_user_info(google_tokens=google_tokens)
+            # id_token_decoded = google_tokens.decode_id_token()
+            user_info = google_login_flow.get_user_info(google_tokens=code)
 
             print(user_info)
 
-            user_email = id_token_decoded["email"]
+            user_email = user_info["email"]
             
             print("z1")
             print(user_email)
@@ -252,7 +252,7 @@ class GoogleLoginApi(PublicApi):
                 # create a user 
                 user = User.objects.create(
                         email=user_email,
-                        first_name=id_token_decoded["name"],
+                        first_name=user_info["name"],
                 
                 )    
 

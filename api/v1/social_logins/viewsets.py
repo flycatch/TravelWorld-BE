@@ -238,7 +238,7 @@ class GoogleLoginApi(PublicApi):
             # print(google_tokens)
 
             # id_token_decoded = google_tokens.decode_id_token()
-            
+
             idinfo = id_token.verify_oauth2_token(
                 code,
                 google.auth.transport.requests.Request(),
@@ -271,11 +271,12 @@ class GoogleLoginApi(PublicApi):
             token, created = Token.objects.get_or_create(user=user)
             login(request, user,backend='api.backends.BaseUserModelBackend')
 
-           
-            return Response({'status': 'success', 'message': 'Login Successful', 
-                             "user_info": idinfo,
-                             'token': token.key, 'statusCode': status.HTTP_200_OK},
-                             status=status.HTTP_200_OK)
+
+            return redirect("https://dev-explore.flycatchtech.in/ ")
+            # return Response({'status': 'success', 'message': 'Login Successful', 
+            #                  "user_info": idinfo,
+            #                  'token': token.key, 'statusCode': status.HTTP_200_OK},
+            #                  status=status.HTTP_200_OK)
         
         except Exception as error_message:
                 response_data = {"message": f"Something went wrong: {error_message}",

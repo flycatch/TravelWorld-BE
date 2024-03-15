@@ -226,19 +226,16 @@ class UserReviewActionView(viewsets.GenericViewSet):
 
 
 
-class AgentUserReviewReplyListView(ListAPIView):
+class AgentUserReviewListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewDetailSerializer
     pagination_class = CustomPagination
+    filterset_class = ReviewFilter
 
     
     def get_queryset(self):
-        
-        booking = self.request.GET.get("booking", None)
-        agent = self.request.GET.get("agent", None)
-        queryset =  UserReview.objects.filter(agent=agent,booking=booking,
-                                                is_deleted=0, is_active=1).order_by("-id")
+        queryset =  UserReview.objects.filter(is_deleted=0, is_active=1).order_by("-id")
         return queryset
     
     def list(self, request, *args, **kwargs):

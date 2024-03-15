@@ -236,7 +236,7 @@ class GoogleLoginApi(PublicApi):
             # print(google_tokens)
 
             # id_token_decoded = google_tokens.decode_id_token()
-            idinfo = id_token.verify_oauth2_token(code, requests.Request(), settings.GOOGLE_CLIENT_ID)
+            idinfo = id_token.verify_oauth2_token(code, requests.Request(), settings.GOOGLE_OAUTH2_CLIENT_ID)
             print(idinfo)
 
             # user_info = google_login_flow.get_user_info(google_tokens=code)

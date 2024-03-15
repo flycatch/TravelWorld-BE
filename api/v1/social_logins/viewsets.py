@@ -272,7 +272,7 @@ class GoogleLoginApi(PublicApi):
             login(request, user,backend='api.backends.BaseUserModelBackend')
 
 
-            return redirect("https://dev-explore.flycatchtech.in/ ")
+            return redirect("https://dev-explore.flycatchtech.in/")
             # return Response({'status': 'success', 'message': 'Login Successful', 
             #                  "user_info": idinfo,
             #                  'token': token.key, 'statusCode': status.HTTP_200_OK},

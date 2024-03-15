@@ -1,8 +1,8 @@
 # views.py
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
-                        ItineraryDay, Package, PackageCategory,
-                        PackageFaqQuestionAnswer, PackageImage,
+                        ItineraryDay, Package, PackageCategory, PackageFaqCategory,
+                        PackageFaqQuestionAnswer, PackageImage, PackageCancellationCategory,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
@@ -16,7 +16,9 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
                                         PackageTourCategorySerializer,
-                                        PricingSerializer)
+                                        PricingSerializer,
+                                        CancellationPolicyCategorySerializer,
+                                        PackageFaqCategorySerializer)
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -501,3 +503,40 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
+
+class PackageCancellationCategoryViewSet(viewsets.ModelViewSet):
+    queryset = PackageCancellationCategory.objects.all()
+    serializer_class = CancellationPolicyCategorySerializer
+    http_method_names = ['get', 'delete']
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({
+                'message': 'Cancellation category deleted successfully', 
+                'status': 'success', 
+                'statusCode': status.HTTP_204_NO_CONTENT},
+                status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'message': str(e), 'status': 'error'}, 
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class PackageFaqCategoryViewSet(viewsets.ModelViewSet):
+    queryset = PackageFaqCategory.objects.all()
+    serializer_class = PackageFaqCategorySerializer
+    http_method_names = ['get', 'delete']
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({
+                'message': 'Faq category deleted successfully', 'status': 'success', 
+                'statusCode': status.HTTP_204_NO_CONTENT},
+                status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'message': str(e), 'status': 'error'}, 
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        

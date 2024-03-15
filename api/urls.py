@@ -8,7 +8,8 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView)
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageFaqCategoryViewSet,
+                                     PackageCancellationCategoryViewSet)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
@@ -44,6 +45,10 @@ router.register(r'package/create', PackageViewSet, basename='package') #package 
 router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
+
+#delete category
+router.register(r'packages/cancellationcategory', PackageCancellationCategoryViewSet, basename='cancellation-category'),
+router.register(r'packages/faqcategory', PackageFaqCategoryViewSet, basename='faq-category'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')

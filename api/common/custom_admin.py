@@ -58,15 +58,21 @@ class CustomTabularImageInline(admin.TabularInline):
 
 class ActivityImageInline(CustomTabularImageInline):
     model = ActivityImage
+    verbose_name = 'Image'
+    verbose_name_plural = 'Images'
 
 
 class PackageImageInline(CustomTabularImageInline):
     model = PackageImage
+    verbose_name = 'Image'
+    verbose_name_plural = 'Images'
 
 
 class AttractionImageInline(admin.TabularInline):
     model = AttractionImage
     extra = 3
+    verbose_name = 'Image'
+    verbose_name_plural = 'Images'
 
 
 class ItineraryInline(CustomStackedInline):
@@ -75,15 +81,20 @@ class ItineraryInline(CustomStackedInline):
 
 class PackageInformationsInline(CustomStackedInline):
     model = PackageInformations
+    verbose_name = 'Information'
+    verbose_name_plural = 'Information'
 
 
 class PricingInline(CustomStackedInline):
     model = Pricing
     exclude = ['activity']
-
+    verbose_name = 'Pricing'
+    verbose_name_plural = 'Pricing'
 
 class TourCategoryInline(CustomStackedInline):
     model = TourCategory
+    verbose_name = 'Tour Category'
+    verbose_name_plural = 'Tour Category'
 
 
 class CancellationPolicyInline(CustomStackedInline):
@@ -94,30 +105,44 @@ class CancellationPolicyInline(CustomStackedInline):
 class PackageFaqQuestionAnswerInline(CustomStackedInline):
     model = PackageFaqQuestionAnswer
     template = 'admin/inline_admin.html'
+    verbose_name = 'Faq'
+    verbose_name_plural = 'Faq'
 
 class ActivityItineraryInline(CustomStackedInline):
     model = ActivityItinerary
+    verbose_name = 'Itinerary'
+    verbose_name_plural = 'Itinerary'
 
 
 class ActivityInformationsInline(CustomStackedInline):
     model = ActivityInformations
+    verbose_name = 'Information'
+    verbose_name_plural = 'Information'
 
 
 class ActivityPricingInline(CustomStackedInline):
     model = Pricing
     exclude = ['package']
+    verbose_name = 'Pricing'
+    verbose_name_plural = 'Pricing'
 
 
 class ActivityTourCategoryInline(CustomStackedInline):
     model = ActivityTourCategory
+    verbose_name = 'Tour Category'
+    verbose_name_plural = 'Tour Category'
 
 
 class ActivityFaqQuestionAnswerInline(CustomStackedInline):
     model = ActivityFaqQuestionAnswer
     template = 'admin/inline_admin.html'
+    verbose_name = 'Faq'
+    verbose_name_plural = 'Faq'
 
 
 class ActivityCancellationPolicyInline(CustomStackedInline):
     model = ActivityCancellationPolicy
     template = 'admin/inline_admin.html'
+    verbose_name = 'Cancellation Policy'
+    verbose_name_plural = 'Cancellation Policies'
 

@@ -262,9 +262,10 @@ class PackageTourCategorySerializer(serializers.ModelSerializer):
 
 
 class CancellationPolicyCategorySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = PackageCancellationCategory
-        fields = ['from_day', 'to_day', 'amount_percent',]
+        fields = ['id', 'from_day', 'to_day', 'amount_percent',]
 
 
 class PackageCancellationPolicySerializer(serializers.ModelSerializer):
@@ -290,23 +291,40 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         category_data = validated_data.pop('category', [])
+
         # Update the main CancellationPolicy instance
         instance.package = validated_data.get('package', instance.package)
         instance.save()
-        # Clear existing categories
-        instance.category.clear()
+
         # Add new categories
-        for data in category_data:
-            category_instance, _ = PackageCancellationCategory.objects.get_or_create(**data)
-            instance.category.add(category_instance)
+        for category in category_data:
+            category_id = category.get('id')
+            if category_id:
+                try:
+                    category_obj = PackageCancellationCategory.objects.get(pk=category_id)
+                    serializer = CancellationPolicyCategorySerializer(category_obj, data=category, partial=True)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+
+                except PackageCancellationCategory.DoesNotExist:
+                    raise serializers.ValidationError(f"Package Category id {category_id} does not exist.")
+                
+                except Exception as error:
+                    raise ValidationError("Error creating package: {}".format(str(error)))
+
+            else:
+                category_obj = PackageCancellationCategory.objects.create(**category)
+        
+            instance.category.add(category_obj)
+                
         return instance
 
 
-
 class PackageFaqCategorySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = PackageFaqCategory
-        fields = ['question', 'answer',]
+        fields = ['id', 'question', 'answer',]
 
 
 class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
@@ -322,7 +340,6 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             package_faq_data = PackageFaqQuestionAnswer.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 faq_category_data = PackageFaqCategory.objects.create(**data)
                 package_faq_data.category.add(faq_category_data)
         except Exception as error:
@@ -330,18 +347,37 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
 
         return package_faq_data
 
+
     def update(self, instance, validated_data):
         category_data = validated_data.pop('category', [])
-        # Update the main PackageFaqQuestionAnswer instance
+
+        # Update the main CancellationPolicy instance
         instance.package = validated_data.get('package', instance.package)
         instance.save()
-        # Clear existing categories
-        instance.category.clear()
+
         # Add new categories
-        for data in category_data:
-            category_instance, _ = PackageFaqCategory.objects.get_or_create(**data)
-            instance.category.add(category_instance)
+        for category in category_data:
+            category_id = category.get('id')
+            if category_id:
+                try:
+                    category_obj = PackageFaqCategory.objects.get(pk=category_id)
+                    serializer = PackageFaqCategorySerializer(category_obj, data=category, partial=True)
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+
+                except PackageFaqCategory.DoesNotExist:
+                    raise serializers.ValidationError(f"Package faq Category id {category_id} does not exist.")
+                
+                except Exception as error:
+                    raise ValidationError("Error creating package: {}".format(str(error)))
+
+            else:
+                category_obj = PackageFaqCategory.objects.create(**category)
+        
+            instance.category.add(category_obj)
+                
         return instance
+
 
 class BookingPackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)

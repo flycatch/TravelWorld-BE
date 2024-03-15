@@ -227,10 +227,10 @@ class GoogleLoginApi(PublicApi):
             #                     "status": "error",
             #                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
             
-            print("helo")
-            google_login_flow = GoogleRawLoginFlowService()
-            print("a0")
-            print(google_login_flow)
+            # print("helo")
+            # google_login_flow = GoogleRawLoginFlowService()
+            # print("a0")
+            # print(google_login_flow)
 
             # google_tokens = google_login_flow.get_tokens(code=code)
 
@@ -238,7 +238,7 @@ class GoogleLoginApi(PublicApi):
             # print(google_tokens)
 
             # id_token_decoded = google_tokens.decode_id_token()
-            # idinfo = id_token.verify_oauth2_token(code, requests.Request(), settings.GOOGLE_OAUTH2_CLIENT_ID)
+            
             idinfo = id_token.verify_oauth2_token(
                 code,
                 google.auth.transport.requests.Request(),

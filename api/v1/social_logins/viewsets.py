@@ -195,6 +195,10 @@ class GoogleLoginApi(PublicApi):
             error = validated_data.get("error")
             # state = validated_data.get("state")
 
+            print("hi1")
+            print(code)
+            print(error)
+
             if error is not None:
                 return Response({ "message": error,
                                 "status": "error",
@@ -219,10 +223,16 @@ class GoogleLoginApi(PublicApi):
             #     return Response({ "message": "CSRF check failed.",
             #                     "status": "error",
             #                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
-
+            
+            print("helo")
             google_login_flow = GoogleRawLoginFlowService()
+            print("a0")
+            print(google_login_flow)
 
             google_tokens = google_login_flow.get_tokens(code=code)
+
+            print("a1")
+            print(google_tokens)
 
             id_token_decoded = google_tokens.decode_id_token()
             user_info = google_login_flow.get_user_info(google_tokens=google_tokens)

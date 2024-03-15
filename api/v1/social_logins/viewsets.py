@@ -184,7 +184,7 @@ class GoogleLoginRedirectApi(PublicApi):
 class GoogleLoginApi(PublicApi):
 
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             input_serializer = InputSerializer(data=request.GET)
             input_serializer.is_valid(raise_exception=True)

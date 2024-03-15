@@ -1,10 +1,8 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
 
-from api.models import Country, State, City, Location
-from api.v1.general.serializers import CountrySerializer, StateSerializer, CitySerializer, LocationSerializer
+from api.models import Country, State, City
+from api.v1.general.serializers import CountrySerializer, StateSerializer, CitySerializer
 from api.filters.general_filters import CityFilter
 
 

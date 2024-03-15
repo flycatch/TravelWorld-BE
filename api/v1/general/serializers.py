@@ -26,13 +26,3 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['id', 'country', 'state', 'destinations']
-
-
-# class LocationGetSerializer(serializers.ModelSerializer):
-#     id = serializers.IntegerField(required=False)
-#     destinations = CitySerializer(many=True, required=False)
-    
-#     class Meta:
-#         model = Location
-#         fields = ['id', 'country', 'state', 'destinations']
-

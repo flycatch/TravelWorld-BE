@@ -31,9 +31,13 @@ class LocationViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'delete']
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response({
-            'message': 'Location deleted successfully', 'status': 'success', 
-            'statusCode': status.HTTP_204_NO_CONTENT},
-            status=status.HTTP_204_NO_CONTENT)
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({
+                'message': 'Location deleted successfully', 'status': 'success', 
+                'statusCode': status.HTTP_204_NO_CONTENT},
+                status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'message': str(e), 'status': 'error'}, 
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

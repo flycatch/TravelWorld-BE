@@ -121,18 +121,15 @@ class ExclusionsAdmin(CustomModelAdmin):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "state",
-                    "city", "category",
+    list_display = ("agent", "truncated_title", "tour_class","category",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class",  "country", "state", "category",
-                   "status", "stage")
+    list_filter = ("tour_class", "category", "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
-                     "city__name", "category__name")
+    search_fields = ("title", "agent__agent_uid", "tour_class", "category__name")
     exclude = ('is_submitted',)
     readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
-    inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
+    inlines = [ ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
                ActivityPricingInline, ActivityTourCategoryInline,
                ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
                ]
@@ -187,14 +184,13 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "state",
-                    "city", "category",
+    list_display = ("agent", "truncated_title", "tour_class", "category",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class",  "country", "state", "category",
+    list_filter = ("tour_class", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
-                     "state__name", "city__name", "category__name", "tour_class")
+                     "category__name", "tour_class")
     readonly_fields = [field.name for field in Package._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     exclude = ('is_submitted',)

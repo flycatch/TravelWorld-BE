@@ -40,4 +40,4 @@ class LocationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
             return Response({'message': str(e), 'status': 'error'}, 
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR) 

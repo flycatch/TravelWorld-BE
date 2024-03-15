@@ -15,17 +15,41 @@ class ContactPersonSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# class BookingUserReviewSerializer(serializers.ModelSerializer):
-#     images = serializers.ListField(child=serializers.ImageField(), write_only=True,required=False)
+class BookingUserReviewImageSerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = UserReview
-#         fields = "__all__"
+    images = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        if request is not None and obj.images:
+            return request.build_absolute_uri(obj.images.url)
+        return None
+    
+    class Meta:
+        model = UserReviewImage
+        fields = ['id','images']
+
+
+class BookingUserReviewSerializer(serializers.ModelSerializer):
+    review_images = BookingUserReviewImageSerializer(many=True,required=False)
+    agent = BookingAgentSerializer(required=False)
+
+    
+
+
+    class Meta:
+        model = UserReview
+        fields = ['object_id','is_reviewed','booking','rating','review',
+                  'homepage_display','agent','agent_comment','agent_reply_date','created_on','review_images']
 
 class BookingSerializer(serializers.ModelSerializer):
     package = BookingPackageSerializer(required=False)
     user = UserBookingSerializer(required=False)
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
+    user_review_booking = BookingUserReviewSerializer(required=False)
+
+    
+
 
     class Meta:
         model = Booking
@@ -43,7 +67,7 @@ class BookingMinFieldsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Booking
-        fields = ['id','booking_id']
+        fields = ['id','object_id','booking_id']
 
 
 class AgentTransactionSettlementSerializer(serializers.ModelSerializer):

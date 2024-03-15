@@ -472,7 +472,7 @@ class Currency(BaseModel):
         return self.name
 
 def default_blackout_dates():
-    return {'weeks': {}, 'custom_date': {}}
+    return {'weeks': [], 'custom_date': []}
 
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [
@@ -490,7 +490,9 @@ class Pricing(BaseModel):
 
     #field for per-person pricing
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='pricing_package')
+        Package, on_delete=models.CASCADE, related_name='pricing_package', null=True, blank=True)
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='pricing_activitya', null=True, blank=True)
     pricing_group = models.CharField(
         max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
     price = models.ForeignKey(
@@ -858,11 +860,12 @@ class UserReview(BaseModel):
     is_active = models.BooleanField(default=1)
     is_deleted = models.BooleanField(default=0)
     homepage_display = models.BooleanField(default=0)
-    booking = models.ForeignKey(
+    booking = models.OneToOneField(
         Booking, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_booking')
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE,null=True, blank=True, related_name='user_review_agent')
     agent_comment = models.TextField(blank=True,null=True )
+    agent_reply_date = models.DateField(null=True, blank=True)
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='activity_review')
     is_reviewed = models.BooleanField(default=0)

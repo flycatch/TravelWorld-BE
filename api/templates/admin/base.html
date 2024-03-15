@@ -197,7 +197,7 @@
                     <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
                 </a>
 
-                <div class="sidebar">
+                <div class="sidebar" id="sidebar">
                     <!-- <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                         <div class="image">
                             {% if jazzmin_settings|has_jazzmin_setting:"user_avatar" %}
@@ -404,6 +404,62 @@
 //     }
 // });
 
+</script>
+
+<script>
+    $(document).ready(function() {
+        // Function to handle sidebar scrolling
+        function handleSidebarScroll(clickedNavItem) {
+            // Get the height of the sidebar
+            var sidebarHeight = $('#sidebar').height();
+            
+            // Check if the clicked link is already visible in the sidebar
+            if (!isElementInViewport(clickedNavItem)) {
+                // Scroll the sidebar to the clicked link
+                var scrollTopOffset = clickedNavItem.offset().top - $('#sidebar').offset().top;
+                var scrollTarget = scrollTopOffset - (sidebarHeight * 0.25);
+                $('#sidebar').animate({
+                    scrollTop: scrollTarget
+                }, 1000);
+            }
+        }
+        
+        // Function to check if an element is in the viewport
+        function isElementInViewport(el) {
+            var rect = el[0].getBoundingClientRect();
+            return (
+                rect.top >= 0 &&
+                rect.bottom <= $('#sidebar').height()
+            );
+        }
+        
+        // Function to handle scrolling on page load
+        function handleInitialScroll() {
+            // Get the height of the sidebar
+            var sidebarHeight = $('#sidebar').height();
+            
+            // Get the currently active nav-link
+            var activeNavItem = $('.nav-link.active').closest('.nav-item');
+            
+            // Scroll the sidebar to the active nav-link if it's not visible
+            if (activeNavItem.length > 0 && !isElementInViewport(activeNavItem)) {
+                var scrollTopOffset = activeNavItem.offset().top - $('#sidebar').offset().top;
+                var scrollTarget = scrollTopOffset - (sidebarHeight * 0.25);
+                $('#sidebar').scrollTop(scrollTarget);
+            }
+        }
+        
+        // Call the handleInitialScroll function on page load
+        handleInitialScroll();
+        
+        // Call the handleSidebarScroll function when a sidebar link is clicked
+        $('#sidebar .nav-link').click(function() {
+            $('.nav-link').removeClass('active');
+            $(this).addClass('active');
+            var clickedNavItem = $(this).closest('.nav-item');
+            handleSidebarScroll(clickedNavItem);
+        });
+    });
 </script>
 
 {% endblock %}

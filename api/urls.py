@@ -8,7 +8,7 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet)
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
@@ -133,12 +133,13 @@ urlpatterns = [
              'delete': 'destroy'
          }), name='user-review-detail'),
 
-    path('v1/agent/user-review-reply/<str:object_id>/', AgentUserReviewReplyView.as_view
+    path('v1/user-reviews/<str:object_id>/', UserReviewActionView.as_view
          ({
-             'patch': 'update'
+            'patch': 'update',
+            'delete': 'destroy'
          }), name='user-review-reply'),
     
-    path('v1/agent/user-review-reply-list/', AgentUserReviewReplyListView.as_view(), name='user-review-reply-list'),
+    path('v1/agent/user-review-list/', AgentUserReviewListView.as_view(), name='user-review-reply-list'),
 
     path('v1/advance-amount-percentage-list/', AdvanceAmountPercentageSettingListView.as_view(), name='advance-amount-percentage-list'),
 
@@ -150,5 +151,9 @@ urlpatterns = [
 
     path("v1/facebook/redirect/", FacebookLoginRedirectApi.as_view(), name="facebook-redirect-raw"),
     path('v1/facebook/callback', fb_login,name='fb_login'),
+
+    #pricing revamp
+    path('v1/pricing/new/', PricingNewView.as_view(), name='pricing-package-activity'),
+
 
 ]

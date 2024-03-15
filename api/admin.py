@@ -642,8 +642,8 @@ class UserReviewAdmin(CustomModelAdmin):
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
-    readonly_fields = ("user", "package", "activity", "rating", "review",
-                       "booking", "agent", "agent_comment")
+    # readonly_fields = ("user", "package", "activity", "rating", "review",
+    #                    "booking", "agent", "agent_comment")
     fieldsets = (
         (None, {
             'fields': ("user", "package", "activity", "rating", "review",
@@ -652,13 +652,13 @@ class UserReviewAdmin(CustomModelAdmin):
         )
 
     def has_add_permission(self, request, obj=None):
-        return False
+        return True
 
     def has_change_permission(self, request, obj=None):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
 
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):

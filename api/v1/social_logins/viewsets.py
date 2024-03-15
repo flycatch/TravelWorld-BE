@@ -161,15 +161,17 @@ class GoogleLoginRedirectApi(PublicApi):
             google_login_flow = GoogleRawLoginFlowService()
 
             authorization_url= google_login_flow.get_authorization_url()
+            return redirect(authorization_url)
+
 
             # request.session["google_oauth2_state"] = state
 
-            return Response({
-                    "status": "success",
-                    "message": "Listed successfully",
-                    "statusCode": status.HTTP_200_OK,
-                    "results": authorization_url,
-                }, status=status.HTTP_200_OK)
+            # return Response({
+            #         "status": "success",
+            #         "message": "Listed successfully",
+            #         "statusCode": status.HTTP_200_OK,
+            #         "results": authorization_url,
+            #     }, status=status.HTTP_200_OK)
         
         except Exception as error_message:
                 response_data = {"message": f"Something went wrong: {error_message}",

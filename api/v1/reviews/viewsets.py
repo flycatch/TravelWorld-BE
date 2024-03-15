@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from TravelWorld.settings import *
 from django.shortcuts import get_object_or_404
 from api.filters.review_filters import ReviewFilter
+from django.utils import timezone
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -51,17 +52,20 @@ class UserReviewView(viewsets.GenericViewSet):
 
                 if serializer.is_valid():
                     serializer.save(is_active=True)
+                    message = 'Created successfully'
+                    return Response({"message": message,
+                                  "status": "success",
+                                "statusCode": status.HTTP_201_CREATED
+                                  }, status=status.HTTP_201_CREATED)
+                
+
                 else:
                     return Response({ "results": serializer.errors,
                                     "message": "Something went wrong",
                                     "status": "error",
                                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
-                message = 'Created successfully'
-                return Response({"message": message,
-                                  "status": "success",
-                                "statusCode": status.HTTP_201_CREATED
-                                  }, status=status.HTTP_201_CREATED)
+                
             
         
         
@@ -150,7 +154,7 @@ class UserReviewListView(ListAPIView):
 
 
 
-class AgentUserReviewReplyView(viewsets.GenericViewSet):
+class UserReviewActionView(viewsets.GenericViewSet):
     """
     This API view handles CRUD operations related to UserReview Reply Views.
 
@@ -168,13 +172,15 @@ class AgentUserReviewReplyView(viewsets.GenericViewSet):
         """
 
         try:
+
             instance = get_object_or_404(self.get_queryset(), object_id=kwargs.get('object_id'))
             serializer = self.serializer_class(
                 instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(agent_reply_date=timezone.now())
+
             else:
                 return Response({ "results": serializer.errors,
                                 "message": "Something went wrong",
@@ -191,22 +197,45 @@ class AgentUserReviewReplyView(viewsets.GenericViewSet):
                                 "status": "error",
                                 "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
                 return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Handle DELETE request to mark a user_review as deleted.
+
+        Args:
+            **kwargs: Additional keyword arguments, including 'object_id'.
+
+        Returns:
+            Response: The HTTP response indicating successful deletion.
+
+        """
+        queryset = self.get_queryset()
+        object_id = self.kwargs.get('object_id')
+        
+        instance = get_object_or_404(queryset, object_id=object_id)
+
+        queryset.filter(object_id=object_id).update(
+            is_deleted=True,
+            is_active=False
+        )
+        message = 'Deleted successfully'
+        return Response({"message" : message,
+                          "status": "success",
+                        "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
 
 
 
-class AgentUserReviewReplyListView(ListAPIView):
+class AgentUserReviewListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewDetailSerializer
     pagination_class = CustomPagination
+    filterset_class = ReviewFilter
 
     
     def get_queryset(self):
-        
-        booking = self.request.GET.get("booking", None)
-        agent = self.request.GET.get("agent", None)
-        queryset =  UserReview.objects.filter(agent=agent,booking=booking,
-                                                is_deleted=0, is_active=1).order_by("-id")
+        queryset =  UserReview.objects.filter(is_deleted=0, is_active=1).order_by("-id")
         return queryset
     
     def list(self, request, *args, **kwargs):

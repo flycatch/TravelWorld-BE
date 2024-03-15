@@ -272,11 +272,11 @@ class GoogleLoginApi(PublicApi):
             login(request, user,backend='api.backends.BaseUserModelBackend')
 
 
-            return redirect("https://www.w3schools.com/")
-            # return Response({'status': 'success', 'message': 'Login Successful', 
-            #                  "user_info": idinfo,
-            #                  'token': token.key, 'statusCode': status.HTTP_200_OK},
-            #                  status=status.HTTP_200_OK)
+            # return redirect("https://www.w3schools.com/")
+            return Response({'status': 'success', 'message': 'Login Successful', 
+                             "user_info": idinfo,
+                             'token': token.key, 'statusCode': status.HTTP_200_OK},
+                             status=status.HTTP_200_OK)
         
         except Exception as error_message:
                 response_data = {"message": f"Something went wrong: {error_message}",

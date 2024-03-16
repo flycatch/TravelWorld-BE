@@ -21,6 +21,9 @@ from api.backends import ModelBackend,BaseUserModelBackend
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from api.v1.social_logins.serializers import *
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import google.auth
 
 @define
 class GoogleRawLoginCredentials:
@@ -180,9 +183,6 @@ class GoogleLoginRedirectApi(PublicApi):
                 return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
-from google.oauth2 import id_token
-from google.auth.transport import requests
-import google.auth
 
 class GoogleLoginApi(PublicApi):
 
@@ -273,7 +273,8 @@ class GoogleLoginApi(PublicApi):
 
 
             # return redirect("https://www.w3schools.com/")
-            return Response({'status': 'success', 'message': 'Login Successful', 
+            return Response({'status': 'success', 
+                             'message': 'Login Successful', 
                              "user_info": idinfo,
                              'token': token.key, 'statusCode': status.HTTP_200_OK},
                              status=status.HTTP_200_OK)

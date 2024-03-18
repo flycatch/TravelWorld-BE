@@ -30,6 +30,8 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class LocationGetSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    country = CountrySerializer(required=False)
+    state = StateSerializer(required=False)
     destinations = CitySerializer(many=True)  # Include destinations
 
     class Meta:

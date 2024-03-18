@@ -16,8 +16,8 @@ class UserBookingSerializer(serializers.ModelSerializer):
 
     def get_profile_image(self, obj):
         request = self.context.get('request')
-        if request is not None and obj.images:
-            return request.build_absolute_uri(obj.images.url)
+        if request is not None and obj.profile_image:
+            return request.build_absolute_uri(obj.profile_image.url)
         return None
 
     class Meta:

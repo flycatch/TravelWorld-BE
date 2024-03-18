@@ -376,26 +376,26 @@ class PricingNewView(APIView):
 
     def put(self, request, *args, **kwargs):
         try:
-            if isinstance(request.data, list):
-                with transaction.atomic():
+            
+            with transaction.atomic():
 
-                    # Update existing objects or create new ones
-                    updated_data = []
-                    for data_item in request.data:
-                        instance_id = data_item.get('id')
-                        if instance_id is not None:
-                            instance = get_object_or_404(Pricing, id=instance_id)
-                            serializer = self.serializer_class(instance, data=data_item, partial=True)
-                        else:
-                            serializer = self.serializer_class(data=data_item)
+                instance_id = kwargs.get('pk')
+                if instance_id is not None:
+                    instance = get_object_or_404(Pricing, id=instance_id)
+                    serializer = self.serializer_class(instance, data=request.data, partial=True)
+                    serializer.is_valid(raise_exception=True)
 
-                        serializer.is_valid(raise_exception=True)
-                        updated_instance = serializer.save()
-                        updated_data.append(self.serializer_class(updated_instance).data)
-                   
-                    return Response({"message":"Pricing updated successfully",
-                                    "status": "success",
-                                    "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+                    if serializer.is_valid:
+                        return Response({"message":"Pricing updated successfully",
+                                "status": "success",
+                                "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+
+                    else:
+                        error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
+                        return Response({ 'status': 'error', 'message': error_messages,
+                                        'statusCode': status.HTTP_400_BAD_REQUEST },
+                                        status=status.HTTP_400_BAD_REQUEST)
+                  
 
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",

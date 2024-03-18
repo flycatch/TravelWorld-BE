@@ -400,7 +400,8 @@ class ItineraryDay(BaseModel):
         verbose_name_plural = 'Itinerary Day'
 
     def __str__(self):
-        return f"{self.day} - {self.place} - {self.description}"
+        return f"\n Day : {self.day} - {self.place} : {self.description}"
+
 
 class Itinerary(BaseModel):
     package = models.ForeignKey(
@@ -431,7 +432,7 @@ class InclusionInformation(BaseModel):
         verbose_name_plural = 'Inclusion Information'
 
     def __str__(self):
-        return f"{self.inclusion} - {self.details}"
+        return f"\n {self.inclusion} : {self.details}"
 
 class ExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
@@ -594,11 +595,11 @@ class CancellationPolicy(BaseModel):
         for category in categories:
             if category.to_day == 0:
                 category_info.append(
-                    f"<tr><td style='padding-right: 30px;'>If cancelled before {category.from_day} Days</td><td>{category.amount_percent} %</td></tr>"
-                )
+                    f"<tr><td style='padding-right: 150px;'>If cancelled before<strong> {category.from_day} </strong>Days :</td><td><strong>{category.amount_percent} %</strong></td></tr>"
+                    )
             else:
                 category_info.append(
-                    f"<tr><td style='padding-right: 30px;'>If cancelled between {category.from_day} - {category.to_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                    f"<tr><td style='padding-right: 150px;'>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days : </td><td> Rate <strong> {category.amount_percent} %</strong></td></tr>"
                 )
         # Join the category info strings into a single string separated by newlines
         return '<table>' + ''.join(category_info) + '</table>'
@@ -991,7 +992,7 @@ class ActivityItineraryDay(BaseModel):
         verbose_name_plural = 'Itinerary Day'
 
     def __str__(self):
-        return f"Day {self.day} - {self.place} - {self.description}"
+        return f"\n Day : {self.day} - {self.place} : {self.description}"
 
 
 class ActivityItinerary(BaseModel):
@@ -1019,7 +1020,8 @@ class ActivityInclusionInformation(BaseModel):
         verbose_name_plural = 'Activity Inclusion Information'
 
     def __str__(self):
-        return f"{self.inclusion} - {self.details}"
+        return f"\n {self.inclusion} : {self.details}"
+
 
 class ActivityExclusionInformation(BaseModel):
     exclusion = models.ForeignKey(
@@ -1155,11 +1157,11 @@ class ActivityCancellationPolicy(BaseModel):
         for category in categories:
             if category.to_day == 0:
                 category_info.append(
-                    f"<tr><td style='padding-right: 30px;'>If cancelled before {category.from_day} Days</td><td>{category.amount_percent} %</td></tr>"
-                )
+                    f"<tr><td style='padding-right: 150px;'>If cancelled before<strong> {category.from_day} </strong>Days :</td><td><strong>{category.amount_percent} %</strong></td></tr>"
+                    )
             else:
                 category_info.append(
-                    f"<tr><td style='padding-right: 30px;'>If cancelled between {category.from_day} - {category.to_day} Days</td><td>{category.amount_percent} %</td></tr>"
+                    f"<tr><td style='padding-right: 150px;'>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days : </td><td> Rate <strong> {category.amount_percent} %</strong></td></tr>"
                 )
         # Join the category info strings into a single string separated by newlines
         return '<table>' + ''.join(category_info) + '</table>'

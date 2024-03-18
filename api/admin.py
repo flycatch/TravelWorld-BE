@@ -674,7 +674,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return False
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package", "activity", "rating",)
+    list_display = ("user", "package", "activity", "rating","object_id")
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')

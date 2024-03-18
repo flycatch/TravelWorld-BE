@@ -221,12 +221,13 @@ class UserReviewActionView(viewsets.GenericViewSet):
         )
         print("bie")
         print(s)
+        print(type(s))
 
-        for i in s:
-            print(i.agent_comment)
-            print(i.agent_reply_date)
-            print(i.is_active)
-            print(i.is_deleted)
+        # for i in s:
+        #     print(i.agent_comment)
+        #     print(i.agent_reply_date)
+        #     print(i.is_active)
+        #     print(i.is_deleted)
 
 
         message = 'Deleted successfully'

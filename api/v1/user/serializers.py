@@ -11,6 +11,14 @@ from api.models import *
 
 
 class UserBookingSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+
+
+    def get_profile_image(self, obj):
+        request = self.context.get('request')
+        if request is not None and obj.images:
+            return request.build_absolute_uri(obj.images.url)
+        return None
 
     class Meta:
         model = User

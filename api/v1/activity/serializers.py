@@ -53,7 +53,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         locations_data = validated_data.pop('locations', [])
-        
+
         # Update or create related locations
         for location_data in locations_data:
             location_id = location_data.get('id')
@@ -69,7 +69,7 @@ class ActivitySerializer(serializers.ModelSerializer):
                 locations_obj.destinations.set(destination_ids)
                 instance.locations.add(locations_obj)
 
-        return instance
+        return super().update(instance, validated_data)
 
 
 class ActivityImageSerializer(serializers.ModelSerializer):

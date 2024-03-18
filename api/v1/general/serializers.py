@@ -22,7 +22,16 @@ class CitySerializer(serializers.ModelSerializer):
 
 class LocationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    
+
+    class Meta:
+        model = Location
+        fields = ['id', 'country', 'state', 'destinations']
+
+
+class LocationGetSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    destinations = CitySerializer(many=True)  # Include destinations
+
     class Meta:
         model = Location
         fields = ['id', 'country', 'state', 'destinations']

@@ -57,8 +57,7 @@ class PackageSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         locations_data = validated_data.pop('locations', [])
-        # new_location_objs = []  # Track newly created location objects
-        
+
         # Update or create related locations
         for location_data in locations_data:
             location_id = location_data.get('id')
@@ -73,15 +72,19 @@ class PackageSerializer(serializers.ModelSerializer):
                 locations_obj = Location.objects.create(**location_data)
                 locations_obj.destinations.set(destination_ids)
                 instance.locations.add(locations_obj)
-                # new_location_objs.append(locations_obj)  # Add newly created location to the list
 
-        # # Remove existing locations that are not present in the updated data and newly created one.
-        # updated_location_ids = [location_data.get('id') for location_data in locations_data if location_data.get('id')]
-        # for location in instance.locations.all():
-        #     if location.id not in updated_location_ids and location not in new_location_objs:
-        #         instance.locations.remove(location)
+        return super().update(instance, validated_data)
+    
 
-        return instance
+class PackageGetSerializer(serializers.ModelSerializer):
+    agent_name = serializers.CharField(source='agent.agent_uid', read_only=True)
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    locations = LocationGetSerializer(many=True, required=False)
+
+    class Meta:
+        model = Package
+        exclude = ['status', 'is_submitted']
+
 
 class PackageImageSerializer(serializers.ModelSerializer):
     class Meta:

@@ -15,6 +15,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageImageSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
+                                        PackageGetSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer)
 from django.db import transaction
@@ -118,20 +119,60 @@ class PackageViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 
-    def handle_exception(self, exc):
-        # Call the default exception handler first to get the standard error response
-        response = super().handle_exception(exc)
+    # def handle_exception(self, exc):
+    #     # Call the default exception handler first to get the standard error response
+    #     response = super().handle_exception(exc)
+    #     error_messages = []
         
-        # Check if the exception is a validation error
-        if isinstance(exc, ValidationError):
-            # Extract error messages
-            error_messages = []
-            for field, errors in exc.detail.items():
-                for error in errors:
-                    error_messages.append(f"{field}: {error}")
+    #     # Check if the exception is a validation error
+    #     if isinstance(exc, ValidationError):
+    #         # Extract error messages
+    #         for field, errors in exc.detail.items():
+    #             for error in errors:
+    #                 error_messages.append(f"{field}: {error}")
 
-        return Response({'message': error_messages, 'status': 'Failed',
-                         'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response({'message': error_messages, 'status': 'Failed',
+    #                      'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PackageGetViewSet(viewsets.ModelViewSet):
+    """
+    A ViewSet for handling CRUD operations related to packages.
+    """
+
+    serializer_class = PackageGetSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['agent__username','package_uid','title','tour_class'] 
+    filterset_class = PackageFilter
+    http_method_names = ['get']
+
+    def get_queryset(self, **kwargs):
+        """
+        Queryset to list package data based on agent if passed agent id as param.
+        also sort data option added.
+        Get the queryset of packages filtered by status, stage, and submission.
+
+        Returns:
+            queryset: A filtered queryset containing active and approved packages that are submitted.
+        """
+
+        queryset = Package.objects.all()
+        #sort
+        sort_by = self.request.GET.get("sort_by", None)
+        sort_order = self.request.GET.get("sort_order", "asc")
+        agent = self.request.GET.get("agent")
+
+        if agent:
+            queryset = Package.objects.filter(agent=agent)
+
+        if sort_by:
+            sort_field = sort_by if sort_order == "asc" else f"-{sort_by}"
+            queryset = queryset.order_by(sort_field)
+        
+        return queryset
 
 
 class PackageImageViewSet(viewsets.ModelViewSet):
@@ -527,4 +568,3 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
-

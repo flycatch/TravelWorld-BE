@@ -2,23 +2,20 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 
 from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
-                        ActivityImage, PackageCategory, Inclusions, Exclusions,
+                        ActivityImage, PackageCategory, Inclusions, Exclusions, Location,
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 
 
-
 class ActivitySerializer(serializers.ModelSerializer):
-    country_name = serializers.CharField(source='country.name', read_only=True)
-    state_name = serializers.CharField(source='state.name', read_only=True)
-    city_name = serializers.CharField(source='city.name', read_only=True)
     agent_name = serializers.CharField(source='agent.agent_uid', read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
-    city_name = serializers.CharField(source='city.name', read_only=True)
+    locations = LocationSerializer(many=True)
 
     class Meta:
         model = Activity
@@ -37,19 +34,42 @@ class ActivitySerializer(serializers.ModelSerializer):
 
         return data
 
+    @transaction.atomic
     def create(self, validated_data):
-        try:
-            is_submitted = self.context['request'].data.get('is_submitted', False)
+        locations_data = validated_data.pop('locations', [])
+        activity = Activity.objects.create(**validated_data)
 
-            if not is_submitted:
-                return super().create(validated_data)
+        for location_data in locations_data:
+            try:
+                destination_ids = location_data.pop('destinations', [])
+                locations_obj = Location.objects.create(**location_data)
+                locations_obj.destinations.set(destination_ids)
+                activity.locations.add(locations_obj)
 
-            validated_data['is_submitted'] = False
-            instance = super().create(validated_data)
-            return instance
-        
-        except Exception as error:
-            raise ValidationError("Error creating Activity: {}".format(str(error)))
+            except Exception as error:
+                raise serializers.ValidationError(error)
+
+        return activity
+
+    def update(self, instance, validated_data):
+        locations_data = validated_data.pop('locations', [])
+
+        # Update or create related locations
+        for location_data in locations_data:
+            location_id = location_data.get('id')
+            if location_id:
+                try:
+                    location_obj = Location.objects.get(pk=location_id)
+                    LocationSerializer().update(instance=location_obj, validated_data=location_data)
+                except Location.DoesNotExist:
+                    raise serializers.ValidationError(f"Location with id {location_id} does not exist.")
+            else:
+                destination_ids = location_data.pop('destinations', [])
+                locations_obj = Location.objects.create(**location_data)
+                locations_obj.destinations.set(destination_ids)
+                instance.locations.add(locations_obj)
+
+        return super().update(instance, validated_data)
 
 
 class ActivityImageSerializer(serializers.ModelSerializer):

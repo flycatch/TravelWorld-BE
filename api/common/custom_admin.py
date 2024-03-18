@@ -77,9 +77,20 @@ class PackageInformationsInline(CustomStackedInline):
     model = PackageInformations
 
 
-class PricingInline(CustomStackedInline):
+class PricingInline(admin.TabularInline):
     model = Pricing
-    exclude = ['activity']
+    exclude = ['activity','status']
+
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    
 
 
 class TourCategoryInline(CustomStackedInline):
@@ -105,7 +116,16 @@ class ActivityInformationsInline(CustomStackedInline):
 
 class ActivityPricingInline(CustomStackedInline):
     model = Pricing
-    exclude = ['package']
+    exclude = ['package','status']
+
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class ActivityTourCategoryInline(CustomStackedInline):

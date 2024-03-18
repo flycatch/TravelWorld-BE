@@ -19,6 +19,9 @@ from django.shortcuts import render
 from datetime import datetime
 from django.db.models import Case, CharField, Count, F, Subquery, Value, When
 import calendar
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from datetime import date
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -133,8 +136,8 @@ class ActivityAdmin(CustomModelAdmin):
     readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
                        ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
-               ActivityPricingInline, ActivityTourCategoryInline,
-               ActivityCancellationPolicyInline, ActivityFaqQuestionAnswerInline
+               ActivityPricingInline,ActivityCancellationPolicyInline, 
+               ActivityFaqQuestionAnswerInline
                ]
 
     def truncated_title(self, obj):
@@ -201,7 +204,7 @@ class PackageAdmin(CustomModelAdmin):
 
     inlines = [
         PackageImageInline, ItineraryInline, PackageInformationsInline,
-        PricingInline, TourCategoryInline, CancellationPolicyInline, 
+        PricingInline, CancellationPolicyInline, 
         PackageFaqQuestionAnswerInline,
         ]
 
@@ -229,11 +232,29 @@ class PackageAdmin(CustomModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-class BookingAdmin(CustomModelAdmin):
+
+class PricingDateFilter(admin.SimpleListFilter):
+    title = _('Pricing Date Range')
+    parameter_name = 'pricing_date_range'
+
+    def lookups(self, request, model_admin):
+        months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]  # Generating month names
+        return months 
+    
+    def queryset(self, request, queryset):
+        if self.value() in [str(i) for i in range(1, 13)]:
+            return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
+        
+
+class BookingAdmin(admin.ModelAdmin):
     list_display = ("booking_id", "display_created_on", "tour_date", "user_uid","package_name","agent_id","booking_status_colour",)
-    list_filter = ("booking_status",)
+    list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
+
     search_fields = ("booking_id", "user__user_uid",)
     exclude = ("status",)
+    
+
+    
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
@@ -244,6 +265,9 @@ class BookingAdmin(CustomModelAdmin):
                                'booking_status','display_created_on','tour_date', 
                                 'adult', 'child', 'infant', 'refund_amount','object_id')
                 }),
+        ('Pricing', {
+            'fields': ('pricing_section',),
+        }),
             )
         else:  # Add page
             return (
@@ -254,8 +278,20 @@ class BookingAdmin(CustomModelAdmin):
                                'refund_amount', )
                 }),
             )
-    
 
+
+    def pricing_section(self, obj):
+        pricing_list = obj.package.pricing_package.all()
+        if pricing_list:
+            pricing_info = "<style>.pricing-table {border-collapse: collapse; width: 100%;} .pricing-table th, .pricing-table td {border: 1px solid #ddd; padding: 15px; text-align: left;} .pricing-table th {background-color: #f2f2f2;} .pricing-table tr {margin-bottom: 10px;}</style>"
+            pricing_info += "<table class='pricing-table'><tr><th>Price</th><th>Adults Rate</th><th>Adults Commission</th><th>Child Rate</th><th>Child Commission</th><th>Infant Rate</th><th>Infant Commission</th><th>Discount</th><th>Total</th><th>Start Date</th><th>End Date</th><th>Blackout Dates</th></tr>"
+            for pricing in pricing_list:
+                pricing_info += f"<tr><td>{pricing.price}</td><td>{pricing.adults_rate}</td><td>{pricing.adults_commission}</td><td>{pricing.child_rate}</td><td>{pricing.child_commission}</td><td>{pricing.infant_rate}</td><td>{pricing.infant_commission}</td><td>{pricing.discount}</td><td>{pricing.total}</td><td>{pricing.start_date}</td><td>{pricing.end_date}</td><td>{pricing.blackout_dates}</td></tr>"
+            pricing_info += "</table>"
+            return mark_safe(pricing_info)  # Mark the string as safe HTML
+        else:
+            return "No pricing information available."
+        
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
@@ -838,8 +874,10 @@ admin.site.register(UserReview,UserReviewAdmin)
 
 # admin.site.register(CancellationPolicy)
 # admin.site.register(PackageCancellationCategory)
-admin.site.register(ContactPerson)
-admin.site.register(Pricing)
+# admin.site.register(ContactPerson)
+# admin.site.register(Itinerary)
+# admin.site.register(Pricing)
+# admin.site.register(ActivityImage)
 
 
 

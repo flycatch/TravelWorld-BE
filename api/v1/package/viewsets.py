@@ -403,6 +403,33 @@ class PricingNewView(APIView):
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    def delete(self, request, *args, **kwargs):
+        try:
+            instance_id = kwargs.get('pk')
+            instance = Pricing.objects.get(pk=instance_id)
+            instance.delete()
+            
+            return Response({
+                "message": "Pricing deleted successfully",
+                "status": "success",
+                "statusCode": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
+
+        except Pricing.DoesNotExist:
+            return Response({
+                "message": "Pricing does not exist",
+                "status": "error",
+                "statusCode": status.HTTP_404_NOT_FOUND
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as error_message:
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 class PackageCategoryViewSet(viewsets.ModelViewSet):
     queryset = PackageCategory.objects.all()

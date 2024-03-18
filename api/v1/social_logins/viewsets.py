@@ -21,6 +21,9 @@ from api.backends import ModelBackend,BaseUserModelBackend
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from api.v1.social_logins.serializers import *
+from google.oauth2 import id_token
+from google.auth.transport import requests
+import google.auth
 
 @define
 class GoogleRawLoginCredentials:
@@ -184,7 +187,7 @@ class GoogleLoginRedirectApi(PublicApi):
 class GoogleLoginApi(PublicApi):
 
 
-    def post(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         try:
             input_serializer = InputSerializer(data=request.GET)
             input_serializer.is_valid(raise_exception=True)
@@ -194,6 +197,10 @@ class GoogleLoginApi(PublicApi):
             code = validated_data.get("code")
             error = validated_data.get("error")
             # state = validated_data.get("state")
+
+            print("hi1")
+            print(code)
+            print(error)
 
             if error is not None:
                 return Response({ "message": error,
@@ -219,17 +226,31 @@ class GoogleLoginApi(PublicApi):
             #     return Response({ "message": "CSRF check failed.",
             #                     "status": "error",
             #                     "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # print("helo")
+            # google_login_flow = GoogleRawLoginFlowService()
+            # print("a0")
+            # print(google_login_flow)
 
-            google_login_flow = GoogleRawLoginFlowService()
+            # google_tokens = google_login_flow.get_tokens(code=code)
 
-            google_tokens = google_login_flow.get_tokens(code=code)
+            # print("a1")
+            # print(google_tokens)
 
-            id_token_decoded = google_tokens.decode_id_token()
-            user_info = google_login_flow.get_user_info(google_tokens=google_tokens)
+            # id_token_decoded = google_tokens.decode_id_token()
 
-            print(user_info)
+            idinfo = id_token.verify_oauth2_token(
+                code,
+                google.auth.transport.requests.Request(),
+                settings.GOOGLE_OAUTH2_CLIENT_ID
+            )
+            print(idinfo)
 
-            user_email = id_token_decoded["email"]
+            # user_info = google_login_flow.get_user_info(google_tokens=code)
+
+            # print(user_info)
+
+            user_email = idinfo["email"]
             
             print("z1")
             print(user_email)
@@ -242,7 +263,7 @@ class GoogleLoginApi(PublicApi):
                 # create a user 
                 user = User.objects.create(
                         email=user_email,
-                        first_name=id_token_decoded["name"],
+                        first_name=idinfo["name"],
                 
                 )    
 
@@ -250,9 +271,11 @@ class GoogleLoginApi(PublicApi):
             token, created = Token.objects.get_or_create(user=user)
             login(request, user,backend='api.backends.BaseUserModelBackend')
 
-           
-            return Response({'status': 'success', 'message': 'Login Successful', 
-                             "user_info": user_info,
+
+            # return redirect("https://www.w3schools.com/")
+            return Response({'status': 'success', 
+                             'message': 'Login Successful', 
+                             "user_info": idinfo,
                              'token': token.key, 'statusCode': status.HTTP_200_OK},
                              status=status.HTTP_200_OK)
         

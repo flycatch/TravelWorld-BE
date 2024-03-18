@@ -154,6 +154,7 @@ urlpatterns = [
 
     #pricing revamp
     path('v1/pricing/new/', PricingNewView.as_view(), name='pricing-package-activity'),
+    path('v1/pricing/new/<int:pk>/', PricingNewView.as_view(), name='pricing-package-activity'),
 
 
 ]

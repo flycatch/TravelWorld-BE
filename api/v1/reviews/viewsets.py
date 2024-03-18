@@ -215,12 +215,10 @@ class UserReviewActionView(viewsets.GenericViewSet):
         print("hi")
         print(queryset)
         print(kwargs.get('object_id'))
-        print(type(s))
 
               
-        instance = get_object_or_404(self.get_queryset(), object_id=kwargs.get('object_id'))
 
-        s = instance.update(
+        s = UserReview.objects.filter(object_id=kwargs.get('object_id')).update(
             agent_comment=None,
             agent_reply_date=None,
             agent=None

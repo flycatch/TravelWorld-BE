@@ -215,13 +215,13 @@ class UserReviewActionView(viewsets.GenericViewSet):
         
         print("hi")
         print(queryset)
-        s = queryset.filter(object_id=object_id).update(
+        s = queryset.update(
             agent_comment=None,
             agent_reply_date=None,
             agent=None
         )
         print("bie")
-        print(queryset.filter(object_id=object_id))
+        print(s)
 
 
         message = 'Deleted successfully'

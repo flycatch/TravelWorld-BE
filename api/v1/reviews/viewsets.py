@@ -210,19 +210,24 @@ class UserReviewActionView(viewsets.GenericViewSet):
             Response: The HTTP response indicating successful deletion.
 
         """
-        queryset = self.get_queryset()
-        object_id = self.kwargs.get('object_id')
-        
-        instance = get_object_or_404(queryset, object_id=object_id)
+        try:
+            UserReview.objects.filter(object_id=kwargs.get('object_id')).update(
+                agent_comment=None,
+                agent_reply_date=None,
+                agent=None
+            )
+            
 
-        queryset.filter(object_id=object_id).update(
-            is_deleted=True,
-            is_active=False
-        )
-        message = 'Deleted successfully'
-        return Response({"message" : message,
+            message = 'Deleted successfully'
+            return Response({"message" : message,
                           "status": "success",
                         "statusCode": status.HTTP_200_OK},status=status.HTTP_200_OK)
+        
+        except Exception as error_message:
+                response_data = {"message": f"Something went wrong: {error_message}",
+                                "status": "error",
+                                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
+                return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 

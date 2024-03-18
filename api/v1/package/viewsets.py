@@ -327,22 +327,21 @@ class PricingNewView(APIView):
 
     def post(self, request, *args, **kwargs):
         try:
-            if isinstance(request.data, list):
 
-                with transaction.atomic():
-                    serializer = self.serializer_class(data=request.data, many=True)
-                    serializer.is_valid(raise_exception=True)
-                    if serializer.is_valid():
-                        serializer.save()
-                    
-                        return Response({"message":"Pricing created successfully",
-                                    "status": "success",
-                                    "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
-                    
-                    else:
-                        return Response({ "message": f"Something went wrong : {serializer.errors}",
-                                        "status": "error",
-                                        "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            with transaction.atomic():
+                serializer = self.serializer_class(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                if serializer.is_valid():
+                    serializer.save()
+                
+                    return Response({"message":"Pricing created successfully",
+                                "status": "success",
+                                "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+                
+                else:
+                    return Response({ "message": f"Something went wrong : {serializer.errors}",
+                                    "status": "error",
+                                    "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",
@@ -376,7 +375,7 @@ class PricingNewView(APIView):
 
     def put(self, request, *args, **kwargs):
         try:
-            
+
             with transaction.atomic():
 
                 instance_id = kwargs.get('pk')

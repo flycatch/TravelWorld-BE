@@ -211,7 +211,6 @@ class UserReviewActionView(viewsets.GenericViewSet):
 
         """
         queryset = self.get_queryset()
-        object_id = self.kwargs.get('object_id')
         
         print("hi")
         print(queryset)
@@ -222,6 +221,12 @@ class UserReviewActionView(viewsets.GenericViewSet):
         )
         print("bie")
         print(s)
+
+        for i in s:
+            print(i.agent_comment)
+            print(i.agent_reply_date)
+            print(i.is_active)
+            print(i.is_deleted)
 
 
         message = 'Deleted successfully'

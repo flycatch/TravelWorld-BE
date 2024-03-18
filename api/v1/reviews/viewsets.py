@@ -221,7 +221,7 @@ class UserReviewActionView(viewsets.GenericViewSet):
             agent=None
         )
         print("bie")
-        print(s)
+        print(queryset.filter(object_id=object_id))
 
 
         message = 'Deleted successfully'

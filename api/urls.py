@@ -8,7 +8,7 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView)
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView,PackageHomePageView)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
@@ -160,6 +160,7 @@ urlpatterns = [
 
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
     path('v1/attractions/', AttractionView.as_view(), name='attractions'),
+    path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
 
 
 ]

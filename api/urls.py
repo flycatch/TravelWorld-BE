@@ -2,7 +2,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet, CoverPageView
+from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
@@ -159,6 +159,7 @@ urlpatterns = [
     path('v1/pricing/new/<int:pk>/', PricingNewView.as_view(), name='pricing-package-activity'),
 
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
+    path('v1/attractions/', AttractionView.as_view(), name='attractions'),
 
 
 ]

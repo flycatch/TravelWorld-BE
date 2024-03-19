@@ -159,10 +159,10 @@ class UserReviewActionView(viewsets.GenericViewSet):
     This API view handles CRUD operations related to UserReview Reply Views.
 
     """
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewSerializer
-    queryset = UserReview.objects.filter(is_deleted=0, is_active=1)
+    # queryset = UserReview.objects.filter(is_deleted=0, is_active=1)
 
 
     def update(self, request, *args, **kwargs):
@@ -174,9 +174,7 @@ class UserReviewActionView(viewsets.GenericViewSet):
         try:
             
            
-            print(UserReview.objects.filter(object_id=kwargs.get('object_id')))
             instance = UserReview.objects.get(object_id=kwargs.get('object_id'))
-           
             serializer = self.serializer_class(
                 instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
@@ -220,7 +218,6 @@ class UserReviewActionView(viewsets.GenericViewSet):
                 agent=None
             )
             
-
             message = 'Deleted successfully'
             return Response({"message" : message,
                           "status": "success",

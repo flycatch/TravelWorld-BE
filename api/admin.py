@@ -721,6 +721,7 @@ def dashboard_page(request):
     total_agent_count = Agent.objects.count()
     active_agents = Agent.objects.filter(stage='pending').count()
     inactive_agents = Agent.objects.filter(stage='approved').count()
+    rejected_agents = Agent.objects.filter(stage='rejected').count()
 
     #Agent Transactions
     total_agent_transaction_count = AgentTransactionSettlement.objects.count()
@@ -745,6 +746,7 @@ def dashboard_page(request):
         'refunded_bookings':refunded_bookings,
         'active_agents':active_agents,
         'inactive_agents':inactive_agents,
+        'rejected_agents':rejected_agents,
         'total_agent_transaction_count':total_agent_transaction_count,
         'successful_agent_transaction_count':successful_agent_transaction_count,
         'failed_agent_transaction_count':failed_agent_transaction_count,
@@ -785,9 +787,24 @@ def dashboard_page(request):
             }
             for item in bookings_count_by_month
         ]
+
+        months = [calendar.month_name[i] for i in range(1, 13)]
+
+        month_counts = {item['month']: item['count'] for item in barchart_booking}
+
+        # Populate barchart_booking with counts for all months
+        barchart_booking = [
+            {'month': month, 'count': month_counts.get(month, 0)}
+            for month in months
+        ]
+
+    # Create list of years for year filter
+    current_year = date.today().year
+    years_list = [str(year) for year in range(current_year, current_year - 11, -1)]
     
     context = {'cards':cards,
-                'barchart_booking':barchart_booking,}
+                'barchart_booking':barchart_booking,
+                'years_list': years_list}
 
     admin_site: AdminSite = site
     context_data = admin_site.each_context(request)
@@ -843,9 +860,10 @@ def agent_bar_chart(request):
     total_agent_count = Agent.objects.count()
     active_agents = Agent.objects.filter(stage='approved').count()
     inactive_agents = Agent.objects.filter(stage='pending').count()
+    rejected_agents = Agent.objects.filter(stage='rejected').count()
 
-    labels = ['Total Agents', 'Active Agents', 'Inactive Agents']
-    data = [total_agent_count, active_agents, inactive_agents]
+    labels = ['Total Agents', 'Active Agents', 'Inactive Agents', 'Rejected Agents']
+    data = [total_agent_count, active_agents, inactive_agents, rejected_agents]
     agent_data = {'labels': labels, 'data': data}
 
     return JsonResponse(agent_data)

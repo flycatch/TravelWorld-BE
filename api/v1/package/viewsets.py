@@ -16,7 +16,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
                                         PackageTourCategorySerializer,
-                                        PricingSerializer)
+                                        PricingSerializer,HomePagePackageSerializer)
 from api.v1.activity.serializers import ActivitySerializer
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
@@ -34,6 +34,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import PackageImageListSerializer
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -508,6 +509,41 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
+    
+
+class PackageHomePageView(ListAPIView):
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+    serializer_class = HomePagePackageSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['user__username','booking_id'] 
+    filterset_class = PackageFilter
+    
+    def get_queryset(self):
+
+        queryset = Package.objects.order_by("-id")
+        return queryset
+        
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as error_message:
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView, 

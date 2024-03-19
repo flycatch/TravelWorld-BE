@@ -165,6 +165,7 @@ urlpatterns = [
 
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
     path('v1/attractions/', AttractionView.as_view(), name='attractions'),
+    path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
 
     path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
     path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-upload'),

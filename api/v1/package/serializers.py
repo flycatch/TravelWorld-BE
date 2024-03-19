@@ -357,6 +357,20 @@ class BookingPackageSerializer(serializers.ModelSerializer):
                   "country","state","city","agent","package_image"]
         
 
+class HomePagePackageSerializer(serializers.ModelSerializer):
+    agent = BookingAgentSerializer(required=False)
+    city = CitySerializer(required=False)
+    state = StateSerializer(required=False)
+    country = CountrySerializer(required=False)
+    package_image= PackageImageSerializer(many=True, required=False)
+
+
+    class Meta:
+        model = Package
+        fields = ["id","package_uid","title","tour_class",
+                  "country","state","city","agent","package_image"]
+        
+
 class PackageMinFieldsSerializer(serializers.ModelSerializer):
     
     class Meta:

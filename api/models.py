@@ -1191,3 +1191,11 @@ class ActivityFaqQuestionAnswer(BaseModel):
                 )
         # Join the category info strings into a single string separated by newlines
         return '<br><br>'.join(category_info)
+
+
+
+class CoverPageInput(AuditFields):
+    experience = models.IntegerField(null=True, blank=True)
+    clients = models.IntegerField(null=True, blank=True)
+    satisfaction = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)

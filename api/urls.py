@@ -103,6 +103,8 @@ urlpatterns = [
     path('v1/pay/', start_payment, name="payment"),
     path('v1/<int:user_id>/customer-list-bookings/', CustomerBookingListView.as_view(), name='customer-list-bookings'),
     path('v1/<int:user_id>/history/customer-list-bookings/', CustomerBookingHistoryListView.as_view(), name='customer-list-history-bookings'),
+    path('v1/<int:user_id>/customer-booking-details/', CustomerBookingDetailsView.as_view(), name='customer-booking'),
+    
 
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 

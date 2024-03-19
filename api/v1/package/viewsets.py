@@ -17,6 +17,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer)
+from api.v1.activity.serializers import ActivitySerializer
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -30,6 +31,9 @@ from django.db.models import Q
 from rest_framework.views import exception_handler
 from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
+from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser
+from .serializers import PackageImageListSerializer
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -134,28 +138,6 @@ class PackageViewSet(viewsets.ModelViewSet):
                          'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PackageImageViewSet(viewsets.ModelViewSet):
-    queryset = PackageImage.objects.all()
-    serializer_class = PackageImageSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        images_data = request.FILES.getlist('image')
-        package_id = request.data.get('package')
-        try:
-            package = Package.objects.get(pk=package_id)
-        except Package.DoesNotExist:
-            return Response({'message': 'Package not found'}, status=status.HTTP_404_NOT_FOUND)
-
-        for image in images_data:
-            try:
-                PackageImage.objects.create(package=package, image=image)
-            except Exception as error_message:
-                return Response({'message': str(error_message)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        return Response({'message': 'Image upload successful'}, status=status.HTTP_201_CREATED)
 
 
 class PackageDeleteDraft(viewsets.ModelViewSet):
@@ -527,3 +509,93 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
 
+
+class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView, 
+                             generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = PackageImage.objects.all()
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = PackageImageListSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        package_id = request.query_params.get('package')
+        if package_id:
+            images = PackageImage.objects.filter(package_id=package_id)
+            serializer = PackageImageSerializer(images, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({'status': 'failed', 'message': 'Please provide a package id',
+                             'error':serializer.errors,
+                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            images = serializer.validated_data['image']
+            package_id = request.data.get('package')  # Make sure to pass package_id with the request
+            package = Package.objects.get(pk=package_id)
+
+            for image in images:
+                PackageImage.objects.create(package=package, image=image)
+            
+            return Response({'status': 'success', 'message': 'Images uploaded successfully',
+                             'statusCode': status.HTTP_200_OK}, status=status.HTTP_200_OK)
+        else:
+            return Response({'status': 'failed', 'message': 'Images upload failed',
+                             'error':serializer.errors,
+                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'status': 'success', 'message': 'Image deleted successfully'},
+                        status=status.HTTP_204_NO_CONTENT)
+
+
+class PopularPackageViewSet(viewsets.ModelViewSet):
+    queryset = Package.objects.filter(is_submitted=True)
+    serializer_class = PackageGetSerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    filterset_class = PackageFilter
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+
+    # def get_queryset(self, **kwargs):
+    #     print(Package.objects.filter(is_submitted=True))
+    #     return Package.objects.filter(is_submitted=True)
+
+
+class PopularActivityViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Activity.objects.filter(is_submitted=True)
+    serializer_class = ActivitySerializer
+    pagination_class = CustomPagination
+    # filterset_class = ActivityFilter
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+
+
+class PopularProductsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = None  # Will be determined dynamically
+    pagination_class = CustomPagination
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_queryset(self):
+        activities = Activity.objects.filter(is_submitted=True)
+        packages = Package.objects.filter(is_submitted=True)
+        return list(activities) + list(packages)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        # Determine serializer based on object type
+        if queryset:
+            if isinstance(queryset[0], Activity):
+                self.serializer_class = ActivitySerializer
+            elif isinstance(queryset[0], Package):
+                self.serializer_class = PackageSerializer
+        else:
+            return Response([])
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)

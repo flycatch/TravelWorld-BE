@@ -362,3 +362,8 @@ class PackageMinFieldsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = ['id','package_uid','title']
+
+
+
+class PackageImageListSerializer(serializers.Serializer):
+    image = serializers.ListField(child=serializers.ImageField())

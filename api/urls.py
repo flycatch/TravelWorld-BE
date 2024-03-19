@@ -7,13 +7,14 @@ from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,Fo
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
-                                     PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView,PackageHomePageView)
+                                     PackageDeleteDraft, PackageTourCategoryViewSet,
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
+                                     PopularProductsViewSet, PopularActivityViewSet, PopularPackageViewSet)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
-                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet)
+                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet,)
 from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
@@ -41,9 +42,13 @@ router.register(r'user/login', UserLoginViewset, basename='user-login')
 Package urls
 """
 router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
-router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
+
+# user page
+router.register(r'products/popular', PopularProductsViewSet, basename='popular-products'),
+router.register(r'activity/popular', PopularActivityViewSet, basename='popular-activity'),
+router.register(r'package/popular', PopularPackageViewSet, basename='popular-package'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
@@ -161,6 +166,9 @@ urlpatterns = [
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
     path('v1/attractions/', AttractionView.as_view(), name='attractions'),
     path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
+
+    path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
+    path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-upload'),
 
 
 ]

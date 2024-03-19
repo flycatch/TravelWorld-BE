@@ -1,4 +1,4 @@
-from api.models import (Package,Activity)
+from api.models import (Package, Activity)
 from django_filters import rest_framework as django_filters
 
 
@@ -21,3 +21,4 @@ class ActivityFilter(django_filters.FilterSet):
     class Meta:
         model = Activity
         fields = ['tour_class', 'stage']
+

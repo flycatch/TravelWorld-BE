@@ -555,16 +555,12 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
 
 class PopularPackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.filter(is_submitted=True)
-    serializer_class = PackageGetSerializer
+    serializer_class = PackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    filterset_class = PackageFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
-
-    # def get_queryset(self, **kwargs):
-    #     print(Package.objects.filter(is_submitted=True))
-    #     return Package.objects.filter(is_submitted=True)
+    # filterset_class = PackageFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class PopularActivityViewSet(viewsets.ReadOnlyModelViewSet):
@@ -572,8 +568,8 @@ class PopularActivityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ActivitySerializer
     pagination_class = CustomPagination
     # filterset_class = ActivityFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class PopularProductsViewSet(viewsets.ReadOnlyModelViewSet):

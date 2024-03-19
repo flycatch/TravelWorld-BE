@@ -236,6 +236,63 @@ class CustomerBookingDetailsView(APIView):
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+    def post(self, request, *args, **kwargs):
+        try:
+
+            with transaction.atomic():
+                contact_persons_data = request.data.pop('contact_persons', [])
+                
+                
+
+                serializer = BookingCreateSerializer(data=request.data)
+                serializer.is_valid(raise_exception=True)
+                instance = serializer.save()
+                # if serializer.is_valid():
+                #     instance = serializer.save()
+                
+                   
+                
+                # else:
+                #     error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
+                #     return Response({ 'status': 'error', 'message': error_messages,
+                #                         'statusCode': status.HTTP_400_BAD_REQUEST },
+                #                         status=status.HTTP_400_BAD_REQUEST)
+
+                contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
+                contact_serializer.is_valid(raise_exception=True)
+                contact_serializer.save(booking_id=instance.id)
+                
+                # contact_serializer = ContactPersonSerializer(data=contact_persons_data,many=True)
+
+                # if contact_serializer.is_valid():
+                #     contact_serializer.save(booking_id=instance.id)
+                # else:
+                #     error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
+                #     return Response({ 'status': 'error', 'message': error_messages,
+                #                         'statusCode': status.HTTP_400_BAD_REQUEST },
+                #                         status=status.HTTP_400_BAD_REQUEST)
+                
+
+                AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                  booking=instance,
+                                                  agent_id=instance.package.agent_id)
+                
+
+                return Response({"message":"Booking created successfully",
+                                "status": "success",
+                                "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+                
+                
+                
+
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 
 class AgentBookingListView(ListAPIView):
     permission_classes = [IsAuthenticated]

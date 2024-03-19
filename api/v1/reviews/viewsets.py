@@ -159,8 +159,8 @@ class UserReviewActionView(viewsets.GenericViewSet):
     This API view handles CRUD operations related to UserReview Reply Views.
 
     """
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewSerializer
     queryset = UserReview.objects.filter(is_deleted=0, is_active=1)
 
@@ -173,13 +173,10 @@ class UserReviewActionView(viewsets.GenericViewSet):
 
         try:
             
-            print(self.get_queryset())
-            print(kwargs.get('object_id'))
-            print("hii")
+           
             print(UserReview.objects.filter(object_id=kwargs.get('object_id')))
-            instance = UserReview.objects.filter(object_id=kwargs.get('object_id'))
-            print("uii")
-            print(instance)
+            instance = UserReview.objects.get(object_id=kwargs.get('object_id'))
+           
             serializer = self.serializer_class(
                 instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)

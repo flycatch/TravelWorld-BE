@@ -344,7 +344,7 @@ class AgentBookingDetailsView(APIView):
         try:
 
             instance = self.get_object()
-            serializer = self.serializer_class(instance)
+            serializer = self.serializer_class(instance,context={'request': request})
 
             return Response({
                     "status": "success",

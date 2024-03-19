@@ -541,7 +541,7 @@ class PackageHomePageView(ListAPIView):
     
     def get_queryset(self):
 
-        queryset = Package.objects.filter(is_submitted=True).order_by("-id")
+        queryset = Package.objects.order_by("-id")
         return queryset
         
         

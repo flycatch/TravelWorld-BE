@@ -33,7 +33,7 @@ class CityViewSet(viewsets.ModelViewSet):
 
 class CoverPageView(APIView):
     
-    serializer_class = AttractionSerializer
+    serializer_class = CoverPageInputSerializer
 
 
     def get(self, request, *args, **kwargs):

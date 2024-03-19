@@ -177,7 +177,7 @@ class UserReviewActionView(viewsets.GenericViewSet):
             print(kwargs.get('object_id'))
             print("hii")
             print(UserReview.objects.filter(object_id=kwargs.get('object_id')))
-            instance = get_object_or_404(self.get_queryset(), object_id=kwargs.get('object_id'))
+            instance = UserReview.objects.filter(object_id=kwargs.get('object_id'))
             print("uii")
             print(instance)
             serializer = self.serializer_class(

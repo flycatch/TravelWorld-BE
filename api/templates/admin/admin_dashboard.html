@@ -11,7 +11,7 @@
         {% get_side_menu as side_menu_list %}
 
         <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar">
-            <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
+            <a class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
                 <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image elevation-3" style="opacity: .8">
                 <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
             </a>
@@ -84,135 +84,364 @@
     <!-- Include Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Customize card styles here */
-        .card {
-            margin-bottom: 20px;
-            background-color: #faf8fa !important; /* Light gray background color */
-        }
-        .card-body {
-            color: #333333; /* Dark text color */
-            background-color: #34c93b !important; /* Light green background color */
-        }
-        .card-title {
-            color: #16809b !important; /* Blue title color */
-            font-size: 30px; /* Font size 30px */
-        }
-        .card-text {
-            font-size: 15px; /* Font size 30px */
-            margin-bottom: 5px; /* Add some space between paragraphs */
-            display: flex; /* Use flexbox layout */
-            justify-content: space-between; /* Align items to the left and right */
-            align-items: center; /* Align items vertically */
-        }
-        .card-text span:first-child {
-            flex: 1; /* Allow labels to take available space */
-            text-align: left; /* Align labels to the left */
-        }
-        .card-text span:last-child {
-            flex: 1; /* Allow counts to take available space */
-            text-align: right; /* Align counts to the right */
-        }
-        .dashboard-title {
-            text-align: center; /* Center align the dashboard title */
-        }
-        .chart-heading {
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 30px;
-        }
-        .chart-heading-small {
-            font-size: 30px; /* Adjust the font size as needed */
-            padding: 5px 15px;
-        }
-        .reset-filter {
-            text-decoration: underline;
-            cursor: pointer;
-            color: red;
-        }
+
+    .container {
+        max-width: 1500px;
+    }
+
+    .custom-row-spacing {
+        margin-bottom: 20px;
+    }
+   
+    .card-margin {
+        margin-bottom: 1.875rem;
+    }
+
+    .card {
+        border: 0;
+        box-shadow: 0px 0px 10px 0px rgba(82, 63, 105, 0.1);
+        -webkit-box-shadow: 0px 0px 10px 0px rgba(82, 63, 105, 0.1);
+        -moz-box-shadow: 0px 0px 10px 0px rgba(82, 63, 105, 0.1);
+        -ms-box-shadow: 0px 0px 10px 0px rgba(82, 63, 105, 0.1);
+    }
+
+    .card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: rgba(60, 179, 209, 0.3);
+        background-clip: border-box;
+        border: 1px solid #e6e4e9;
+        border-radius: 15px;
+        font-family: "Arial";
+    }
+
+    .graph-container {
+        background-color: rgba(60, 179, 209, 0.3);
+        border-radius: 15px;
+        padding: 10px 10px 10px 10px;
+    }
+
+    .card-body {
+        font-family: "Arial";
+    }
+
+    .card .card-header.no-border {
+        border: 0;
+    }
+
+    .card .card-header {
+        background: none;
+        padding: 0 0.9375rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        min-height: 50px;
+    }
+
+    .card-header:first-child {
+        border-radius: calc(8px - 1px) calc(8px - 1px) 0 0;
+    }
+
+    .dashboard-cards .dashboard-title-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    .dashboard-cards .dashboard-title-wrapper .dashboard-date-primary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background-color: #edf1fc;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+    }
+
+    .dashboard-cards .dashboard-title-wrapper .dashboard-title-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        background-color: #e8faf8;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .dashboard-cards .dashboard-title-wrapper .dashboard-header {
+        display: flex;
+        flex-direction: column;
+        margin-left: 1rem;
+    }
+
+    .dashboard-cards .dashboard-fields {
+        font-weight: 400;
+        font-size: 13px;
+        margin-top: .5rem;
+    }
+
+    .dashboard-cards .dashboard-fields .dashboard-sub-fileds {
+        display: list-item;
+        color: #727686;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-title {
+        text-align: left;
+    }
+
+    .chart-heading {
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .chart-heading-small {
+        font-size: 30px;
+        padding: 5px 15px;
+    }
+
+    .reset-filter, .reset-year-filter {
+        text-decoration: underline;
+        cursor: pointer;
+        color: red;
+    }
+
+    .dashboard-title-wrapper {
+        border-bottom: 1px solid #464545;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-pro-title, .dashboard-total-counts {
+        font-size: 20px;
+        font-weight: 900;
+    }
+
+    .yearFilter, .bookingStatusFilter, .agentYearFilter, .agentStageFilter {
+        appearance: none;
+        padding: 3px 3px 3px 3px;
+        border: 1px solid #caced1;
+        border-radius: 0.25rem;
+        color: #000;
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .dashboard-field, .dashboard-field-value {
+        font-size: 16px;
+        font-weight: 900;
+    }
+    
     </style>
 </head>
 
 <div class="container">
-    <h1 class="mt-4 mb-4 dashboard-title">Admin Dashboard</h1>
+    <h1 class="mt-4 mb-4 dashboard-title">Dashboard</h1>
+
     <div class="row">
-        <div class="col-md-3">
-            <!-- Total Bookings Card -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Bookings </h5>
-                    <p class="card-text"><span>Total Bookings:</span> <span>{{ cards.total_bookings_count }}</span></p>
-                    <p class="card-text"><span>Successful Bookings:</span> <span>{{ cards.successful_bookings }}</span></p>
-                    <p class="card-text"><span>Refunded Bookings:</span> <span>{{ cards.refunded_bookings }}</span></p>
+        <div class="col-lg-3">
+            <div class="card card-margin">
+                <div class="card-body pt-3">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-title-wrapper">
+                            <div class="dashboard-title-icon">
+                                <span class="fa fa-book"></span>
+                            </div>
+                            <div class="dashboard-header">
+                                <span class="dashboard-pro-title">Total Bookings</span>
+                                <span class="dashboard-total-counts">{{ cards.total_bookings_count }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Successful:</span><span class="dashboard-field-value">{{ cards.successful_bookings }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Cancelled:</span><span class="dashboard-field-value">{{ cards.refunded_bookings }}</span></li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Failed:</span><span class="dashboard-field-value">{{ cards.failed_bookings }}</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <!-- Total Agents Card -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Agents</h5>
-                    <p class="card-text"><span>Total Agents:</span> <span>{{ cards.total_agent_count }}</span></p>
-                    <p class="card-text"><span>Active Agents:</span> <span>{{ cards.active_agents }}</span></p>
-                    <p class="card-text"><span>Inactive Agents:</span> <span>{{ cards.inactive_agents }}</span></p>
+        <div class="col-lg-3">
+            <div class="card card-margin">
+                <div class="card-body pt-3">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-title-wrapper">
+                            <div class="dashboard-title-icon">
+                                <span class="fa fa-book"></span>
+                            </div>
+                            <div class="dashboard-header">
+                                <span class="dashboard-pro-title">Total Agents</span>
+                                <span class="dashboard-total-counts">{{ cards.total_agent_count }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Active:</span><span class="dashboard-field-value">{{ cards.active_agents }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Inactive:</span><span class="dashboard-field-value">{{ cards.inactive_agents }}</span></li>
+                                </ol>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Rejected:</span><span class="dashboard-field-value">{{ cards.rejected_agents }}</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <!-- Total Agents Transaction Card -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Agent Transaction</h5>
-                    <p class="card-text"><span>Total Transaction:</span> <span>{{ cards.total_agent_transaction_count }}</span></p>
-                    <p class="card-text"><span> Successful Transaction:</span> <span>{{ cards.successful_agent_transaction_count }}</span></p>
-                    <p class="card-text"><span>Failed Transaction:</span> <span>{{ cards.failed_agent_transaction_count }}</span></p>
-                    <p class="card-text"><span>Pending Transaction:</span> <span>{{ cards.pending_agent_transaction_count }}</span></p>
+        <div class="col-lg-3">
+            <div class="card card-margin">
+                <div class="card-body pt-3">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-title-wrapper">
+                            <div class="dashboard-title-icon">
+                                <span class="fa fa-book"></span>
+                            </div>
+                            <div class="dashboard-header">
+                                <span class="dashboard-pro-title">Agent Transaction</span>
+                                <span class="dashboard-total-counts">{{ cards.total_agent_transaction_count }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Successful:</span><span class="dashboard-field-value">{{ cards.successful_agent_transaction_count }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Pending:</span><span class="dashboard-field-value">{{ cards.pending_agent_transaction_count }}</span></li>
+                                </ol>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Failed:</span><span class="dashboard-field-value">{{ cards.failed_agent_transaction_count }}</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <!-- Total User Transaction Card -->
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">User Transaction</h5>
-                    <p class="card-text"><span>Total Transaction:</span> <span>{{ cards.total_user_transaction_count }}</span></p>
-                    <p class="card-text"><span> Refunded Transaction:</span> <span>{{ cards.refunded_user_transaction_count }}</span></p>
-                    <p class="card-text"><span>Cancelled Transaction:</span> <span>{{ cards.cancelled_user_transaction_count }}</span></p>
-                    <p class="card-text"><span>Pending Transaction:</span> <span>{{ cards.pending_user_transaction_count }}</span></p>
+        <div class="col-lg-3">
+            <div class="card card-margin">
+                <div class="card-body pt-3">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-title-wrapper">
+                            <div class="dashboard-title-icon">
+                                <span class="fa fa-book"></span>
+                            </div>
+                            <div class="dashboard-header">
+                                <span class="dashboard-pro-title">User Transaction</span>
+                                <span class="dashboard-total-counts">{{ cards.total_user_transaction_count }}</span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Refunded:</span><span class="dashboard-field-value">{{ cards.refunded_user_transaction_count }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Pending:</span><span class="dashboard-field-value">{{ cards.pending_user_transaction_count }}</span></li>
+                                </ol>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <ol class="dashboard-fields list-unstyled">
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Cancelled:</span><span class="dashboard-field-value">{{ cards.cancelled_user_transaction_count }}</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="chart-container">
-        <div class="chart-heading chart-heading-small">Booking Graph</div> <!-- Heading for the booking graph -->
-        <div class="chart-wrapper">
-            <canvas id="bookingChart" width="400" height="200"></canvas>
-        </div>
-    </div>
-
-    <div class="filter-container">
-        <label for="bookingStatusFilter">Filter by Booking Status:</label>
-        <select id="bookingStatusFilter" onchange="applyFilter()">
-            <option value="">Show All</option>
-            <option value="SUCCESSFUL" {% if request.GET.booking_status == "SUCCESSFUL" %}selected{% endif %}>SUCCESSFUL</option>
-            <option value="REFUNDED" {% if request.GET.booking_status == "REFUNDED" %}selected{% endif %}>REFUNDED</option>
-            <option value="FAILED" {% if request.GET.booking_status == "FAILED" %}selected{% endif %}>FAILED</option>
-        </select>
-        <!-- Add the reset button -->
-        <span id="resetFilter" class="reset-filter" style="display: {% if request.GET.booking_status %}inline{% else %}none{% endif %}">Reset Filters</span>
-    </div>
-    
-
-
-<!-- Agent BarChart div -->
-
-    <div id="container" style="width: 75%;">
-        <canvas id="agent-chart" data-url="{% url 'agent-chart' %}"></canvas>
     </div>
 </div>
 
-<!-- Chart container and script remain the same -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="graph-container">
+                <div class="chart-container">
+                    <div class="chart-heading chart-heading-small">Booking Graph</div>
+                    <div class="chart-wrapper">
+                        <canvas id="bookingChart"></canvas>
+                    </div>
+                </div>
 
+                <div class="row pt-3">
+                    <div class="col-lg-4">
+                        <label for="yearFilter">Filter by Year:</label>
+                        <select id="yearFilter"  class="yearFilter" onchange="applyYearFilter()">
+                            {% for year in years_list %}
+                                <option value="{{ year }}" {% if year == request.GET.year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <span id="resetYearFilter" class="reset-year-filter" style="display: {% if request.GET.year %}inline{% else %}none{% endif %}">Reset Year Filter</span>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="bookingStatusFilter">Filter by Booking Status:</label>
+                        <select id="bookingStatusFilter" class="bookingStatusFilter" onchange="applyFilter()">
+                            <option value="">Show All</option>
+                            <option value="SUCCESSFUL" {% if request.GET.booking_status == "SUCCESSFUL" %}selected{% endif %}>SUCCESSFUL</option>
+                            <option value="REFUNDED" {% if request.GET.booking_status == "REFUNDED" %}selected{% endif %}>REFUNDED</option>
+                            <option value="FAILED" {% if request.GET.booking_status == "FAILED" %}selected{% endif %}>FAILED</option>
+                        </select>
+                        <span id="resetFilter" class="reset-filter" style="display: {% if request.GET.booking_status %}inline{% else %}none{% endif %}">Reset Booking Filter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="graph-container">
+                <div class="chart-container">
+                    <div class="chart-heading chart-heading-small">Agent Graph</div>
+                    <div class="chart-wrapper">
+                        <canvas id="agentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="row pt-3">
+                    <div class="col-lg-4">
+                        <label for="agentYearFilter">Filter by Year:</label>
+                        <select id="agentYearFilter"  class="agentYearFilter" onchange="applyAgentYearFilter()">
+                            {% for year in years_list %}
+                                <option value="{{ year }}" {% if year == request.GET.bar_graph_year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <span id="resetAgentYearFilter" class="reset-year-filter" style="display: {% if request.GET.bar_graph_year %}inline{% else %}none{% endif %}">Reset Year Filter</span>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="agentStageFilter">Filter by Agent Stage:</label>
+                        <select id="agentStageFilter" class="agentStageFilter" onchange="applyAgentFilter()">
+                            <option value="">Show All</option>
+                            <option value="approved" {% if request.GET.agent_stage_status == "approved" %}selected{% endif %}>APPROVED</option>
+                            <option value="pending" {% if request.GET.agent_stage_status == "pending" %}selected{% endif %}>PENDING</option>
+                            <option value="rejected" {% if request.GET.agent_stage_status == "rejected" %}selected{% endif %}>REJECTED</option>
+                        </select>
+                        <span id="resetAgentFilter" class="reset-filter" style="display: {% if request.GET.agent_stage_status %}inline{% else %}none{% endif %}">Reset Agent Filter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
     var ctx = document.getElementById('bookingChart').getContext('2d');
@@ -233,93 +462,114 @@
         window.location.href = currentUrl;
     });
 
-
-    function updateChartData(filterOption) {
-        var filteredData = barchart_booking.map(item => {
-            if (filterOption === '' || item.status === filterOption) {
-                return item.count;
-            } else {
-                return 0; // Hide months with non-matching booking status
-            }
-        });
-
-        bookingChart.data.datasets[0].data = filteredData;
-        bookingChart.update();
-    }
-
     bookingChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: [ {% for item in barchart_booking %}'{{ item.month }}',{% endfor %} ],
             datasets: [{
-                label: 'Booking Count',
+                label: 'Count',
                 data: [ {% for item in barchart_booking %}{{ item.count }},{% endfor %} ],
                 backgroundColor: 'rgb(30, 144, 255)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
             }]
         },
         options: {
             scales: {
                 y: {
                     beginAtZero: true,
-                    stepSize: 1 
+                    stepSize: 50,
+                    ticks: {
+                        stepSize: 5,
+                        min: 0,
+                        max: 10000
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false // Hides vertical grid lines
+                    }
                 }
             }
         }
     });
+
+    function applyYearFilter() {
+        var selectedYear = document.getElementById('yearFilter').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('year', selectedYear);
+        window.location.href = currentUrl;
+    }
+
+    // Function to remove filtering parameters and reload the page
+    document.getElementById('resetYearFilter').addEventListener('click', function () {
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('year');
+        // Reload the page with the updated URL
+        window.location.href = currentUrl;
+    });
 </script>
 
+<script>
+    var ctx = document.getElementById('agentChart').getContext('2d');
+    var agentChart;
 
-<!-- Agent BarChart scripts with cdn -->
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-  <script>
+    function applyAgentFilter() {
+        var filterOption = document.getElementById('agentStageFilter').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('agent_stage_status', filterOption);
+        window.location.href = currentUrl;
+    }
 
-    $(function () {
-
-      var $agentChart = $("#agent-chart");
-      $.ajax({
-        url: $agentChart.data("url"),
-        success: function (agent_data) {
-            console.log(agent_data.labels);
-          var ctx = $agentChart[0].getContext("2d");
-
-          new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: agent_data.labels,
-              datasets: [{
-                label: 'Agent',
-                backgroundColor: 'rgb(30, 144, 255)',
-                data: agent_data.data
-              }]          
-            },
-            options: {
-              responsive: true,
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                text: 'Agent Bar Chart'
-              },
-              scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true // Ensure the y-axis starts from 0
-                    }
-                }]
-            }
-            }
-          });
-
-        }
-      });
-
+    // Function to remove filtering parameters and reload the page
+    document.getElementById('resetAgentFilter').addEventListener('click', function () {
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('agent_stage_status');
+        // Reload the page with the updated URL
+        window.location.href = currentUrl;
     });
 
-  </script>
+    agentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [ {% for item in agent_chart_booking %}'{{ item.month }}',{% endfor %} ],
+            datasets: [{
+                label: 'Count',
+                data: [ {% for item in agent_chart_booking %}{{ item.count }},{% endfor %} ],
+                backgroundColor: 'rgb(88, 199, 62)',
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stepSize: 50,
+                    ticks: {
+                        stepSize: 5,
+                        min: 0,
+                        max: 10000
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false // Hides vertical grid lines
+                    }
+                }
+            }
+        }
+    });
 
+    function applyAgentYearFilter() {
+        var filterOption = document.getElementById('agentYearFilter').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('bar_graph_year', filterOption);
+        window.location.href = currentUrl;
+    }
 
+    // Function to remove filtering parameters and reload the page
+    document.getElementById('resetAgentYearFilter').addEventListener('click', function () {
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('bar_graph_year');
+        // Reload the page with the updated URL
+        window.location.href = currentUrl;
+    });
+</script>
 {% endblock %}

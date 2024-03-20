@@ -425,3 +425,6 @@ class ActivityMinFieldsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ['id','activity_uid','title']
+
+class ActivityImageListSerializer(serializers.Serializer):
+    image = serializers.ListField(child=serializers.ImageField())

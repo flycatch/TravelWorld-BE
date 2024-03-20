@@ -18,6 +18,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer)
 from api.v1.activity.serializers import ActivitySerializer
+from django.db.models import Q
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -595,8 +596,8 @@ class HomePagePackageViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     filterset_class = PackageFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
@@ -604,42 +605,79 @@ class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ActivitySerializer
     pagination_class = CustomPagination
     filterset_class = ActivityFilter
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
 
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically
     pagination_class = CustomPagination
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    # ordering_fields = ['is_popular', 'created_on']
+    queryset_activities = Activity.objects.filter(is_submitted=True, status='active')
+    queryset_packages = Package.objects.filter(is_submitted=True, status='active')
 
     def get_queryset(self):
-        activities = Activity.objects.filter(is_submitted=True)
-        packages = Package.objects.filter(is_submitted=True)
-        return list(activities) + list(packages)
+        return list(self.queryset_activities) + list(self.queryset_packages)
 
+    def filter_queryset(self, queryset):
+        # Apply additional filtering based on query parameters
+        state = self.request.query_params.get('state')
+        city = self.request.query_params.get('city')
+        category = self.request.query_params.get('category')
+        tour_class = self.request.query_params.get('tour_class')
+        is_popular = self.request.query_params.get('is_popular')
+
+        # Define Q objects to build complex filter conditions
+        activity_filter = Q()
+        package_filter = Q()
+
+        if state:
+            activity_filter &= Q(state=state)
+            package_filter &= Q(state=state)
+        if city:
+            activity_filter &= Q(city=city)
+            package_filter &= Q(city=city)
+        if category:
+            activity_filter &= Q(category=category)
+            package_filter &= Q(category=category)
+        if tour_class:
+            activity_filter &= Q(tour_class=tour_class)
+            package_filter &= Q(tour_class=tour_class)
+        if is_popular:
+            activity_filter &= Q(is_popular=True)
+            package_filter &= Q(is_popular=True)
+
+        # Apply the combined filter conditions
+        activities = self.queryset_activities.filter(activity_filter)
+        packages = self.queryset_packages.filter(package_filter)
+
+        # Combine the filtered querysets
+        queryset = list(activities) + list(packages)
+        
+        return queryset
+    
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
+        filtered_queryset = self.filter_queryset(queryset)
 
-        # Paginate the combined queryset manually
-        page = self.paginate_queryset(queryset)
-        if page is not None:
+        # Paginate the combined and filtered queryset manually
+        page = self.paginate_queryset(filtered_queryset)
+
+        if bool(page):
             # Determine serializer based on object type
             if isinstance(page[0], Activity):
                 serializer = ActivitySerializer(page, many=True)
             elif isinstance(page[0], Package):
                 serializer = PackageSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
         # Determine serializer based on object type for non-paginated response
-        if queryset:
-            if isinstance(queryset[0], Activity):
+        if filtered_queryset:
+            if isinstance(filtered_queryset[0], Activity):
                 self.serializer_class = ActivitySerializer
-            elif isinstance(queryset[0], Package):
+            elif isinstance(filtered_queryset[0], Package):
                 self.serializer_class = PackageSerializer
         else:
             return Response([])
 
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(filtered_queryset, many=True)
         return Response(serializer.data)

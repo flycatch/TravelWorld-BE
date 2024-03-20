@@ -24,7 +24,7 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        exclude = ['status', 'is_submitted']
+        exclude = ['status', 'is_submitted', 'is_popular']
 
     def validate(self, data):
         min_members = data.get('min_members')

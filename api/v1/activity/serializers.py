@@ -22,7 +22,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        exclude = ['status', 'is_submitted']
+        exclude = ['status', 'is_submitted', 'is_popular']
 
     def validate(self, data):
         min_members = data.get('min_members')

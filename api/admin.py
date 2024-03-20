@@ -735,8 +735,6 @@ def dashboard_page(request):
     cancelled_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='FAILED').count()
     pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='CANCELLED').count()
 
-  
-
     cards = {
         'total_bookings_count': total_bookings_count,
         'total_agent_count': total_agent_count,
@@ -755,11 +753,48 @@ def dashboard_page(request):
         'refunded_user_transaction_count':refunded_user_transaction_count,
         'cancelled_user_transaction_count':cancelled_user_transaction_count,
         'pending_user_transaction_count':pending_user_transaction_count
-        
     }
 
-
     current_year = datetime.now().year
+
+    months = [calendar.month_name[i] for i in range(1, 13)]
+
+    month_abbreviations = {'January': 'Jan', 'February': 'Feb', 'March': 'Mar', 'April': 'Apr', 'May': 'May', 'June': 'Jun', 'July': 'Jul',
+                            'August': 'Aug', 'September': 'Sep', 'October': 'Oct', 'November': 'Nov', 'December': 'Dec'}
+
+    bar_graph_selected_year = request.GET.get('bar_graph_year', current_year)
+    if bar_graph_selected_year:
+        bar_graph_selected_year = int(bar_graph_selected_year)
+        bar_graph_start_date = datetime(bar_graph_selected_year, 1, 1)
+        bar_graph_end_date = datetime(bar_graph_selected_year, 12, 31)
+
+        # Filter bookings based on agent_status if provided in the URL
+        agent_stage_filter = request.GET.get('agent_stage_status')
+        if agent_stage_filter:
+            bookings_count_by_month = Agent.objects.filter(
+                created_on__range=[bar_graph_start_date, bar_graph_end_date], stage=agent_stage_filter
+            ).values('created_on__month').annotate(count=Count('id'))
+        else:
+            # Use the original query if no filter is provided
+            bookings_count_by_month = Agent.objects.filter(
+                created_on__range=[bar_graph_start_date, bar_graph_end_date]
+            ).values('created_on__month').annotate(count=Count('id'))
+
+        agent_chart_booking = [
+            {
+                'month': calendar.month_name[item['created_on__month']],
+                'count': item['count']
+            }
+            for item in bookings_count_by_month
+        ]
+
+        agent_month_counts = {item['month']: item['count'] for item in agent_chart_booking}
+
+        # Populate barchart_booking with counts for all months
+        agent_chart_booking = [
+            {'month': month, 'count': agent_month_counts.get(month, 0)}
+            for month in months
+        ]
 
     selected_year = request.GET.get('year',current_year)
     if selected_year:
@@ -788,8 +823,6 @@ def dashboard_page(request):
             for item in bookings_count_by_month
         ]
 
-        months = [calendar.month_name[i] for i in range(1, 13)]
-
         month_counts = {item['month']: item['count'] for item in barchart_booking}
 
         # Populate barchart_booking with counts for all months
@@ -802,8 +835,14 @@ def dashboard_page(request):
     current_year = date.today().year
     years_list = [str(year) for year in range(current_year, current_year - 11, -1)]
     
+    for month_dict in barchart_booking:
+        month_dict['month'] = month_abbreviations[month_dict['month']]
+    for month_dict in agent_chart_booking:
+        month_dict['month'] = month_abbreviations[month_dict['month']]
+
     context = {'cards':cards,
                 'barchart_booking':barchart_booking,
+                'agent_chart_booking': agent_chart_booking,
                 'years_list': years_list}
 
     admin_site: AdminSite = site
@@ -853,20 +892,6 @@ def dashboard_page(request):
         'cards':cards,
         'barchart_booking':barchart_booking,})
     return render(request, 'admin/admin_dashboard.html', context=context)
-
-
-def agent_bar_chart(request):
-
-    total_agent_count = Agent.objects.count()
-    active_agents = Agent.objects.filter(stage='approved').count()
-    inactive_agents = Agent.objects.filter(stage='pending').count()
-    rejected_agents = Agent.objects.filter(stage='rejected').count()
-
-    labels = ['Total Agents', 'Active Agents', 'Inactive Agents', 'Rejected Agents']
-    data = [total_agent_count, active_agents, inactive_agents, rejected_agents]
-    agent_data = {'labels': labels, 'data': data}
-
-    return JsonResponse(agent_data)
 
 
 # Unregister model

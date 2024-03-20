@@ -11,7 +11,7 @@
         {% get_side_menu as side_menu_list %}
 
         <aside class="main-sidebar elevation-4 {{ jazzmin_ui.sidebar_classes }}" id="jazzy-sidebar">
-            <a href="{% url 'admin:index' %}" class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
+            <a class="brand-link {{ jazzmin_ui.brand_classes }}" id="jazzy-logo">
                 <img src="{% static jazzmin_settings.site_logo %}" alt="{{ jazzmin_settings.site_header }} Logo" class="{{ jazzmin_settings.site_logo_classes }} brand-image elevation-3" style="opacity: .8">
                 <span class="brand-text font-weight-light">{{ jazzmin_settings.site_brand }}</span>
             </a>
@@ -118,6 +118,12 @@
         font-family: "Arial";
     }
 
+    .graph-container {
+        background-color: rgba(60, 179, 209, 0.3);
+        border-radius: 15px;
+        padding: 10px 10px 10px 10px;
+    }
+
     .card-body {
         font-family: "Arial";
     }
@@ -186,7 +192,7 @@
     }
 
     .dashboard-title {
-        text-align: center;
+        text-align: left;
     }
 
     .chart-heading {
@@ -214,22 +220,29 @@
 
     .dashboard-pro-title, .dashboard-total-counts {
         font-size: 20px;
+        font-weight: 900;
     }
 
-    .yearFilter, .bookingStatusFilter {
+    .yearFilter, .bookingStatusFilter, .agentYearFilter, .agentStageFilter {
         appearance: none;
-        padding: 0.675em 1em 0.675em 1em;
+        padding: 3px 3px 3px 3px;
         border: 1px solid #caced1;
         border-radius: 0.25rem;
         color: #000;
         cursor: pointer;
+        margin-left: 5px;
+    }
+
+    .dashboard-field, .dashboard-field-value {
+        font-size: 16px;
+        font-weight: 900;
     }
     
     </style>
 </head>
 
 <div class="container">
-    <h1 class="mt-4 mb-4 dashboard-title">Admin Dashboard</h1>
+    <h1 class="mt-4 mb-4 dashboard-title">Dashboard</h1>
 
     <div class="row">
         <div class="col-lg-3">
@@ -248,13 +261,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Successful:</span> <span><b>{{ cards.successful_bookings }}</b></span></li>
-                                    <li class="dashboard-sub-fileds"><span>Cancelled:</span> <span><b>{{ cards.refunded_bookings }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Successful:</span><span class="dashboard-field-value">{{ cards.successful_bookings }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Cancelled:</span><span class="dashboard-field-value">{{ cards.refunded_bookings }}</span></li>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Failed:</span> <span><b></b>{{ cards.failed_bookings }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Failed:</span><span class="dashboard-field-value">{{ cards.failed_bookings }}</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -278,14 +291,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Active:</span> <span><b>{{ cards.active_agents }}</b></span></li>
-                                    <li class="dashboard-sub-fileds"><span>Inactive:</span> <span><b>{{ cards.inactive_agents }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Active:</span><span class="dashboard-field-value">{{ cards.active_agents }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Inactive:</span><span class="dashboard-field-value">{{ cards.inactive_agents }}</span></li>
                                 </ol>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Rejected:</span> <span><b>{{ cards.rejected_agents }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Rejected:</span><span class="dashboard-field-value">{{ cards.rejected_agents }}</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -310,14 +323,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span> Successful:</span> <span><b>{{ cards.successful_agent_transaction_count }}</b></span></li>
-                                    <li class="dashboard-sub-fileds"><span>Pending:</span> <span><b>{{ cards.pending_agent_transaction_count }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Successful:</span><span class="dashboard-field-value">{{ cards.successful_agent_transaction_count }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Pending:</span><span class="dashboard-field-value">{{ cards.pending_agent_transaction_count }}</span></li>
                                 </ol>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Failed:</span> <span><b>{{ cards.failed_agent_transaction_count }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Failed:</span><span class="dashboard-field-value">{{ cards.failed_agent_transaction_count }}</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -342,14 +355,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span> Refunded:</span> <span><b>{{ cards.refunded_user_transaction_count }}</b></span></li>
-                                    <li class="dashboard-sub-fileds"><span>Pending:</span> <span><b>{{ cards.pending_user_transaction_count }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Refunded:</span><span class="dashboard-field-value">{{ cards.refunded_user_transaction_count }}</span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Pending:</span><span class="dashboard-field-value">{{ cards.pending_user_transaction_count }}</span></li>
                                 </ol>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span>Cancelled:</span> <span><b>{{ cards.cancelled_user_transaction_count }}</b></span></li>
+                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Cancelled:</span><span class="dashboard-field-value">{{ cards.cancelled_user_transaction_count }}</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -363,7 +376,7 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-6">
-            <div>
+            <div class="graph-container">
                 <div class="chart-container">
                     <div class="chart-heading chart-heading-small">Booking Graph</div>
                     <div class="chart-wrapper">
@@ -396,9 +409,35 @@
         </div>
 
         <div class="col-lg-6">
-            <div>
-                <div class="chart-heading chart-heading-small">Agent Bar Graph</div>
-                <canvas id="agent-chart" data-url="{% url 'agent-chart' %}"></canvas>
+            <div class="graph-container">
+                <div class="chart-container">
+                    <div class="chart-heading chart-heading-small">Agent Graph</div>
+                    <div class="chart-wrapper">
+                        <canvas id="agentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="row pt-3">
+                    <div class="col-lg-4">
+                        <label for="agentYearFilter">Filter by Year:</label>
+                        <select id="agentYearFilter"  class="agentYearFilter" onchange="applyAgentYearFilter()">
+                            {% for year in years_list %}
+                                <option value="{{ year }}" {% if year == request.GET.bar_graph_year %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                        <span id="resetAgentYearFilter" class="reset-year-filter" style="display: {% if request.GET.bar_graph_year %}inline{% else %}none{% endif %}">Reset Year Filter</span>
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="agentStageFilter">Filter by Agent Stage:</label>
+                        <select id="agentStageFilter" class="agentStageFilter" onchange="applyAgentFilter()">
+                            <option value="">Show All</option>
+                            <option value="approved" {% if request.GET.agent_stage_status == "approved" %}selected{% endif %}>APPROVED</option>
+                            <option value="pending" {% if request.GET.agent_stage_status == "pending" %}selected{% endif %}>PENDING</option>
+                            <option value="rejected" {% if request.GET.agent_stage_status == "rejected" %}selected{% endif %}>REJECTED</option>
+                        </select>
+                        <span id="resetAgentFilter" class="reset-filter" style="display: {% if request.GET.agent_stage_status %}inline{% else %}none{% endif %}">Reset Agent Filter</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -411,7 +450,6 @@
     function applyFilter() {
         var filterOption = document.getElementById('bookingStatusFilter').value;
         var currentUrl = new URL(window.location.href);
-        console.log("currentUrl: 1 ",currentUrl);
         currentUrl.searchParams.set('booking_status', filterOption);
         window.location.href = currentUrl;
     }
@@ -424,98 +462,36 @@
         window.location.href = currentUrl;
     });
 
-    // Function to generate a random color
-    function getRandomColor() {
-        var r = Math.floor(Math.random() * 256); // Random value for red (0-255)
-        var g = Math.floor(Math.random() * 256); // Random value for green (0-255)
-        var b = Math.floor(Math.random() * 256); // Random value for blue (0-255)
-        
-        return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-    }
-
-    var barchart_booking = {{ barchart_booking|safe }};
-
-    // Generate random colors for each data point
-    var randomColors = barchart_booking.map(() => getRandomColor());
-
     bookingChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: [ {% for item in barchart_booking %}'{{ item.month }}',{% endfor %} ],
             datasets: [{
-                label: 'Booking Count',
+                label: 'Count',
                 data: [ {% for item in barchart_booking %}{{ item.count }},{% endfor %} ],
-                backgroundColor: randomColors,
+                backgroundColor: 'rgb(30, 144, 255)',
             }]
         },
         options: {
             scales: {
                 y: {
                     beginAtZero: true,
-                    stepSize: 50, // Base step size
+                    stepSize: 50,
                     ticks: {
-                        stepSize: 5, // Set the base step size to 5
-                        min: 0, // Set minimum value to 0
-                        max: 10000 // Set maximum value to 200
+                        stepSize: 5,
+                        min: 0,
+                        max: 10000
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false // Hides vertical grid lines
                     }
                 }
             }
         }
     });
-</script>
 
-
-<!-- Agent BarChart scripts with cdn -->
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
-  <script>
-
-    $(function () {
-
-      var $agentChart = $("#agent-chart");
-      $.ajax({
-        url: $agentChart.data("url"),
-        success: function (agent_data) {
-            console.log(agent_data.labels);
-          var ctx = $agentChart[0].getContext("2d");
-
-          new Chart(ctx, {
-            type: 'bar',
-            data: {
-              labels: agent_data.labels,
-              datasets: [{
-                label: 'Agent',
-                backgroundColor: 'rgb(30, 144, 255)',
-                data: agent_data.data
-              }]          
-            },
-            options: {
-              responsive: true,
-              legend: {
-                position: 'top',
-              },
-              title: {
-                display: true,
-                // text: 'Agent Bar Chart'
-              },
-              scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true // Ensure the y-axis starts from 0
-                    }
-                }]
-            }
-            }
-          });
-
-        }
-      });
-
-    });
-
-  </script>
-
-<script>
     function applyYearFilter() {
         var selectedYear = document.getElementById('yearFilter').value;
         var currentUrl = new URL(window.location.href);
@@ -532,4 +508,68 @@
     });
 </script>
 
+<script>
+    var ctx = document.getElementById('agentChart').getContext('2d');
+    var agentChart;
+
+    function applyAgentFilter() {
+        var filterOption = document.getElementById('agentStageFilter').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('agent_stage_status', filterOption);
+        window.location.href = currentUrl;
+    }
+
+    // Function to remove filtering parameters and reload the page
+    document.getElementById('resetAgentFilter').addEventListener('click', function () {
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('agent_stage_status');
+        // Reload the page with the updated URL
+        window.location.href = currentUrl;
+    });
+
+    agentChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [ {% for item in agent_chart_booking %}'{{ item.month }}',{% endfor %} ],
+            datasets: [{
+                label: 'Count',
+                data: [ {% for item in agent_chart_booking %}{{ item.count }},{% endfor %} ],
+                backgroundColor: 'rgb(88, 199, 62)',
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    stepSize: 50,
+                    ticks: {
+                        stepSize: 5,
+                        min: 0,
+                        max: 10000
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false // Hides vertical grid lines
+                    }
+                }
+            }
+        }
+    });
+
+    function applyAgentYearFilter() {
+        var filterOption = document.getElementById('agentYearFilter').value;
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('bar_graph_year', filterOption);
+        window.location.href = currentUrl;
+    }
+
+    // Function to remove filtering parameters and reload the page
+    document.getElementById('resetAgentYearFilter').addEventListener('click', function () {
+        var currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.delete('bar_graph_year');
+        // Reload the page with the updated URL
+        window.location.href = currentUrl;
+    });
+</script>
 {% endblock %}

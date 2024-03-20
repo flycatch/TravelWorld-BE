@@ -224,7 +224,7 @@ ADMIN_REORDER = (
 
 
     {'app': 'api', 
-     'models': ('api.Country', 'api.State', 'api.City', 'api.AdvanceAmountPercentageSetting','api.CoverPageInput'),
+     'models': ('api.Country', 'api.State', 'api.City', 'api.AdvanceAmountPercentageSetting','api.CoverPageInput','api.Pricing'),
      'label': 'General Settings'},
 
     # {'app': 'api', 

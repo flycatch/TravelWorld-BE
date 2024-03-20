@@ -363,12 +363,21 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     state = StateSerializer(required=False)
     country = CountrySerializer(required=False)
     package_image= PackageImageSerializer(many=True, required=False)
+    # pricing_package = PricingSerializer(many=True,required=False)
+    min_price = serializers.SerializerMethodField()
 
 
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "country","state","city","agent","package_image"]
+                  "country","state","city","agent","package_image","min_price"]
+        
+    def get_min_price(self, obj):
+        pricing_packages = obj.pricing_package.all()
+        if pricing_packages.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
+            return min_adults_rate
+        return None
         
 
 class PackageMinFieldsSerializer(serializers.ModelSerializer):

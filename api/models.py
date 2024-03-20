@@ -210,12 +210,7 @@ class Activity(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='activity_country')
-    state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='activity_state')
-    city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='activity_city')
+    locations = models.ManyToManyField('Location', related_name='activity_location', blank=True)
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE,
         related_name='activity_category',
@@ -256,6 +251,19 @@ class Activity(BaseModel):
         return self.activity_uid if self.activity_uid else self.title
 
 
+class Location(models.Model):
+    country = models.ForeignKey(Country, on_delete=models.CASCADE,
+                                related_name='location_country',blank=True, null=True)
+    state = models.ForeignKey(State, on_delete=models.CASCADE,
+                              related_name='location_state',blank=True, null=True)
+    destinations = models.ManyToManyField(City, related_name='location_destinations', blank=True)
+
+    def __str__(self):
+        destination_names = ', '.join(str(dest) for dest in self.destinations.all())
+        state_name = self.state.name if self.state else 'Unknown State'
+        country_name = self.country.name if self.country else 'Unknown Country'
+        return f"{state_name} : {destination_names}"
+
 
 class Package(BaseModel):
     STAGES_CHOICES = [
@@ -282,12 +290,7 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    country = models.ForeignKey(
-        Country, on_delete=models.CASCADE, related_name='package_country')
-    state = models.ForeignKey(
-        State, on_delete=models.CASCADE, related_name='package_state')
-    city = models.ForeignKey(
-        City, on_delete=models.CASCADE, related_name='package_city')
+    locations = models.ManyToManyField(Location, related_name='package_location', blank=True)
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='package_category')
     min_members = models.IntegerField(null=True, blank=True)
@@ -412,6 +415,10 @@ class Itinerary(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='itinerary_package')
     overview = models.TextField(blank=True, default="")
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
+    things_to_carry = models.TextField(blank=True, default="",
+                                         verbose_name="Things to carry")
     itinerary_day = models.ManyToManyField(
         ItineraryDay, related_name='itinerary_itinerary_day')
     inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
@@ -464,8 +471,6 @@ class PackageInformations(BaseModel):
     # exclusiondetails = models.ForeignKey(
     #     ExclusionInformation, on_delete=models.CASCADE,
     #     related_name='informations_exclusion', null=True, blank=True)
-    important_message = models.TextField(blank=True, default="",
-                                         verbose_name="important Message")
     
     class Meta:
         verbose_name = 'Information'

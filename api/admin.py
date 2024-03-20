@@ -124,14 +124,11 @@ class ExclusionsAdmin(CustomModelAdmin):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "state",
-                    "city", "category",
+    list_display = ("agent", "truncated_title", "tour_class","category",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class",  "country", "state", "category",
-                   "status", "stage")
+    list_filter = ("tour_class", "category", "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
-                     "city__name", "category__name")
+    search_fields = ("title", "agent__agent_uid", "tour_class", "category__name")
     exclude = ('is_submitted',)
 
     fieldsets = (
@@ -168,8 +165,7 @@ class ActivityAdmin(CustomModelAdmin):
 
     inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
                ActivityPricingInline,ActivityCancellationPolicyInline, 
-               ActivityFaqQuestionAnswerInline
-               ]
+               ActivityFaqQuestionAnswerInline]
 
     def truncated_title(self, obj):
         # Truncate title to 60 characters using truncatechars filter
@@ -221,10 +217,9 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "state",
-                    "city", "category",
+    list_display = ("agent", "truncated_title", "tour_class", "category",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class",  "country", "state", "category",
+    list_filter = ("tour_class", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Country, City, State, CoverPageInput, Attraction
+from api.models import Country, City, State, Location,CoverPageInput, Attraction
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -20,6 +20,23 @@ class CitySerializer(serializers.ModelSerializer):
         fields = ['id','name']
 
 
+class LocationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Location
+        fields = ['id', 'country', 'state', 'destinations']
+
+
+class LocationGetSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    country = CountrySerializer(required=False)
+    state = StateSerializer(required=False)
+    destinations = CitySerializer(many=True)  # Include destinations
+
+    class Meta:
+        model = Location
+        fields = ['id', 'country', 'state', 'destinations']
 
 class CoverPageInputSerializer(serializers.ModelSerializer):
     

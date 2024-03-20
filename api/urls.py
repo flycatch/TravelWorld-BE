@@ -2,10 +2,10 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,
+from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
                                      HomePageDestinationViewSet, HomePageStateViewSet)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
-from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
+from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
@@ -28,6 +28,7 @@ router = DefaultRouter()
 router.register(r'cities', CityViewSet, basename='city')
 router.register(r'states', StateViewSet, basename='state')
 router.register(r'countries', CountryViewSet, basename='country')
+router.register(r'locations', LocationViewSet, basename='locations'),
 
 # Agent
 router.register(r'agents', AgentViewSet, basename='agent')
@@ -45,6 +46,7 @@ Package urls
 router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
+router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
 
 # user home page
 router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),

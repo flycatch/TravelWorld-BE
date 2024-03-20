@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'TravelWorld.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-print(config('ENVX_PSQL_DATABASE'))
+
 DATABASES = {
     'default': {
         'NAME': config('PSQL_DATABASE', default=''),

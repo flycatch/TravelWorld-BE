@@ -310,16 +310,26 @@ class BookingAdmin(admin.ModelAdmin):
     list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
 
     search_fields = ("booking_id", "user__user_uid",)
-    exclude = ("status",)
-    
-
-    
+    exclude = ("status",)    
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
-            return (
-                (None, {
-                    'fields': ('user','booking_id', 'package_uid', 'package_name', 
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ('user','booking_id', 'activity_uid', 'package_name', 
+                                'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
+                                'booking_status','display_created_on','tour_date', 
+                                    'adult', 'child', 'infant', 'refund_amount','object_id')
+                    }),
+            ('Pricing', {
+                'fields': ('pricing_section',),
+            }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ('user','booking_id', 'package_uid', 'package_name', 
                                'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
                                'booking_status','display_created_on','tour_date', 
                                 'adult', 'child', 'infant', 'refund_amount','object_id')
@@ -331,7 +341,7 @@ class BookingAdmin(admin.ModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('user', 'package', 
+                    'fields': ('user', 'package', 'activity', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 'end_date',
                                'refund_amount', )
@@ -363,6 +373,10 @@ class BookingAdmin(admin.ModelAdmin):
     def package_uid(self, obj):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
+
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
 
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
@@ -623,22 +637,31 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
-            return (
-                (None, {
-                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                               "booking_type", 'package_name','package_uid', 'payment_settlement_status',
-                               'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
-                }),
-            )
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
+                                "booking_type", 'package_name','activity_uid', 'payment_settlement_status',
+                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                    }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
+                                "booking_type", 'package_name','package_uid', 'payment_settlement_status',
+                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                    }),
+                )
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'booking', 'payment_settlement_status',
+                    'fields': ('package', 'activity', 'booking', 'payment_settlement_status',
                                 'payment_settlement_amount', 'agent','payment_settlement_date')
                 }),
             )
         
-    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "agent_uid",
+    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "activity_uid", "agent_uid",
                     "payment_settlement_date", "payment_settlement_status_colour",)
     
     list_filter = ("payment_settlement_status","booking_type")
@@ -675,6 +698,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
 
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
     def package_name(self, obj):
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
@@ -691,9 +718,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
-
-    def has_add_permission(self, request, obj=None):
-        return True
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
@@ -725,12 +749,14 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
+    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
     agent_uid.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
     def has_add_permission(self, request, obj=None):
         return False
+
 
 class UserReviewAdmin(CustomModelAdmin):
     list_display = ("user", "package", "activity", "rating","object_id")

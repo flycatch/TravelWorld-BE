@@ -8,7 +8,7 @@ class PackageFilter(django_filters.FilterSet):
     tour_class = django_filters.CharFilter(field_name='tour_class', lookup_expr='exact')
     state = django_filters.CharFilter(field_name='state', lookup_expr='exact')
     category = django_filters.CharFilter(field_name='category', lookup_expr='exact')
-    is_popular = django_filters.BooleanFilter(field_name='is_popular', method='filter_is_popular')
+    is_popular = django_filters.BooleanFilter(field_name='is_popular', lookup_expr='exact')
 
     def filter_is_popular(self, queryset, name, value):
         if value is True:

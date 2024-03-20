@@ -13,6 +13,7 @@ from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, P
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.general.serializers import LocationSerializer
+from django.db.models import Avg
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -397,18 +398,32 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     package_image= PackageImageSerializer(many=True, required=False)
     # pricing_package = PricingSerializer(many=True,required=False)
     min_price = serializers.SerializerMethodField()
+    total_reviews = serializers.SerializerMethodField()
+    average_review_rating = serializers.SerializerMethodField()
+
+
 
 
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "country","state","city","agent","package_image","min_price"]
+                  "country","state","city","agent","package_image","min_price","total_reviews","average_review_rating"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()
         if pricing_packages.exists():
             min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
             return min_adults_rate
+        return None
+    
+    def get_total_reviews(self, obj):
+        return obj.package_review.filter(is_active=True, is_deleted=False).count()
+    
+    def get_average_review_rating(self, obj):
+        user_reviews = obj.package_review.all()
+        if user_reviews.exists():
+            average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
+            return average_rating
         return None
         
 

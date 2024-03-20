@@ -520,15 +520,28 @@ class PackageHomePageView(ListAPIView):
     search_fields = ['user__username','booking_id'] 
     filterset_class = PackageFilter
     
+    
     def get_queryset(self):
 
         queryset = Package.objects.order_by("-id")
+        return queryset
+    
+    def apply_additional_filters(self, queryset):
+        price_range_min = self.request.query_params.get('price_range_min')
+        price_range_max = self.request.query_params.get('price_range_max')
+        if price_range_min is not None and price_range_max is not None:
+            queryset = queryset.filter(
+                Q(pricing_package__adults_rate__gte=price_range_min) &
+                Q(pricing_package__adults_rate__lte=price_range_max)
+            ).distinct()
         return queryset
         
         
     def list(self, request, *args, **kwargs):
         try:
             queryset = self.filter_queryset(self.get_queryset())
+            queryset = self.apply_additional_filters(queryset)
+
             page = self.paginate_queryset(queryset)
             
             if page is not None:

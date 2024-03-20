@@ -130,13 +130,13 @@ class ItinerarySerializer(serializers.ModelSerializer):
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','icon']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','icon']
 
 
 class InclusionInformationSerializer(serializers.ModelSerializer):

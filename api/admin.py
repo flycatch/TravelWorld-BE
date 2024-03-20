@@ -124,11 +124,12 @@ class ExclusionsAdmin(CustomModelAdmin):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class","category",
+    list_display = ("activity_uid", "agent", "truncated_title", "tour_class","category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class", "category", "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "tour_class", "category__name")
+    search_fields = ("title", "agent__agent_uid", "tour_class",
+                     "category__name", "activity_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (
@@ -217,13 +218,13 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "category",
+    list_display = ("package_uid", "agent", "truncated_title", "tour_class", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
-                     "category__name", "tour_class")
+                     "category__name", "tour_class", "package_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (

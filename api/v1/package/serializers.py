@@ -330,7 +330,11 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
         instance.category.clear()
         # Add new categories
         for data in category_data:
-            category_instance, _ = PackageCancellationCategory.objects.get_or_create(**data)
+            category_instance = PackageCancellationCategory.objects.filter(**data)
+            if category_instance.exists():
+                category_instance = category_instance.first()
+            else:
+                category_instance = PackageCancellationCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 
@@ -365,16 +369,21 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         category_data = validated_data.pop('category', [])
-        # Update the main PackageFaqQuestionAnswer instance
+        # Update the main CancellationPolicy instance
         instance.package = validated_data.get('package', instance.package)
         instance.save()
         # Clear existing categories
         instance.category.clear()
         # Add new categories
         for data in category_data:
-            category_instance, _ = PackageFaqCategory.objects.get_or_create(**data)
+            category_instance = PackageFaqCategory.objects.filter(**data)
+            if category_instance.exists():
+                category_instance = category_instance.first()
+            else:
+                category_instance = PackageFaqCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
+
 
 class BookingPackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)

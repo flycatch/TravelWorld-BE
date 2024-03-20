@@ -124,11 +124,12 @@ class ExclusionsAdmin(CustomModelAdmin):
 
 
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class","category",
+    list_display = ("activity_uid", "agent", "truncated_title", "tour_class","category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class", "category", "status", "stage")
     list_filter = ("status", "stage")
-    search_fields = ("title", "agent__agent_uid", "tour_class", "category__name")
+    search_fields = ("title", "agent__agent_uid", "tour_class",
+                     "category__name", "activity_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (
@@ -217,13 +218,13 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("agent", "truncated_title", "tour_class", "category",
+    list_display = ("package_uid", "agent", "truncated_title", "tour_class", "category",
                     "status_colour", "stage_colour",)
     list_filter = ("tour_class", "category",
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
-                     "category__name", "tour_class")
+                     "category__name", "tour_class", "package_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (
@@ -313,7 +314,7 @@ class BookingAdmin(admin.ModelAdmin):
             if obj.activity:
                 return (
                     (None, {
-                        'fields': ('user','booking_id', 'activity_uid', 'package_name', 
+                        'fields': ('user','booking_id', 'activity_uid', 'activity_name', 
                                 'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
                                 'booking_status','display_created_on','tour_date', 
                                     'adult', 'child', 'infant', 'refund_amount','object_id')
@@ -381,6 +382,10 @@ class BookingAdmin(admin.ModelAdmin):
     def package_name(self, obj):
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
+
+    def activity_name(self, obj):
+        return truncatechars(obj.activity.title if obj.activity else None, 35)
+    activity_name.short_description = "Activity Name"
 
     # def change_view(self, request, object_id, form_url='', extra_context=None):
     #     self.readonly_fields += ('display_created_on', 'package_name')
@@ -490,14 +495,22 @@ class BookingAdmin(admin.ModelAdmin):
 class UserRefundTransactionAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
-           
-            return (
-                (None, {
-                    'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",'package_name',
-                               'package_uid', 'agent', 'agent_uid', 'display_created_on',
-                                'refund_status', 'refund_amount','cancellation_policies')
-                }),
-            )
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
+                                'activity_uid', 'activity_name', 'agent', 'agent_uid', 'display_created_on',
+                                    'refund_status', 'refund_amount','cancellation_policies')
+                    }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
+                                'package_uid', 'package_name', 'agent', 'agent_uid', 'display_created_on',
+                                    'refund_status', 'refund_amount','cancellation_policies')
+                    }),
+                )
         else:  # Add page
             return (
                 (None, {
@@ -505,7 +518,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("refund_uid", "booking_uid", "user","refund_amount", "package_uid",
+    list_display = ("refund_uid", "booking_uid", "user","refund_amount", "package_uid", "activity_uid",
                      "agent", "agent_uid","refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
@@ -542,10 +555,17 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
 
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
     def package_name(self, obj):
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
     
+    def activity_name(self, obj):
+        return truncatechars(obj.activity.title if obj.activity else None, 35)
+    activity_name.short_description = "Activity Name"
 
     def booking_uid(self, obj):
         return obj.booking.booking_id if obj.booking else None
@@ -639,7 +659,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 return (
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                                "booking_type", 'package_name','activity_uid', 'payment_settlement_status',
+                                "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
                                 'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
                     }),
                 )
@@ -647,7 +667,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 return (
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                                "booking_type", 'package_name','package_uid', 'payment_settlement_status',
+                                "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
                                 'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
                     }),
                 )
@@ -703,7 +723,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def package_name(self, obj):
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
-    
+
+    def activity_name(self, obj):
+        return truncatechars(obj.activity.title if obj.activity else None, 35)
+    activity_name.short_description = "Activity Name"
 
     def booking_uid(self, obj):
         return obj.booking.booking_id if obj.booking else None

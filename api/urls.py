@@ -14,7 +14,7 @@ from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
-                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet,)
+                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet, ActivityImageUploadView)
 from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
@@ -168,7 +168,9 @@ urlpatterns = [
     path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
 
     path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
-    path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-upload'),
+    path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-delete'),
 
+    path('v1/activity/images/', ActivityImageUploadView.as_view(), name='activity-image-upload'),
+    path('v1/activity/images/<int:pk>/', ActivityImageUploadView.as_view(), name='activity-image-delete'),
 
 ]

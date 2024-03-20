@@ -133,8 +133,39 @@ class ActivityAdmin(CustomModelAdmin):
     search_fields = ("title", "agent__agent_uid", "tour_class", "state__name",
                      "city__name", "category__name")
     exclude = ('is_submitted',)
-    readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
-                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    fieldsets = (
+        (None, {
+            'fields': ('stage', 'is_popular', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
+                       'duration', 'duration_day', 'duration_night', 'duration_hour',
+                       'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
+                       'drop_point', 'drop_time_string',)
+        }),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # obj is not None, so this is an edit
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+        else:  # This is an addition
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    def pickup_time_string(self, obj):
+        if obj.pickup_time:
+            return obj.pickup_time.strftime('%I:%M %p')
+        return None  # Return None if pickup_time is None
+
+    pickup_time_string.short_description = 'Pickup Time'  # Set a custom column header for pickup_string
+
+    def drop_time_string(self, obj):
+        if obj.drop_time:
+            return obj.drop_time.strftime('%I:%M %p')
+        return None  # Return None if drop_time is None
+
+    drop_time_string.short_description = 'Drop Time'  # Set a custom column header for pickup_string
+
+
     inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
                ActivityPricingInline,ActivityCancellationPolicyInline, 
                ActivityFaqQuestionAnswerInline
@@ -197,16 +228,45 @@ class PackageAdmin(CustomModelAdmin):
                    "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
-                     "state__name", "city__name", "category__name", "tour_class")
-    readonly_fields = [field.name for field in Package._meta.fields if field.name not in \
-                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+                     "category__name", "tour_class")
     exclude = ('is_submitted',)
 
+    fieldsets = (
+        (None, {
+            'fields': ('stage', 'is_popular', 'package_uid', 'title', 'agent', 'category', 'tour_class',
+                       'duration', 'duration_day', 'duration_night', 'duration_hour',
+                       'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
+                       'drop_point', 'drop_time_string',)
+        }),
+    )
+    
     inlines = [
         PackageImageInline, ItineraryInline, PackageInformationsInline,
         PricingInline, CancellationPolicyInline, 
         PackageFaqQuestionAnswerInline,
         ]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # obj is not None, so this is an edit
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+        else:  # This is an addition
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    def pickup_time_string(self, obj):
+        if obj.pickup_time:
+            return obj.pickup_time.strftime('%I:%M %p')
+        return None  # Return None if pickup_time is None
+
+    pickup_time_string.short_description = 'Pickup Time'  # Set a custom column header for pickup_string
+
+    def drop_time_string(self, obj):
+        if obj.drop_time:
+            return obj.drop_time.strftime('%I:%M %p')
+        return None  # Return None if drop_time is None
+
+    drop_time_string.short_description = 'Drop Time'  # Set a custom column header for pickup_string
 
     def truncated_title(self, obj):
         # Truncate title to 60 characters using truncatechars filter
@@ -231,7 +291,6 @@ class PackageAdmin(CustomModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
 
 class PricingDateFilter(admin.SimpleListFilter):
     title = _('Pricing Date Range')

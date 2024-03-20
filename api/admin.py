@@ -306,7 +306,8 @@ class PricingDateFilter(admin.SimpleListFilter):
         
 
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid","package_name","agent_id","booking_status_colour",)
+    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
+                    "package_uid", "activity_uid", "agent_id","booking_status_colour",)
     list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
 
     search_fields = ("booking_id", "user__user_uid",)
@@ -402,6 +403,8 @@ class BookingAdmin(admin.ModelAdmin):
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     user_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
+    activity_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
 
     def has_change_permission(self, request, obj=None):
         return False

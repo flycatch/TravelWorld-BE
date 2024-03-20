@@ -2,18 +2,20 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet, LocationViewSet
+from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
+                                     HomePageDestinationViewSet, HomePageStateViewSet)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
-                                     PackageImageViewSet, PackageDeleteDraft, PackageTourCategoryViewSet,
-                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView)
+                                     PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
+                                     InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
+                                     HomePageProductsViewSet, HomePageActivityViewSet, HomePagePackageViewSet)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
-                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet)
+                                     ActivityInclusionsViewSet, ActivityExclusionsViewSet, ActivityImageUploadView)
 from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
@@ -42,10 +44,16 @@ router.register(r'user/login', UserLoginViewset, basename='user-login')
 Package urls
 """
 router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
-router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
-router.register(r'packages/upload', PackageImageViewSet, basename='package-image-upload')
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
+router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
+
+# user home page
+router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),
+router.register(r'home/activity', HomePageActivityViewSet, basename='HomePage-activity'),
+router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
+router.register(r'home/destinations', HomePageDestinationViewSet, basename='HomePage-destinations'),
+router.register(r'home/state', HomePageStateViewSet, basename='HomePage-destinations'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
@@ -104,6 +112,8 @@ urlpatterns = [
     path('v1/<int:user_id>/customer-list-bookings/', CustomerBookingListView.as_view(), name='customer-list-bookings'),
     path('v1/<int:user_id>/history/customer-list-bookings/', CustomerBookingHistoryListView.as_view(), name='customer-list-history-bookings'),
     path('v1/<int:user_id>/customer-booking-details/', CustomerBookingDetailsView.as_view(), name='customer-booking'),
+    path('v1/<int:user_id>/customer-booking-update/<str:object_id>/', CustomerBookingUpdateView.as_view(), name='customer-update-booking'),
+
     
 
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
@@ -160,5 +170,14 @@ urlpatterns = [
     path('v1/pricing/new/', PricingNewView.as_view(), name='pricing-package-activity'),
     path('v1/pricing/new/<int:pk>/', PricingNewView.as_view(), name='pricing-package-activity'),
 
+    path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
+    path('v1/attractions/', AttractionView.as_view(), name='attractions'),
+    path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
+
+    path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
+    path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-delete'),
+
+    path('v1/activity/images/', ActivityImageUploadView.as_view(), name='activity-image-upload'),
+    path('v1/activity/images/<int:pk>/', ActivityImageUploadView.as_view(), name='activity-image-delete'),
 
 ]

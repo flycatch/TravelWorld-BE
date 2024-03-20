@@ -130,8 +130,38 @@ class ActivityAdmin(CustomModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "tour_class", "category__name")
     exclude = ('is_submitted',)
-    readonly_fields = [field.name for field in Activity._meta.fields if field.name not in \
-                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    fieldsets = (
+        (None, {
+            'fields': ('stage', 'is_popular', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
+                       'duration', 'duration_day', 'duration_night', 'duration_hour',
+                       'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
+                       'drop_point', 'drop_time_string',)
+        }),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # obj is not None, so this is an edit
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+        else:  # This is an addition
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    def pickup_time_string(self, obj):
+        if obj.pickup_time:
+            return obj.pickup_time.strftime('%I:%M %p')
+        return None  # Return None if pickup_time is None
+
+    pickup_time_string.short_description = 'Pickup Time'  # Set a custom column header for pickup_string
+
+    def drop_time_string(self, obj):
+        if obj.drop_time:
+            return obj.drop_time.strftime('%I:%M %p')
+        return None  # Return None if drop_time is None
+
+    drop_time_string.short_description = 'Drop Time'  # Set a custom column header for pickup_string
+
 
     inlines = [ActivityImageInline, ActivityItineraryInline, ActivityInformationsInline,
                ActivityPricingInline,ActivityCancellationPolicyInline, 
@@ -194,15 +224,44 @@ class PackageAdmin(CustomModelAdmin):
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
                      "category__name", "tour_class")
-    readonly_fields = [field.name for field in Package._meta.fields if field.name not in \
-                       ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
     exclude = ('is_submitted',)
 
+    fieldsets = (
+        (None, {
+            'fields': ('stage', 'is_popular', 'package_uid', 'title', 'agent', 'category', 'tour_class',
+                       'duration', 'duration_day', 'duration_night', 'duration_hour',
+                       'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
+                       'drop_point', 'drop_time_string',)
+        }),
+    )
+    
     inlines = [
         PackageImageInline, ItineraryInline, PackageInformationsInline,
         PricingInline, CancellationPolicyInline, 
         PackageFaqQuestionAnswerInline,
         ]
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:  # obj is not None, so this is an edit
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+        else:  # This is an addition
+            return [field.name for field in self.model._meta.fields
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
+
+    def pickup_time_string(self, obj):
+        if obj.pickup_time:
+            return obj.pickup_time.strftime('%I:%M %p')
+        return None  # Return None if pickup_time is None
+
+    pickup_time_string.short_description = 'Pickup Time'  # Set a custom column header for pickup_string
+
+    def drop_time_string(self, obj):
+        if obj.drop_time:
+            return obj.drop_time.strftime('%I:%M %p')
+        return None  # Return None if drop_time is None
+
+    drop_time_string.short_description = 'Drop Time'  # Set a custom column header for pickup_string
 
     def truncated_title(self, obj):
         # Truncate title to 60 characters using truncatechars filter
@@ -228,7 +287,6 @@ class PackageAdmin(CustomModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-
 class PricingDateFilter(admin.SimpleListFilter):
     title = _('Pricing Date Range')
     parameter_name = 'pricing_date_range'
@@ -243,20 +301,31 @@ class PricingDateFilter(admin.SimpleListFilter):
         
 
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid","package_name","agent_id","booking_status_colour",)
+    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
+                    "package_uid", "activity_uid", "agent_id","booking_status_colour",)
     list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
 
     search_fields = ("booking_id", "user__user_uid",)
-    exclude = ("status",)
-    
-
-    
+    exclude = ("status",)    
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
-            return (
-                (None, {
-                    'fields': ('user','booking_id', 'package_uid', 'package_name', 
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ('user','booking_id', 'activity_uid', 'package_name', 
+                                'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
+                                'booking_status','display_created_on','tour_date', 
+                                    'adult', 'child', 'infant', 'refund_amount','object_id')
+                    }),
+            ('Pricing', {
+                'fields': ('pricing_section',),
+            }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ('user','booking_id', 'package_uid', 'package_name', 
                                'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
                                'booking_status','display_created_on','tour_date', 
                                 'adult', 'child', 'infant', 'refund_amount','object_id')
@@ -268,7 +337,7 @@ class BookingAdmin(admin.ModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('user', 'package', 
+                    'fields': ('user', 'package', 'activity', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 'end_date',
                                'refund_amount', )
@@ -301,6 +370,10 @@ class BookingAdmin(admin.ModelAdmin):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
 
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Booking date"
@@ -325,6 +398,8 @@ class BookingAdmin(admin.ModelAdmin):
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     user_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
+    activity_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -560,22 +635,31 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
-            return (
-                (None, {
-                    'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                               "booking_type", 'package_name','package_uid', 'payment_settlement_status',
-                               'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
-                }),
-            )
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
+                                "booking_type", 'package_name','activity_uid', 'payment_settlement_status',
+                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                    }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
+                                "booking_type", 'package_name','package_uid', 'payment_settlement_status',
+                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                    }),
+                )
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'booking', 'payment_settlement_status',
+                    'fields': ('package', 'activity', 'booking', 'payment_settlement_status',
                                 'payment_settlement_amount', 'agent','payment_settlement_date')
                 }),
             )
         
-    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "agent_uid",
+    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "activity_uid", "agent_uid",
                     "payment_settlement_date", "payment_settlement_status_colour",)
     
     list_filter = ("payment_settlement_status","booking_type")
@@ -612,6 +696,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
 
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
     def package_name(self, obj):
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
@@ -628,9 +716,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
-
-    def has_add_permission(self, request, obj=None):
-        return True
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
@@ -662,12 +747,14 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
     package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
     package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
+    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
     agent_uid.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
 
     def has_add_permission(self, request, obj=None):
         return False
+
 
 class UserReviewAdmin(CustomModelAdmin):
     list_display = ("user", "package", "activity", "rating","object_id")
@@ -717,6 +804,7 @@ def dashboard_page(request):
     total_agent_count = Agent.objects.count()
     active_agents = Agent.objects.filter(stage='pending').count()
     inactive_agents = Agent.objects.filter(stage='approved').count()
+    rejected_agents = Agent.objects.filter(stage='rejected').count()
 
     #Agent Transactions
     total_agent_transaction_count = AgentTransactionSettlement.objects.count()
@@ -730,8 +818,6 @@ def dashboard_page(request):
     cancelled_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='FAILED').count()
     pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='CANCELLED').count()
 
-  
-
     cards = {
         'total_bookings_count': total_bookings_count,
         'total_agent_count': total_agent_count,
@@ -741,6 +827,7 @@ def dashboard_page(request):
         'refunded_bookings':refunded_bookings,
         'active_agents':active_agents,
         'inactive_agents':inactive_agents,
+        'rejected_agents':rejected_agents,
         'total_agent_transaction_count':total_agent_transaction_count,
         'successful_agent_transaction_count':successful_agent_transaction_count,
         'failed_agent_transaction_count':failed_agent_transaction_count,
@@ -749,11 +836,48 @@ def dashboard_page(request):
         'refunded_user_transaction_count':refunded_user_transaction_count,
         'cancelled_user_transaction_count':cancelled_user_transaction_count,
         'pending_user_transaction_count':pending_user_transaction_count
-        
     }
 
-
     current_year = datetime.now().year
+
+    months = [calendar.month_name[i] for i in range(1, 13)]
+
+    month_abbreviations = {'January': 'Jan', 'February': 'Feb', 'March': 'Mar', 'April': 'Apr', 'May': 'May', 'June': 'Jun', 'July': 'Jul',
+                            'August': 'Aug', 'September': 'Sep', 'October': 'Oct', 'November': 'Nov', 'December': 'Dec'}
+
+    bar_graph_selected_year = request.GET.get('bar_graph_year', current_year)
+    if bar_graph_selected_year:
+        bar_graph_selected_year = int(bar_graph_selected_year)
+        bar_graph_start_date = datetime(bar_graph_selected_year, 1, 1)
+        bar_graph_end_date = datetime(bar_graph_selected_year, 12, 31)
+
+        # Filter bookings based on agent_status if provided in the URL
+        agent_stage_filter = request.GET.get('agent_stage_status')
+        if agent_stage_filter:
+            bookings_count_by_month = Agent.objects.filter(
+                created_on__range=[bar_graph_start_date, bar_graph_end_date], stage=agent_stage_filter
+            ).values('created_on__month').annotate(count=Count('id'))
+        else:
+            # Use the original query if no filter is provided
+            bookings_count_by_month = Agent.objects.filter(
+                created_on__range=[bar_graph_start_date, bar_graph_end_date]
+            ).values('created_on__month').annotate(count=Count('id'))
+
+        agent_chart_booking = [
+            {
+                'month': calendar.month_name[item['created_on__month']],
+                'count': item['count']
+            }
+            for item in bookings_count_by_month
+        ]
+
+        agent_month_counts = {item['month']: item['count'] for item in agent_chart_booking}
+
+        # Populate barchart_booking with counts for all months
+        agent_chart_booking = [
+            {'month': month, 'count': agent_month_counts.get(month, 0)}
+            for month in months
+        ]
 
     selected_year = request.GET.get('year',current_year)
     if selected_year:
@@ -781,9 +905,28 @@ def dashboard_page(request):
             }
             for item in bookings_count_by_month
         ]
+
+        month_counts = {item['month']: item['count'] for item in barchart_booking}
+
+        # Populate barchart_booking with counts for all months
+        barchart_booking = [
+            {'month': month, 'count': month_counts.get(month, 0)}
+            for month in months
+        ]
+
+    # Create list of years for year filter
+    current_year = date.today().year
+    years_list = [str(year) for year in range(current_year, current_year - 11, -1)]
     
+    for month_dict in barchart_booking:
+        month_dict['month'] = month_abbreviations[month_dict['month']]
+    for month_dict in agent_chart_booking:
+        month_dict['month'] = month_abbreviations[month_dict['month']]
+
     context = {'cards':cards,
-                'barchart_booking':barchart_booking,}
+                'barchart_booking':barchart_booking,
+                'agent_chart_booking': agent_chart_booking,
+                'years_list': years_list}
 
     admin_site: AdminSite = site
     context_data = admin_site.each_context(request)
@@ -834,19 +977,6 @@ def dashboard_page(request):
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 
-def agent_bar_chart(request):
-
-    total_agent_count = Agent.objects.count()
-    active_agents = Agent.objects.filter(stage='approved').count()
-    inactive_agents = Agent.objects.filter(stage='pending').count()
-
-    labels = ['Total Agents', 'Active Agents', 'Inactive Agents']
-    data = [total_agent_count, active_agents, inactive_agents]
-    agent_data = {'labels': labels, 'data': data}
-
-    return JsonResponse(agent_data)
-
-
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -871,8 +1001,8 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(CancellationPolicy)
 # admin.site.register(PackageCancellationCategory)
 # admin.site.register(ContactPerson)
-# admin.site.register(Itinerary)
-# admin.site.register(Pricing)
+admin.site.register(Pricing)
+admin.site.register(CoverPageInput)
 # admin.site.register(ActivityImage)
 
 

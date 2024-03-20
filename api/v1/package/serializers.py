@@ -22,7 +22,7 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        exclude = ['status', 'is_submitted']
+        exclude = ['status', 'is_submitted', 'is_popular']
 
     def validate(self, data):
         min_members = data.get('min_members')
@@ -162,13 +162,13 @@ class ItinerarySerializer(serializers.ModelSerializer):
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','icon']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','icon']
 
 
 class InclusionInformationSerializer(serializers.ModelSerializer):
@@ -389,8 +389,36 @@ class BookingPackageSerializer(serializers.ModelSerializer):
                   "country","state","city","agent","package_image"]
         
 
+class HomePagePackageSerializer(serializers.ModelSerializer):
+    agent = BookingAgentSerializer(required=False)
+    city = CitySerializer(required=False)
+    state = StateSerializer(required=False)
+    country = CountrySerializer(required=False)
+    package_image= PackageImageSerializer(many=True, required=False)
+    # pricing_package = PricingSerializer(many=True,required=False)
+    min_price = serializers.SerializerMethodField()
+
+
+    class Meta:
+        model = Package
+        fields = ["id","package_uid","title","tour_class",
+                  "country","state","city","agent","package_image","min_price"]
+        
+    def get_min_price(self, obj):
+        pricing_packages = obj.pricing_package.all()
+        if pricing_packages.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
+            return min_adults_rate
+        return None
+        
+
 class PackageMinFieldsSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Package
         fields = ['id','package_uid','title']
+
+
+
+class PackageImageListSerializer(serializers.Serializer):
+    image = serializers.ListField(child=serializers.ImageField())

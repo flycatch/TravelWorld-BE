@@ -240,13 +240,12 @@ class CustomerBookingDetailsView(APIView):
         try:
 
             with transaction.atomic():
-                contact_persons_data = request.data.pop('contact_persons', [])
+                # contact_persons_data = request.data.pop('contact_persons', [])
                 
-                
-
                 serializer = BookingCreateSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 instance = serializer.save()
+
                 # if serializer.is_valid():
                 #     instance = serializer.save()
                 
@@ -258,9 +257,11 @@ class CustomerBookingDetailsView(APIView):
                 #                         'statusCode': status.HTTP_400_BAD_REQUEST },
                 #                         status=status.HTTP_400_BAD_REQUEST)
 
-                contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
-                contact_serializer.is_valid(raise_exception=True)
-                contact_serializer.save(booking_id=instance.id)
+                # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                # contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
+                # contact_serializer.is_valid(raise_exception=True)
+                # contact_serializer.save(booking_id=instance.id)
+                # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 
                 # contact_serializer = ContactPersonSerializer(data=contact_persons_data,many=True)
 
@@ -284,14 +285,54 @@ class CustomerBookingDetailsView(APIView):
 
                 
                 
-                
-
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+
+class CustomerBookingUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = BookingCreateSerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            contact_persons_data = request.data.pop('contact_persons', [])
+            object_id = kwargs.get('object_id')
+            instance = Booking.objects.get(object_id=object_id)
+            
+            if not instance:
+                return Response({"message": "Booking object not found", "status": "error",
+                            "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+
+            # Deserialize and save the updated instance
+            serializer = self.serializer_class(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+                if bool(contact_persons_data):
+                    contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
+                    contact_serializer.is_valid(raise_exception=True)
+                    contact_serializer.save(booking_id=instance.id)
+
+            
+                return Response({"message": "Booking Updated Successfully",
+                                 "status": "success",
+                                 "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+            else:
+                return Response({ "data": serializer.errors,
+                                "message": "Something went wrong",
+                                "status": "error",
+                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AgentBookingListView(ListAPIView):

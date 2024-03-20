@@ -17,7 +17,8 @@ from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
                                          ActivityItinerarySerializer,
                                          ActivityPricingSerializer,
                                          ActivitySerializer,
-                                         ActivityTourCategorySerializer)
+                                         ActivityTourCategorySerializer,
+                                         ActivityImageListSerializer)
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -27,6 +28,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.db.models import Q
 
 
@@ -388,3 +391,55 @@ class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
+
+
+class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView, 
+                             generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = ActivityImage.objects.all()
+    parser_classes = (MultiPartParser, FormParser)
+    serializer_class = ActivityImageListSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        activity_id = request.query_params.get('activity')
+        if activity_id:
+            images = ActivityImage.objects.filter(activity_id=activity_id)
+            serializer = ActivityImageSerializer(images, many=True,  context={'request': request})
+            return Response(serializer.data)
+        else:
+            return Response({'status': 'failed', 'message': 'Please provide a activity id',
+                             'error':serializer.errors,
+                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            images = serializer.validated_data['image']
+            activity_id = request.data.get('activity')  # Make sure to pass activity_id with the request
+
+            if activity_id is not None:
+                try:
+                    activity = Activity.objects.get(pk=activity_id)
+
+                    for image in images:
+                        ActivityImage.objects.create(activity=activity, image=image)
+                    
+                    return Response({'status': 'success', 'message': 'Images uploaded successfully',
+                                    'statusCode': status.HTTP_200_OK}, status=status.HTTP_200_OK)
+                except Activity.DoesNotExist:
+                    return Response({'status': 'failed', 'message': 'Activity not found',
+                                    'statusCode': status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({'status': 'failed', 'message': 'Activity ID is required',
+                                'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'status': 'failed', 'message': 'Images upload failed',
+                             'error':serializer.errors,
+                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response({'status': 'success', 'message': 'Image deleted successfully'},
+                        status=status.HTTP_204_NO_CONTENT)

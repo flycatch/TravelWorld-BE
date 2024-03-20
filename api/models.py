@@ -241,6 +241,7 @@ class Activity(BaseModel):
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
 
     class Meta:
         verbose_name = 'Activity'
@@ -318,6 +319,7 @@ class Package(BaseModel):
     )
 
     is_submitted = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
 
     class Meta:
         verbose_name = 'Package'
@@ -343,6 +345,9 @@ class Inclusions(BaseModel):
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
+    icon = models.ImageField(
+        upload_to='inclusions/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'Inclusions'
@@ -369,6 +374,9 @@ class Exclusions(BaseModel):
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+    icon = models.ImageField(
+        upload_to='exclusions/', 
+        null=True, default=None, blank=True)
 
     class Meta:
         verbose_name = 'Exclusions'
@@ -455,9 +463,11 @@ class PackageInformations(BaseModel):
     #     InclusionInformation, on_delete=models.CASCADE,
     #     related_name='informations_inclusion', null=True, blank=True)
     inclusiondetails = models.ManyToManyField(
-        InclusionInformation, related_name='packageinformations_inclusiondetails', blank=True)
+        InclusionInformation, related_name='packageinformations_inclusiondetails',
+        verbose_name='Inclusion Details', blank=True)
     exclusiondetails = models.ManyToManyField(
-        ExclusionInformation, related_name='packageinformations_exclusiondetails', blank=True)
+        ExclusionInformation, related_name='packageinformations_exclusiondetails',
+        verbose_name='Exclusion Details', blank=True)
     # exclusiondetails = models.ForeignKey(
     #     ExclusionInformation, on_delete=models.CASCADE,
     #     related_name='informations_exclusion', null=True, blank=True)
@@ -639,6 +649,7 @@ class PackageFaqQuestionAnswer(BaseModel):
 class Booking(BaseModel):
 
     BOOKING_STATUS =(
+            ("PENDING", "PENDING"),
             ("ORDERED", "ORDERED"),
             ("SUCCESSFUL", "SUCCESSFUL"),
             ("CANCELLED", "CANCELLED"),
@@ -769,9 +780,9 @@ class AgentTransactionSettlement(AuditFields):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='agent_transaction_settlement_package')
+        Package, on_delete=models.CASCADE, null=True, blank=True, related_name='agent_transaction_settlement_package')
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='agent_transaction_settlement_activity')
+        Activity, on_delete=models.CASCADE, null=True, blank=True, related_name='agent_transaction_settlement_activity')
     booking = models.ForeignKey(
         Booking, on_delete=models.CASCADE, related_name='agent_transaction_settlement_booking')
     payment_settlement_status  =  models.CharField(default="PENDING",choices = PAYMENT_SETTLEMENT_STATUS,
@@ -1041,9 +1052,11 @@ class ActivityInformations(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activity_informations_activity')
     inclusiondetails = models.ManyToManyField(
-        ActivityInclusionInformation, related_name='activity_informations_inclusiondetails', blank=True)
+        ActivityInclusionInformation, related_name='activity_informations_inclusiondetails', 
+        verbose_name='Inclusion Details', blank=True)
     exclusiondetails = models.ManyToManyField(
-        ActivityExclusionInformation, related_name='pactivity_informations_exclusiondetails', blank=True)
+        ActivityExclusionInformation, related_name='pactivity_informations_exclusiondetails',
+        verbose_name='Exclusion Details', blank=True)
     important_message = models.TextField(blank=True, default="",
                                          verbose_name="important Message")
     
@@ -1196,3 +1209,11 @@ class ActivityFaqQuestionAnswer(BaseModel):
                 )
         # Join the category info strings into a single string separated by newlines
         return '<br><br>'.join(category_info)
+
+
+
+class CoverPageInput(AuditFields):
+    experience = models.IntegerField(null=True, blank=True)
+    clients = models.IntegerField(null=True, blank=True)
+    satisfaction = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)

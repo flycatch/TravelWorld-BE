@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponseRedirect
+from django.urls import path, include, reverse, reverse_lazy
 from rest_framework import permissions
 
 from drf_yasg.views import get_schema_view
@@ -21,10 +23,21 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+class CustomAdminLoginView(LoginView):
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return reverse('dashboard_page')  # Redirect to dashboard_page after login
+
+def admin_redirect(request):
+    return HttpResponseRedirect(reverse_lazy('admin_login'))
+
 urlpatterns = [
+    path('admin/login/', CustomAdminLoginView.as_view(), name='admin_login'),
     path('admin/dashboard/', api.admin.dashboard_page, name='dashboard_page'),
     path('population-chart/', api.admin.agent_bar_chart, name='agent-chart'),
-
+    
+    path('admin/', admin_redirect, name='admin_redirect'),  # Redirect /admin to dashboard_page or admin_login
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
 

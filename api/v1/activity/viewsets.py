@@ -405,7 +405,7 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         activity_id = request.query_params.get('activity')
         if activity_id:
             images = ActivityImage.objects.filter(activity_id=activity_id)
-            serializer = ActivityImageSerializer(images, many=True)
+            serializer = ActivityImageSerializer(images, many=True,  context={'request': request})
             return Response(serializer.data)
         else:
             return Response({'status': 'failed', 'message': 'Please provide a activity id',

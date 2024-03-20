@@ -3,7 +3,8 @@ from rest_framework import viewsets,status
 
 from api.models import Country, State, City, CoverPageInput,Attraction
 from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer, 
-                                        AttractionSerializer,CoverPageInputSerializer)
+                                        AttractionSerializer,CoverPageInputSerializer,
+                                        HomePageDestinationSerializer, HomePageStateSerializer)
 from api.filters.general_filters import CityFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -87,3 +88,21 @@ class AttractionView(ListAPIView):
                 "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
             }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class HomePageDestinationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = City.objects.filter(status='active')
+    serializer_class = HomePageDestinationSerializer
+    pagination_class = CustomPagination
+    # filterset_class = CityFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class HomePageStateViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = State.objects.filter(status='active')
+    serializer_class = HomePageStateSerializer
+    pagination_class = CustomPagination
+    # filterset_class = CityFilter
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]

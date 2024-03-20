@@ -103,10 +103,10 @@ WSGI_APPLICATION = 'TravelWorld.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-
+print(config('ENVX_PSQL_DATABASE'))
 DATABASES = {
     'default': {
-        'NAME': config('PSQL_DATABASE', default=''),
+        'NAME': config('ENVX_PSQL_DATABASE', default=''),
         'ENGINE': config('PSQL_ENGINE'),
         'USER': config('PSQL_USER', default=''),
         'PASSWORD': config('PSQL_PASSWORD', default=''),

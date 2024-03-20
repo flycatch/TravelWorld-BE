@@ -589,30 +589,30 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class PopularPackageViewSet(viewsets.ModelViewSet):
+class HomePagePackageViewSet(viewsets.ModelViewSet):
     queryset = Package.objects.filter(is_submitted=True)
     serializer_class = PackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    # filterset_class = PackageFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    filterset_class = PackageFilter
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
-class PopularActivityViewSet(viewsets.ReadOnlyModelViewSet):
+class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Activity.objects.filter(is_submitted=True)
     serializer_class = ActivitySerializer
     pagination_class = CustomPagination
-    # filterset_class = ActivityFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    filterset_class = ActivityFilter
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
-class PopularProductsViewSet(viewsets.ReadOnlyModelViewSet):
+class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically
     pagination_class = CustomPagination
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
     def get_queryset(self):
         activities = Activity.objects.filter(is_submitted=True)
@@ -621,7 +621,18 @@ class PopularProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        # Determine serializer based on object type
+
+        # Paginate the combined queryset manually
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            # Determine serializer based on object type
+            if isinstance(page[0], Activity):
+                serializer = ActivitySerializer(page, many=True)
+            elif isinstance(page[0], Package):
+                serializer = PackageSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # Determine serializer based on object type for non-paginated response
         if queryset:
             if isinstance(queryset[0], Activity):
                 self.serializer_class = ActivitySerializer
@@ -629,5 +640,6 @@ class PopularProductsViewSet(viewsets.ReadOnlyModelViewSet):
                 self.serializer_class = PackageSerializer
         else:
             return Response([])
+
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

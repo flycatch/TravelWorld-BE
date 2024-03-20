@@ -9,7 +9,7 @@ from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, Itinerary
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     PopularProductsViewSet, PopularActivityViewSet, PopularPackageViewSet)
+                                     HomePageProductsViewSet, HomePageActivityViewSet, HomePagePackageViewSet)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
@@ -46,9 +46,9 @@ router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_d
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
 
 # user page
-router.register(r'products/popular', PopularProductsViewSet, basename='popular-products'),
-router.register(r'activity/popular', PopularActivityViewSet, basename='popular-activity'),
-router.register(r'package/popular', PopularPackageViewSet, basename='popular-package'),
+router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),
+router.register(r'home/activity', HomePageActivityViewSet, basename='HomePage-activity'),
+router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')

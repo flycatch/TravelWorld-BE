@@ -246,6 +246,7 @@ class Activity(BaseModel):
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
 
     class Meta:
         verbose_name = 'Activity'
@@ -315,6 +316,7 @@ class Package(BaseModel):
     )
 
     is_submitted = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
 
     class Meta:
         verbose_name = 'Package'

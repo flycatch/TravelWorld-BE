@@ -2,7 +2,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from api.v1.general.viewsets import CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView
+from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,
+                                     HomePageDestinationViewSet, HomePageStateViewSet)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
@@ -45,10 +46,12 @@ router.register(r'package/create', PackageViewSet, basename='package') #package 
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
 
-# user page
+# user home page
 router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),
 router.register(r'home/activity', HomePageActivityViewSet, basename='HomePage-activity'),
 router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
+router.register(r'home/destinations', HomePageDestinationViewSet, basename='HomePage-destinations'),
+router.register(r'home/state', HomePageStateViewSet, basename='HomePage-destinations'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')

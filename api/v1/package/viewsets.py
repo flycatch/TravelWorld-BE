@@ -572,7 +572,7 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         package_id = request.query_params.get('package')
         if package_id:
             images = PackageImage.objects.filter(package_id=package_id)
-            serializer = PackageImageSerializer(images, many=True)
+            serializer = PackageImageSerializer(images, many=True, context={'request': request})
             return Response(serializer.data)
         else:
             return Response({'status': 'failed', 'message': 'Please provide a package id',

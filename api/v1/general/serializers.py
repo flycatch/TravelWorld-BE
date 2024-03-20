@@ -34,3 +34,14 @@ class AttractionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attraction
         fields = '__all__'
+
+class HomePageDestinationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'thumb_image', 'cover_img']
+
+
+class HomePageStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = State
+        fields = ['id', 'name', 'thumb_image', 'cover_img']

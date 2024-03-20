@@ -644,6 +644,7 @@ class PackageFaqQuestionAnswer(BaseModel):
 class Booking(BaseModel):
 
     BOOKING_STATUS =(
+            ("PENDING", "PENDING"),
             ("ORDERED", "ORDERED"),
             ("SUCCESSFUL", "SUCCESSFUL"),
             ("CANCELLED", "CANCELLED"),

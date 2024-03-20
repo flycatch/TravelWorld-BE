@@ -240,13 +240,12 @@ class CustomerBookingDetailsView(APIView):
         try:
 
             with transaction.atomic():
-                contact_persons_data = request.data.pop('contact_persons', [])
+                # contact_persons_data = request.data.pop('contact_persons', [])
                 
-                
-
                 serializer = BookingCreateSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 instance = serializer.save()
+
                 # if serializer.is_valid():
                 #     instance = serializer.save()
                 
@@ -258,9 +257,11 @@ class CustomerBookingDetailsView(APIView):
                 #                         'statusCode': status.HTTP_400_BAD_REQUEST },
                 #                         status=status.HTTP_400_BAD_REQUEST)
 
-                contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
-                contact_serializer.is_valid(raise_exception=True)
-                contact_serializer.save(booking_id=instance.id)
+                # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                # contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
+                # contact_serializer.is_valid(raise_exception=True)
+                # contact_serializer.save(booking_id=instance.id)
+                # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 
                 # contact_serializer = ContactPersonSerializer(data=contact_persons_data,many=True)
 
@@ -284,8 +285,6 @@ class CustomerBookingDetailsView(APIView):
 
                 
                 
-                
-
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",
                             "status": "error",
@@ -300,6 +299,7 @@ class CustomerBookingUpdateView(APIView):
 
     def put(self, request, *args, **kwargs):
         try:
+            contact_persons_data = request.data.pop('contact_persons', [])
             object_id = kwargs.get('object_id')
             instance = Booking.objects.get(object_id=object_id)
             
@@ -311,6 +311,11 @@ class CustomerBookingUpdateView(APIView):
             serializer = self.serializer_class(instance, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
+
+                if bool(contact_persons_data):
+                    contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
+                    contact_serializer.is_valid(raise_exception=True)
+                    contact_serializer.save(booking_id=instance.id)
 
             
                 return Response({"message": "Booking Updated Successfully",

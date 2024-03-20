@@ -293,6 +293,42 @@ class CustomerBookingDetailsView(APIView):
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+class CustomerBookingUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = BookingCreateSerializer
+
+    def put(self, request, *args, **kwargs):
+        try:
+            object_id = kwargs.get('object_id')
+            instance = Booking.objects.get(object_id=object_id)
+            
+            if not instance:
+                return Response({"message": "Booking object not found", "status": "error",
+                            "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+
+            # Deserialize and save the updated instance
+            serializer = self.serializer_class(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+
+            
+                return Response({"message": "Booking Updated Successfully",
+                                 "status": "success",
+                                 "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+            else:
+                return Response({ "data": serializer.errors,
+                                "message": "Something went wrong",
+                                "status": "error",
+                                "statusCode": status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class AgentBookingListView(ListAPIView):
     permission_classes = [IsAuthenticated]

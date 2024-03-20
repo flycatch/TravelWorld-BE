@@ -53,8 +53,6 @@ class BookingSerializer(serializers.ModelSerializer):
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
     user_review_booking = BookingUserReviewSerializer(required=False)
 
-    
-
 
     class Meta:
         model = Booking

@@ -7,7 +7,7 @@ from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,Fo
 from api.v1.package.viewsets import (PackageViewSet, ItineraryViewSet, ItineraryDayViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
-                                     PackageDeleteDraft, PackageTourCategoryViewSet,
+                                     PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
                                      PopularProductsViewSet, PopularActivityViewSet, PopularPackageViewSet)
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,

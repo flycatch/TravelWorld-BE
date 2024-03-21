@@ -115,11 +115,9 @@ urlpatterns = [
     path('v1/<int:user_id>/history/customer-list-bookings/', CustomerBookingHistoryListView.as_view(), name='customer-list-history-bookings'),
     path('v1/<int:user_id>/customer-booking-details/', CustomerBookingDetailsView.as_view(), name='customer-booking'),
     path('v1/<int:user_id>/customer-booking-update/<str:object_id>/', CustomerBookingUpdateView.as_view(), name='customer-update-booking'),
-
-    
-
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 
+    path('v1/<int:user_id>/booking/calculations/<str:object_id>/', BookingCalculationsView.as_view(), name='booking-calculations'),
 
     # Agent View booking
     path('v1/<int:agent_id>/agent-list-bookings/', AgentBookingListView.as_view(), name='agent-list-bookings'),

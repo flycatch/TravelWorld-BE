@@ -19,6 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from TravelWorld.settings import *
+from decimal import Decimal
 
 
 @api_view(['POST'])
@@ -505,3 +506,56 @@ class WelcomeView(APIView):
         send_email.delay(subject,message,'lenate.j@flycatchtech.com')
         print("z2")
         return Response("checking celery")
+    
+
+class BookingCalculationsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        try:
+
+            pricing_id = self.request.GET.get('pricing_id',None)
+
+            print(pricing_id)
+
+            pricing = Pricing.objects.get(id=pricing_id)
+
+            booking = Booking.objects.get(object_id=self.kwargs['object_id'])
+
+            adult_per_rate = pricing.adults_rate
+            child_per_rate = pricing.child_rate
+            infant_per_rate = pricing.infant_rate
+
+            print(booking)
+
+            adult_count = booking.adult
+            child_count  = booking.child
+            infant_count = booking.infant
+
+            full_amount_payment = (adult_per_rate * adult_count) + (child_per_rate * child_count) + (infant_per_rate * infant_count)
+            partial_payment_percentage = AdvanceAmountPercentageSetting.objects.first().percentage
+            partial_payment_amount = Decimal(full_amount_payment) * Decimal(partial_payment_percentage) / 100
+            results = {
+                            "adult_per_rate": adult_per_rate,
+                            "child_per_rate": child_per_rate,
+                            "infant_per_rate": infant_per_rate,
+                            "adult_count":adult_count,
+                            "child_count":child_count,
+                            "infant_count":infant_count,
+                            "full_amount_payment":full_amount_payment,
+                            "partial_payment_percentage":partial_payment_percentage,
+                            "partial_payment_amount":partial_payment_amount
+
+                        }
+
+            return Response({"results":results,
+                            "message":"Listed successfully",
+                            "status": "success",
+                            "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
+    
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

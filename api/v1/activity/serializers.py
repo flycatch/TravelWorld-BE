@@ -383,9 +383,14 @@ class ActivityCancellationPolicySerializer(serializers.ModelSerializer):
         instance.category.clear()
         # Add new categories
         for data in category_data:
-            category_instance, _ = ActivityCancellationCategory.objects.get_or_create(**data)
+            category_instance = ActivityCancellationCategory.objects.filter(**data)
+            if category_instance.exists():
+                category_instance = category_instance.first()
+            else:
+                category_instance = ActivityCancellationCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
+
 
 class ActivityFaqCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -416,14 +421,18 @@ class ActivityFaqQuestionAnswerSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         category_data = validated_data.pop('category', [])
-        # Update the main ActivityFaqQuestionAnswer instance
+        # Update the main CancellationPolicy instance
         instance.activity = validated_data.get('activity', instance.activity)
         instance.save()
         # Clear existing categories
         instance.category.clear()
         # Add new categories
         for data in category_data:
-            category_instance, _ = ActivityFaqCategory.objects.get_or_create(**data)
+            category_instance = ActivityFaqCategory.objects.filter(**data)
+            if category_instance.exists():
+                category_instance = category_instance.first()
+            else:
+                category_instance = ActivityFaqCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 

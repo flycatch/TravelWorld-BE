@@ -262,7 +262,7 @@ class Location(models.Model):
         destination_names = ', '.join(str(dest) for dest in self.destinations.all())
         state_name = self.state.name if self.state else 'Unknown State'
         country_name = self.country.name if self.country else 'Unknown Country'
-        return f"{state_name} : {destination_names}"
+        return f"\n{state_name} : {destination_names}"
 
 
 class Package(BaseModel):
@@ -345,10 +345,7 @@ class Inclusions(BaseModel):
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
-    icon = models.ImageField(
-        upload_to='inclusions/', 
-        null=True, default=None, blank=True)
-
+   
     class Meta:
         verbose_name = 'Inclusions'
         verbose_name_plural = 'Inclusions'
@@ -374,9 +371,7 @@ class Exclusions(BaseModel):
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
-    icon = models.ImageField(
-        upload_to='exclusions/', 
-        null=True, default=None, blank=True)
+    
 
     class Meta:
         verbose_name = 'Exclusions'
@@ -1217,3 +1212,9 @@ class CoverPageInput(AuditFields):
     clients = models.IntegerField(null=True, blank=True)
     satisfaction = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    activity_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Activity")
+    package_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                      verbose_name="Package")
+    attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Attraction")

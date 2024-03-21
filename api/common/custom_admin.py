@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
-from api.models import (Itinerary, Pricing, ActivityPricing,
+from api.models import (Itinerary, Pricing, UserReviewImage,
                         TourCategory, ActivityTourCategory,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
                         CancellationPolicy, ActivityCancellationPolicy,
@@ -166,3 +166,14 @@ class ActivityCancellationPolicyInline(CustomStackedInline):
     verbose_name = 'Cancellation Policy'
     verbose_name_plural = 'Cancellation Policies'
 
+
+class UserReviewImageInline(admin.TabularInline):
+    model = UserReviewImage
+    readonly_fields = ('images',)
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    verbose_name = 'Images'
+    verbose_name_plural = 'Images'

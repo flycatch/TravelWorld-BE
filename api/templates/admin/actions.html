@@ -10,7 +10,7 @@
         </div>
 
         {% block actions-submit %}
-            <button type="submit" class="btn {{ jazzmin_ui.button_classes.danger }}" style="margin-right: 5px; margin-left: 15px; width: 150px; font-size: 20px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
+            <button type="submit" class="btn {{ jazzmin_ui.button_classes.danger }}" style="margin-right: 5px; width: 150px; font-size: 20px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
                 {% trans "Delete" %}
             </button>
         {% endblock %}

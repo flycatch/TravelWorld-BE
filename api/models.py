@@ -1212,3 +1212,9 @@ class CoverPageInput(AuditFields):
     clients = models.IntegerField(null=True, blank=True)
     satisfaction = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    activity_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Activity")
+    package_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                      verbose_name="Package")
+    attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Attraction")

@@ -795,6 +795,8 @@ class UserReviewAdmin(CustomModelAdmin):
         }),
         )
 
+    inlines = [UserReviewImageInline]
+
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
             if obj.activity:
@@ -1046,6 +1048,25 @@ def dashboard_page(request):
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 
+class CoverPageInputAdmin(CustomModelAdmin):
+    list_display = ("id", "experience", "clients", "satisfaction")
+
+    fieldsets = (
+        (None, {
+            'fields': ("experience", "clients", "satisfaction")
+        }),
+        ('Cover Images', {
+            'fields': ("activity_image", "package_image", "attraction_image")
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -1071,7 +1092,7 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(PackageCancellationCategory)
 # admin.site.register(ContactPerson)
 admin.site.register(Pricing)
-admin.site.register(CoverPageInput)
+admin.site.register(CoverPageInput, CoverPageInputAdmin)
 # admin.site.register(ActivityImage)
 
 

@@ -57,7 +57,7 @@ class CoverPageView(APIView):
         try:
             
             queryset = CoverPageInput.objects.all()
-            serializer = self.serializer_class(queryset, many=True)
+            serializer = self.serializer_class(queryset, many=True, context={'request':request})
             return Response({"results":serializer.data,
                             "message":"Listed successfully",
                             "status": "success",

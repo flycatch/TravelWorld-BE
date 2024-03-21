@@ -1005,6 +1005,10 @@ class ActivityItinerary(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activity_itinerary_activity')
     overview = models.TextField(blank=True, default="")
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
+    things_to_carry = models.TextField(blank=True, default="",
+                                         verbose_name="Things to carry")
     itinerary_day = models.ManyToManyField(
         ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
     inclusions = models.ManyToManyField(Inclusions, related_name='activity_itinerary_inclusions', blank=True)
@@ -1052,9 +1056,7 @@ class ActivityInformations(BaseModel):
     exclusiondetails = models.ManyToManyField(
         ActivityExclusionInformation, related_name='pactivity_informations_exclusiondetails',
         verbose_name='Exclusion Details', blank=True)
-    important_message = models.TextField(blank=True, default="",
-                                         verbose_name="important Message")
-    
+
     class Meta:
         verbose_name = 'Activity Information'
         verbose_name_plural = 'Activity Informations'
@@ -1218,3 +1220,7 @@ class CoverPageInput(AuditFields):
                                       verbose_name="Package")
     attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
                                        verbose_name="Attraction")
+    
+
+    def __str__(self):
+        return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "

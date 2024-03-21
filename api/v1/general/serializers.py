@@ -42,7 +42,8 @@ class CoverPageInputSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CoverPageInput
-        fields = ['experience','clients','satisfaction']
+        fields = ['experience','clients','satisfaction',
+                  'activity_image', 'package_image', 'attraction_image']
 
 
 class AttractionSerializer(serializers.ModelSerializer):

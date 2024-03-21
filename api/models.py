@@ -910,7 +910,7 @@ ACTIVITY MODELS
 
 class ActivityImage(BaseModel):
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
+        Activity, on_delete=models.CASCADE, related_name='activity_image')
     image = models.ImageField(upload_to='activity_images/', null=True, default=None, blank=True)
 
     def __str__(self):

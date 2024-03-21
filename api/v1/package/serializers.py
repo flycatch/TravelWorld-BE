@@ -416,7 +416,9 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "country","state","city","agent","package_image","min_price","total_reviews","average_review_rating"]
+                  "country","state","city","agent","package_image","min_price",
+                  "total_reviews","average_review_rating","duration","duration_day",
+                  "duration_night","duration_hour"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()

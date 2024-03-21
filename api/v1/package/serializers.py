@@ -221,8 +221,6 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', [])
 
-        instance.important_message = validated_data.get('important_message', instance.important_message)
-
         if inclusion_details_data:
             # Update or create inclusion details
             new_inclusion_details_ids = set()

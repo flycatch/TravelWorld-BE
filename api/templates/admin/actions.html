@@ -1,0 +1,32 @@
+{% load i18n jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+<div class="actions">
+    {% block actions %}
+        <div style="display: none;">
+            <select style="display: none;" name="action" required="" class="form-control select2-hidden-accessible" data-select2-id="select2-data-1-zlx6" tabindex="-1" aria-hidden="true">
+                <option value="delete_selected" data-select2-id="select2-data-9-1uwx">Delete selected Attractions</option>
+            </select>
+        </div>
+
+        {% block actions-submit %}
+            <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary }}" style="margin-right: 5px; margin-left: 15px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
+                {% trans "Delete" %}
+            </button>
+        {% endblock %}
+        {% block actions-counter %}
+            {% if actions_selection_counter %}
+                <span class="action-counter" data-actions-icnt="{{ cl.result_list|length }}">{{ selection_note }}</span>
+                {% if cl.result_count != cl.result_list|length %}
+                    <span class="all hidden">{{ selection_note_all }}</span>
+                    <span class="question hidden">
+                        <a href="#" title="{% trans "Click here to select the objects across all pages" %}">
+                            {% blocktrans with cl.result_count as total_count %}Select all {{ total_count }} {{ module_name }}{% endblocktrans %}
+                        </a>
+                    </span>
+                    <span class="clear" style="display: none;"><a href="#">{% trans "Clear selection" %}</a></span>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+    {% endblock %}
+</div>

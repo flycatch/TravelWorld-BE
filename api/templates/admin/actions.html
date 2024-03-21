@@ -4,13 +4,13 @@
 <div class="actions">
     {% block actions %}
         <div style="display: none;">
-            <select style="display: none;" name="action" required="" class="form-control select2-hidden-accessible" data-select2-id="select2-data-1-zlx6" tabindex="-1" aria-hidden="true">
+            <select name="action" required="" class="form-control select2-hidden-accessible" data-select2-id="select2-data-1-zlx6" tabindex="-1" aria-hidden="true">
                 <option value="delete_selected" data-select2-id="select2-data-9-1uwx">Delete selected Attractions</option>
             </select>
         </div>
 
         {% block actions-submit %}
-            <button type="submit" class="btn {{ jazzmin_ui.button_classes.danger }}" style="margin-right: 5px; margin-left: 15px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
+            <button type="submit" class="btn {{ jazzmin_ui.button_classes.danger }}" style="margin-right: 5px; margin-left: 15px; width: 150px; font-size: 20px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
                 {% trans "Delete" %}
             </button>
         {% endblock %}

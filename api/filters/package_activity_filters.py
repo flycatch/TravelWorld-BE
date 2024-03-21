@@ -23,6 +23,8 @@ class PackageFilter(django_filters.FilterSet):
             return queryset.filter(duration='day', duration_day=1, duration_night=1)
         elif value == 'multi_day':
             return queryset.filter(duration='day', duration_day__gt=1, duration_night__gt=1)
+        elif value == 'half_day':
+            return queryset.filter(duration='hour',duration_hour__lte=12)
         return queryset
 
 

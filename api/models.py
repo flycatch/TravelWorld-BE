@@ -345,10 +345,7 @@ class Inclusions(BaseModel):
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
-    icon = models.ImageField(
-        upload_to='inclusions/', 
-        null=True, default=None, blank=True)
-
+   
     class Meta:
         verbose_name = 'Inclusions'
         verbose_name_plural = 'Inclusions'
@@ -374,9 +371,7 @@ class Exclusions(BaseModel):
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
     activity = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
-    icon = models.ImageField(
-        upload_to='exclusions/', 
-        null=True, default=None, blank=True)
+    
 
     class Meta:
         verbose_name = 'Exclusions'

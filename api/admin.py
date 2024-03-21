@@ -137,14 +137,15 @@ class ActivityAdmin(CustomModelAdmin):
             'fields': ('stage', 'is_popular', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string',)
+                       'drop_point', 'drop_time_string', 'locations')
         }),
     )
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -232,7 +233,7 @@ class PackageAdmin(CustomModelAdmin):
             'fields': ('stage', 'is_popular', 'package_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string',)
+                       'drop_point', 'drop_time_string', "locations")
         }),
     )
     
@@ -245,7 +246,8 @@ class PackageAdmin(CustomModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -780,7 +782,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package", "activity", "rating","object_id")
+    list_display = ("user", "package_uid", "activity_uid", "rating","object_id")
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
@@ -792,6 +794,52 @@ class UserReviewAdmin(CustomModelAdmin):
                        "booking", "agent", "agent_comment",)
         }),
         )
+
+    inlines = [UserReviewImageInline]
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # Detail page
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ("user", "activity_uid", "activity_name", "rating", "review",
+                                "booking", "agent", "agent_comment",)
+                    }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ("user", "package_uid", "package_name", "rating", "review",
+                                "booking", "agent", "agent_comment",)
+                    }),
+                )
+        else:  # Add page
+            return (
+        (None, {
+            'fields': ("user", "package", "activity", "rating", "review",
+                       "booking", "agent", "agent_comment",)
+        }),
+            )
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
+    def package_name(self, obj):
+        return truncatechars(obj.package.title if obj.package else None, 35)
+    package_name.short_description = "Package Name"
+
+    def activity_name(self, obj):
+        return truncatechars(obj.activity.title if obj.activity else None, 35)
+    activity_name.short_description = "Activity Name"
+
+    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'Package UID'  # Enable sorting by user_uid
+
 
     def has_add_permission(self, request, obj=None):
         return True
@@ -1000,6 +1048,25 @@ def dashboard_page(request):
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 
+class CoverPageInputAdmin(CustomModelAdmin):
+    list_display = ("id", "experience", "clients", "satisfaction")
+
+    fieldsets = (
+        (None, {
+            'fields': ("experience", "clients", "satisfaction")
+        }),
+        ('Cover Images', {
+            'fields': ("activity_image", "package_image", "attraction_image")
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -1025,7 +1092,7 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(PackageCancellationCategory)
 # admin.site.register(ContactPerson)
 admin.site.register(Pricing)
-admin.site.register(CoverPageInput)
+admin.site.register(CoverPageInput, CoverPageInputAdmin)
 # admin.site.register(ActivityImage)
 
 

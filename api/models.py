@@ -262,7 +262,7 @@ class Location(models.Model):
         destination_names = ', '.join(str(dest) for dest in self.destinations.all())
         state_name = self.state.name if self.state else 'Unknown State'
         country_name = self.country.name if self.country else 'Unknown Country'
-        return f"{state_name} : {destination_names}"
+        return f"\n{state_name} : {destination_names}"
 
 
 class Package(BaseModel):
@@ -1212,3 +1212,9 @@ class CoverPageInput(AuditFields):
     clients = models.IntegerField(null=True, blank=True)
     satisfaction = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    activity_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Activity")
+    package_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                      verbose_name="Package")
+    attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Attraction")

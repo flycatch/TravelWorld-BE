@@ -18,7 +18,8 @@ from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
                                          ActivityPricingSerializer,
                                          ActivitySerializer,
                                          ActivityTourCategorySerializer,
-                                         ActivityImageListSerializer)
+                                         ActivityImageListSerializer,
+                                         HomePageActivitySerializer)
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -443,3 +444,52 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         self.perform_destroy(instance)
         return Response({'status': 'success', 'message': 'Image deleted successfully'},
                         status=status.HTTP_204_NO_CONTENT)
+
+
+
+class ActivityHomePageView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    serializer_class = HomePageActivitySerializer
+    pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend,SearchFilter]
+    search_fields = ['user__username','booking_id'] 
+    filterset_class = ActivityFilter
+    
+    
+    def get_queryset(self):
+        queryset = Activity.objects.order_by("-id")
+        return queryset
+    
+    def apply_additional_filters(self, queryset):
+        price_range_min = self.request.query_params.get('price_range_min')
+        price_range_max = self.request.query_params.get('price_range_max')
+        if price_range_min is not None and price_range_max is not None:
+            queryset = queryset.filter(
+                Q(pricing_activity__adults_rate__gte=price_range_min) &
+                Q(pricing_activity__adults_rate__lte=price_range_max)
+            ).distinct()
+        return queryset
+        
+        
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            queryset = self.apply_additional_filters(queryset)
+
+            page = self.paginate_queryset(queryset)
+            
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except Exception as error_message:
+            response_data = {
+                "message": f"Something went wrong: {error_message}",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

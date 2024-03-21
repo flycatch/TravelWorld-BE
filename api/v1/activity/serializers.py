@@ -10,6 +10,7 @@ from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, Activ
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
+from django.db.models import Avg
 
 
 class ActivitySerializer(serializers.ModelSerializer):
@@ -457,3 +458,37 @@ class ActivityMinFieldsSerializer(serializers.ModelSerializer):
 
 class ActivityImageListSerializer(serializers.Serializer):
     image = serializers.ListField(child=serializers.ImageField())
+
+
+class HomePageActivitySerializer(serializers.ModelSerializer):
+    agent = BookingAgentSerializer(required=False)
+    locations = LocationGetSerializer(many=True, required=False)
+    activity_image= ActivityImageSerializer(many=True, required=False)
+    # pricing_activity = PricingSerializer(many=True,required=False)
+    min_price = serializers.SerializerMethodField()
+    total_reviews = serializers.SerializerMethodField()
+    average_review_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Activity
+        fields = ["id","activity_uid","title","tour_class",
+                  "locations","agent","activity_image","min_price",
+                  "total_reviews","average_review_rating","duration","duration_day",
+                  "duration_night","duration_hour"]
+        
+    def get_min_price(self, obj):
+        pricing_activity = obj.pricing_activity.all()
+        if pricing_activity.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_activity)
+            return min_adults_rate
+        return None
+    
+    def get_total_reviews(self, obj):
+        return obj.activity_review.filter(is_active=True, is_deleted=False).count()
+    
+    def get_average_review_rating(self, obj):
+        user_reviews = obj.activity_review.all()
+        if user_reviews.exists():
+            average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
+            return average_rating
+        return None

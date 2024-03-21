@@ -401,9 +401,7 @@ class BookingPackageSerializer(serializers.ModelSerializer):
 
 class HomePagePackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)
-    city = CitySerializer(required=False)
-    state = StateSerializer(required=False)
-    country = CountrySerializer(required=False)
+    locations = LocationGetSerializer(many=True,required=False)
     package_image= PackageImageSerializer(many=True, required=False)
     # pricing_package = PricingSerializer(many=True,required=False)
     min_price = serializers.SerializerMethodField()
@@ -411,14 +409,12 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     average_review_rating = serializers.SerializerMethodField()
 
 
-
-
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "country","state","city","agent","package_image","min_price",
+                  "agent","package_image","min_price",
                   "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour"]
+                  "duration_night","duration_hour","locations"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()

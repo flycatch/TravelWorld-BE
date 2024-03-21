@@ -18,7 +18,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,)
-from api.v1.activity.serializers import ActivitySerializer
+from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
 from django.db.models import Q
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
@@ -720,9 +720,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if bool(page):
             # Determine serializer based on object type
             if isinstance(page[0], Activity):
-                serializer = ActivitySerializer(page, many=True)
+                serializer = HomePageActivitySerializer(page, many=True)
             elif isinstance(page[0], Package):
-                serializer = PackageSerializer(page, many=True)
+                serializer = HomePagePackageSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         # Determine serializer based on object type for non-paginated response
         if filtered_queryset:

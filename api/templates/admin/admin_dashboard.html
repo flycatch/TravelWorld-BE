@@ -235,6 +235,8 @@
     .dashboard-field, .dashboard-field-value {
         font-size: 16px;
         font-weight: 900;
+        color: #7a7a7a;
+        cursor: pointer;
     }
     
     </style>
@@ -260,13 +262,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Successful: </span><span class="dashboard-field-value">{{ cards.successful_bookings }}</span></li>
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Cancelled: </span><span class="dashboard-field-value">{{ cards.refunded_bookings }}</span></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="bookingsFieldRedirection(this);"><span class="dashboard-field">Successful: </span><span class="dashboard-field-value">{{ cards.successful_bookings }}</span></a></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="bookingsFieldRedirection(this);"><span class="dashboard-field">Cancelled: </span><span class="dashboard-field-value">{{ cards.refunded_bookings }}</span></a></li>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Failed: </span><span class="dashboard-field-value">{{ cards.failed_bookings }}</span></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="bookingsFieldRedirection(this);"><span class="dashboard-field">Failed: </span><span class="dashboard-field-value">{{ cards.failed_bookings }}</span></a></li>
                                 </ol>
                             </div>
                         </div>
@@ -290,14 +292,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Active: </span><span class="dashboard-field-value">{{ cards.active_agents }}</span></li>
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Inactive: </span><span class="dashboard-field-value">{{ cards.inactive_agents }}</span></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="agentsFieldRedirection('pending', this);"><span class="dashboard-field">Active: </span><span class="dashboard-field-value">{{ cards.active_agents }}</span></a></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="agentsFieldRedirection('approved', this);"><span class="dashboard-field">Inactive: </span><span class="dashboard-field-value">{{ cards.inactive_agents }}</span></a></li>
                                 </ol>
                                 </ol>
                             </div>
                             <div class="col-md-6">
                                 <ol class="dashboard-fields list-unstyled">
-                                    <li class="dashboard-sub-fileds"><span class="dashboard-field">Rejected: </span><span class="dashboard-field-value">{{ cards.rejected_agents }}</span></li>
+                                    <li class="dashboard-sub-fileds"><a onclick="agentsFieldRedirection('rejected', this);"><span class="dashboard-field">Rejected: </span><span class="dashboard-field-value">{{ cards.rejected_agents }}</span></a></li>
                                 </ol>
                             </div>
                         </div>
@@ -580,5 +582,36 @@
         // Reload the page with the updated URL
         window.location.href = currentUrl;
     });
+</script>
+
+<script>
+    function bookingsFieldRedirection(clickedElement) {
+        var currentUrl = new URL(window.location.href);
+
+        // Get the text content of the clicked dashboard-field element
+        var dashboardFieldText = clickedElement.querySelector('.dashboard-field').textContent.trim();
+
+        // Remove the colon from the end of the text
+        dashboardFieldText = dashboardFieldText.replace(/:$/, '');
+
+        // Convert the text to uppercase
+        dashboardFieldText = dashboardFieldText.toUpperCase();
+
+        var baseUrl = currentUrl.protocol + '//' + currentUrl.hostname + ':' + currentUrl.port;
+        var finalUrl = baseUrl + '/admin/api/booking/' + '?booking_status__exact=' + encodeURIComponent(dashboardFieldText) + '&q=';
+
+        // Redirect to the final URL
+        window.location.href = finalUrl;
+    }
+
+    function agentsFieldRedirection(stage, clickedElement) {
+        var currentUrl = new URL(window.location.href);
+
+        var baseUrl = currentUrl.protocol + '//' + currentUrl.hostname + ':' + currentUrl.port;
+        var finalUrl = baseUrl + '/admin/api/agent/' + '?stage__exact=' + stage + '&q=';
+
+        // Redirect to the final URL
+        window.location.href = finalUrl;
+    }
 </script>
 {% endblock %}

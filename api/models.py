@@ -1218,3 +1218,7 @@ class CoverPageInput(AuditFields):
                                       verbose_name="Package")
     attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
                                        verbose_name="Attraction")
+    
+
+    def __str__(self):
+        return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "

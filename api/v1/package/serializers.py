@@ -387,16 +387,14 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
 
 class BookingPackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)
-    city = CitySerializer(required=False)
-    state = StateSerializer(required=False)
-    country = CountrySerializer(required=False)
+    locations = LocationGetSerializer(many=True,required=False)
     package_image= PackageImageSerializer(many=True, required=False)
 
 
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "country","state","city","agent","package_image"]
+                  "agent","package_image","locations"]
         
 
 class HomePagePackageSerializer(serializers.ModelSerializer):

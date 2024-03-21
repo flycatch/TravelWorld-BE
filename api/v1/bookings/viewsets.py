@@ -86,8 +86,8 @@ def start_payment(request):
 
 
 class CustomerBookingListView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     serializer_class = BookingSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
@@ -162,8 +162,8 @@ class CustomerBookingHistoryListView(ListAPIView):
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CustomerBookingDetailsView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     serializer_class = BookingSerializer
 
 

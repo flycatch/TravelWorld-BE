@@ -137,6 +137,8 @@ class ItinerarySerializer(serializers.ModelSerializer):
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
+        instance.important_message = validated_data.get('important_message', instance.important_message)
+        instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
 
         # Update or create itinerary day objects using id if data provided
         if itinerary_day_data is not None:

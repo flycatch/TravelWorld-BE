@@ -18,7 +18,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,)
-from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
+from api.v1.activity.serializers import ActivitySerializer
 from django.db.models import Q
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend

@@ -20,7 +20,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        exclude = ['status', 'is_submitted', 'is_popular']
+        exclude = ['status', 'is_submitted', 'is_popular', "deal_type"]
 
     def validate(self, data):
         min_members = data.get('min_members')
@@ -38,6 +38,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
+
         activity = Activity.objects.create(**validated_data)
 
         for location_data in locations_data:
@@ -474,7 +475,7 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
         fields = ["id","activity_uid","title","tour_class",
                   "locations","agent","activity_image","min_price",
                   "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour"]
+                  "duration_night","duration_hour", "deal_type"]
         
     def get_min_price(self, obj):
         pricing_activity = obj.pricing_activity.all()

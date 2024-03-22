@@ -1053,10 +1053,13 @@ class CoverPageInputAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ("experience", "clients", "satisfaction",'price_min','price_max')
+            'fields': ("experience", "clients", "satisfaction")
         }),
         ('Cover Images', {
             'fields': ("activity_image", "package_image", "attraction_image")
+        }),
+        ('Filters', {
+            'fields': ('price_min','price_max')
         }),
     )
 

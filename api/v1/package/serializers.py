@@ -41,7 +41,6 @@ class PackageSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
-        validated_data['deal_type'] = 'PACKAGE'
 
         package = Package.objects.create(**validated_data)
 

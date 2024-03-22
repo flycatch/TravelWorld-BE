@@ -38,7 +38,6 @@ class ActivitySerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
-        validated_data['deal_type'] = 'ACTIVITY'
 
         activity = Activity.objects.create(**validated_data)
 

@@ -17,8 +17,8 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
-                                        PricingSerializer,HomePagePackageSerializer)
-from api.v1.activity.serializers import ActivitySerializer
+                                        PricingSerializer,HomePagePackageSerializer,)
+from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
 from django.db.models import Q
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
@@ -644,23 +644,23 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class HomePagePackageViewSet(viewsets.ModelViewSet):
-    queryset = Package.objects.filter(is_submitted=True)
-    serializer_class = PackageSerializer
-    pagination_class = CustomPagination
-    filter_backends = [DjangoFilterBackend,SearchFilter]
-    filterset_class = PackageFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+# class HomePagePackageViewSet(viewsets.ModelViewSet):
+#     queryset = Package.objects.filter(is_submitted=True)
+#     serializer_class = PackageSerializer
+#     pagination_class = CustomPagination
+#     filter_backends = [DjangoFilterBackend,SearchFilter]
+#     filterset_class = PackageFilter
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [TokenAuthentication]
 
 
-class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Activity.objects.filter(is_submitted=True)
-    serializer_class = ActivitySerializer
-    pagination_class = CustomPagination
-    filterset_class = ActivityFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+# class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = Activity.objects.filter(is_submitted=True)
+#     serializer_class = ActivityGetSerializer
+#     pagination_class = CustomPagination
+#     filterset_class = ActivityFilter
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [TokenAuthentication]
 
 
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -720,9 +720,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if bool(page):
             # Determine serializer based on object type
             if isinstance(page[0], Activity):
-                serializer = ActivitySerializer(page, many=True)
+                serializer = HomePageActivitySerializer(page, many=True)
             elif isinstance(page[0], Package):
-                serializer = PackageSerializer(page, many=True)
+                serializer = HomePagePackageSerializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         # Determine serializer based on object type for non-paginated response
         if filtered_queryset:

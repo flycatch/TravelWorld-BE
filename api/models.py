@@ -503,7 +503,7 @@ class Pricing(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='pricing_package', null=True, blank=True)
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='pricing_activitya', null=True, blank=True)
+        Activity, on_delete=models.CASCADE, related_name='pricing_activity', null=True, blank=True)
     pricing_group = models.CharField(
         max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
     price = models.ForeignKey(
@@ -910,7 +910,7 @@ ACTIVITY MODELS
 
 class ActivityImage(BaseModel):
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
+        Activity, on_delete=models.CASCADE, related_name='activity_image')
     image = models.ImageField(upload_to='activity_images/', null=True, default=None, blank=True)
 
     def __str__(self):

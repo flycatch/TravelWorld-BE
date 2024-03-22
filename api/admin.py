@@ -873,21 +873,21 @@ def dashboard_page(request):
 
     #Agents
     total_agent_count = Agent.objects.count()
-    active_agents = Agent.objects.filter(stage='pending').count()
-    inactive_agents = Agent.objects.filter(stage='approved').count()
+    pending_agents = Agent.objects.filter(stage='pending').count()
+    approved_agents = Agent.objects.filter(stage='approved').count()
     rejected_agents = Agent.objects.filter(stage='rejected').count()
 
     #Agent Transactions
     total_agent_transaction_count = AgentTransactionSettlement.objects.count()
     successful_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='SUCCESSFUL').count()
-    failed_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='FAILED').count()
+    rejected_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='REJECTED').count()
     pending_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='PENDING').count()
 
     #User Transactions
     total_user_transaction_count = UserRefundTransaction.objects.count()
     refunded_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='REFUNDED').count()
-    cancelled_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='FAILED').count()
-    pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='CANCELLED').count()
+    rejected_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='REJECTED').count()
+    pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='PENDING').count()
 
     cards = {
         'total_bookings_count': total_bookings_count,
@@ -896,16 +896,16 @@ def dashboard_page(request):
         'successful_bookings':successful_bookings,
         'failed_bookings':failed_bookings,
         'refunded_bookings':refunded_bookings,
-        'active_agents':active_agents,
-        'inactive_agents':inactive_agents,
+        'pending_agents':pending_agents,
+        'approved_agents':approved_agents,
         'rejected_agents':rejected_agents,
         'total_agent_transaction_count':total_agent_transaction_count,
         'successful_agent_transaction_count':successful_agent_transaction_count,
-        'failed_agent_transaction_count':failed_agent_transaction_count,
+        'rejected_agent_transaction_count':rejected_agent_transaction_count,
         'pending_agent_transaction_count':pending_agent_transaction_count,
         'total_user_transaction_count':total_user_transaction_count,
         'refunded_user_transaction_count':refunded_user_transaction_count,
-        'cancelled_user_transaction_count':cancelled_user_transaction_count,
+        'rejected_user_transaction_count':rejected_user_transaction_count,
         'pending_user_transaction_count':pending_user_transaction_count
     }
 

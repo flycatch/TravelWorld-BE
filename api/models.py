@@ -132,8 +132,8 @@ class City(BaseModel):
         null=True, default=None, blank=True, verbose_name="Cover Image")
 
     class Meta:
-        verbose_name = 'City'
-        verbose_name_plural = 'Cities'
+        verbose_name = 'Destination'
+        verbose_name_plural = 'Destinations'
 
     def __str__(self):
         return self.name
@@ -210,7 +210,8 @@ class Activity(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    locations = models.ManyToManyField('Location', related_name='activity_location', blank=True)
+    locations = models.ManyToManyField('Location', related_name='activity_location', blank=True,
+                                       verbose_name='Destinations')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE,
         related_name='activity_category',
@@ -290,7 +291,8 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    locations = models.ManyToManyField(Location, related_name='package_location', blank=True)
+    locations = models.ManyToManyField(Location, related_name='package_location', blank=True,
+                                       verbose_name='Destinations')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='package_category')
     min_members = models.IntegerField(null=True, blank=True)

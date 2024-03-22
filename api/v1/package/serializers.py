@@ -41,6 +41,8 @@ class PackageSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
+        validated_data['deal_type'] = 'PACKAGE'
+
         package = Package.objects.create(**validated_data)
 
         for location_data in locations_data:
@@ -412,7 +414,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
         fields = ["id","package_uid","title","tour_class",
                   "agent","package_image","min_price",
                   "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour","locations"]
+                  "duration_night","duration_hour","locations", "deal_type"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()

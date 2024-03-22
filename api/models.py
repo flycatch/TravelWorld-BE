@@ -243,7 +243,12 @@ class Activity(BaseModel):
     )
     is_submitted = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
-
+    deal_type = models.CharField(
+            max_length=20,
+            choices=DEALTYPE_CHOICE,
+            default='ACTIVITY',
+            verbose_name='Deal Type'
+        )
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activity'
@@ -322,6 +327,12 @@ class Package(BaseModel):
 
     is_submitted = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
+    deal_type = models.CharField(
+            max_length=20,
+            choices=DEALTYPE_CHOICE,
+            default='PACKAGE',
+            verbose_name='Deal Type'
+        )
 
     class Meta:
         verbose_name = 'Package'

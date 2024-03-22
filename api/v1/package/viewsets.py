@@ -96,7 +96,7 @@ class PackageViewSet(viewsets.ModelViewSet):
         if instance.stage == 'rejected':
             serializer.save(stage="pending") 
         elif not instance.is_submitted:
-            serializer.save(is_submitted=True)  # Set is_submitted to True for final submission
+            serializer.save(is_submitted=True,stage="pending")  # Set is_submitted to True for final submission
         else:
             # Package already submitted, return message
             return Response({'id': instance.id, 

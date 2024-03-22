@@ -276,6 +276,7 @@ class Package(BaseModel):
         ('pending', _('Pending')),
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
+        ('in-progress', _('In-Progress')),
     ]
     TOUR_CLASS_CHOICE = [
         ('private', _('Private')),
@@ -321,7 +322,7 @@ class Package(BaseModel):
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
-        default='pending',
+        default='in-progress',
         verbose_name='Stage'
     )
 

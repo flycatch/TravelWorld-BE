@@ -1,4 +1,5 @@
 # views.py
+import itertools
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         ItineraryDay, Package, PackageCategory,
@@ -706,9 +707,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         packages = self.queryset_packages.filter(package_filter)
 
         # Combine the filtered querysets
-        queryset = list(activities) + list(packages)
-        
-        return queryset
+        queryset = itertools.chain(activities,packages)
+        return list(queryset)
     
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -717,13 +717,20 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         # Paginate the combined and filtered queryset manually
         page = self.paginate_queryset(filtered_queryset)
 
-        if bool(page):
-            # Determine serializer based on object type
-            if isinstance(page[0], Activity):
-                serializer = HomePageActivitySerializer(page, many=True)
-            elif isinstance(page[0], Package):
-                serializer = HomePagePackageSerializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        if page is not None:
+            print(page)
+            serialized_data = []
+            for obj in page:
+                # Determine serializer based on object type
+                if isinstance(obj, Activity):
+                    print('ACTIVITY')
+                    serializer = HomePageActivitySerializer(obj)
+                elif isinstance(obj, Package):
+                    print('PACKAGES')
+                    serializer = HomePagePackageSerializer(obj)
+                serialized_data.append(serializer.data)
+            return self.get_paginated_response(serialized_data)
+
         # Determine serializer based on object type for non-paginated response
         if filtered_queryset:
             if isinstance(filtered_queryset[0], Activity):

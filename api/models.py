@@ -496,7 +496,7 @@ class Currency(BaseModel):
         return self.name
 
 def default_blackout_dates():
-    return {'weeks': [], 'custom_date': []}
+    return {'weeks': [], 'custom_date': [], 'excluded_blackout_dates':[]}
 
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [

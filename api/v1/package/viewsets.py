@@ -668,6 +668,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
     def filter_queryset(self, queryset):
         # Apply additional filtering based on query parameters
+        search_query = self.request.query_params.get('search')
         state = self.request.query_params.get('state')
         city = self.request.query_params.get('city')
         category = self.request.query_params.get('category')
@@ -679,6 +680,14 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         # Define Q objects to build complex filter conditions
         activity_filter = Q()
         package_filter = Q()
+
+        if search_query:
+            activity_filter &= (Q(title__icontains=search_query) |
+                                Q(locations__state__name__icontains=search_query) |
+                                Q(locations__destinations__name__icontains=search_query))
+            package_filter &= (Q(title__icontains=search_query) |
+                               Q(locations__state__name__icontains=search_query) |
+                               Q(locations__destinations__name__icontains=search_query))
 
         if package_id:
             packages = self.queryset_packages.filter(pk=package_id)

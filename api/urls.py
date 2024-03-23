@@ -179,4 +179,6 @@ urlpatterns = [
     path('v1/activity/images/', ActivityImageUploadView.as_view(), name='activity-image-upload'),
     path('v1/activity/images/<int:pk>/', ActivityImageUploadView.as_view(), name='activity-image-delete'),
 
+    path('v1/user-ratings/', UserRatingsView.as_view(), name='user-rating'),
+
 ]

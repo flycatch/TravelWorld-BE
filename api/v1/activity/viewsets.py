@@ -2,8 +2,7 @@
 from api.filters.package_activity_filters import *
 from api.models import (Activity, ActivityCancellationPolicy, PackageCategory,
                          ActivityFaqQuestionAnswer, ActivityImage,
-                        ActivityInformations, ActivityItinerary,
-                        ActivityItineraryDay, ActivityPricing,
+                        ActivityInformations, ActivityItinerary, ActivityPricing,
                         ActivityTourCategory, Inclusions, Exclusions)
 from api.utils.paginator import CustomPagination
 from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
@@ -13,7 +12,6 @@ from api.v1.activity.serializers import (ActivityCancellationPolicySerializer,
                                          ActivityImageSerializer,
                                          ActivityInclusionsSerializer,
                                          ActivityInformationsSerializer,
-                                         ActivityItineraryDaySerializer,
                                          ActivityItinerarySerializer,
                                          ActivityPricingSerializer,
                                          ActivitySerializer,
@@ -238,13 +236,6 @@ class ActivityExclusionsViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class ActivityItineraryDayViewSet(viewsets.ModelViewSet):
-    queryset = ActivityItineraryDay.objects.all()
-    serializer_class = ActivityItineraryDaySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
-
 #Informations
 class ActivityInformationsViewSet(viewsets.ModelViewSet):
     serializer_class = ActivityInformationsSerializer
@@ -458,7 +449,7 @@ class ActivityHomePageView(generics.ListAPIView):
     
     
     def get_queryset(self):
-        queryset = Activity.objects.order_by("-id")
+        queryset = Activity.objects.filter(is_submitted=True, status='active', stage='approved').order_by("-id")
         return queryset
     
     def apply_additional_filters(self, queryset):

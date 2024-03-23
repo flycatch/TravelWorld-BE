@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
+from django_ckeditor_5.fields import CKEditor5Field
 from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
 
@@ -357,7 +358,7 @@ class Inclusions(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_package')
     activity = models.ForeignKey(
-        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
    
     class Meta:
@@ -384,7 +385,7 @@ class Exclusions(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
     activity = models.ForeignKey(
-        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
     
 
     class Meta:
@@ -405,31 +406,16 @@ class Exclusions(BaseModel):
             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
-class ItineraryDay(BaseModel):
-    # package = models.ForeignKey(
-    #     Package, on_delete=models.CASCADE, related_name='itinerardays')
-    day = models.CharField(max_length=255, default="")
-    place = models.CharField(max_length=255, default="", blank=True, null=True)
-    description = models.TextField(default="", blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Itinerary Day'
-        verbose_name_plural = 'Itinerary Day'
-
-    def __str__(self):
-        return f"\n Day : {self.day} - {self.place} : {self.description}"
-
-
 class Itinerary(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='itinerary_package')
-    overview = models.TextField(blank=True, default="")
+    overview = CKEditor5Field('Overview', config_name='extends', null=True, blank=True,)
     important_message = models.TextField(blank=True, default="",
                                          verbose_name="important Message")
     things_to_carry = models.TextField(blank=True, default="",
                                          verbose_name="Things to carry")
-    itinerary_day = models.ManyToManyField(
-        ItineraryDay, related_name='itinerary_itinerary_day')
+    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
+    
     inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
     exclusions = models.ManyToManyField(Exclusions, related_name='itinerary_exclusions', blank=True)
 
@@ -931,100 +917,86 @@ class ActivityImage(BaseModel):
         return f"Image for {self.activity.title}"
 
 
-class ActivityInclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
+# class ActivityInclusions(BaseModel):
+#     # STAGES_CHOICES = [
+#     #     ('pending', _('Pending')),
+#     #     ('approved', _('Approved')),
+#     #     ('rejected', _('Rejected')),
+#     # ]
 
-    name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
+#     name = models.CharField(max_length=255, unique=True)
+#     # stage = models.CharField(
+#     #     max_length=20,
+#     #     choices=STAGES_CHOICES,
+#     #     default='pending',
+#     #     verbose_name='Stage'
+#     # )
+#     activity = models.ForeignKey(
+#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
 
-    class Meta:
-        verbose_name = 'Activity Inclusions'
-        verbose_name_plural = 'Activity Inclusions'
+#     class Meta:
+#         verbose_name = 'Activity Inclusions'
+#         verbose_name_plural = 'Activity Inclusions'
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    def clean(self):
-        # Check for uniqueness of country name (case-insensitive)
-        inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-        if inclusion.exists():
-            raise ValidationError({'name': f'{self.name} already exists.'})
+#     def clean(self):
+#         # Check for uniqueness of country name (case-insensitive)
+#         inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+#         if inclusion.exists():
+#             raise ValidationError({'name': f'{self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError(
-                {'name': _('Inclusions name should contain only alphabetic characters.')})
+#         # Check if the name contains only alphabetic characters
+#         if not self.name.replace(' ', '').isalpha():
+#             raise ValidationError(
+#                 {'name': _('Inclusions name should contain only alphabetic characters.')})
 
 
-class ActivityExclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
-    name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+# class ActivityExclusions(BaseModel):
+#     # STAGES_CHOICES = [
+#     #     ('pending', _('Pending')),
+#     #     ('approved', _('Approved')),
+#     #     ('rejected', _('Rejected')),
+#     # ]
+#     name = models.CharField(max_length=255, unique=True)
+#     # stage = models.CharField(
+#     #     max_length=20,
+#     #     choices=STAGES_CHOICES,
+#     #     default='pending',
+#     #     verbose_name='Stage'
+#     # )
+#     activity = models.ForeignKey(
+#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
     
 
-    class Meta:
-        verbose_name = 'Activity Exclusions'
-        verbose_name_plural = 'Activity Exclusions'
+#     class Meta:
+#         verbose_name = 'Activity Exclusions'
+#         verbose_name_plural = 'Activity Exclusions'
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    def clean(self):
-        # Check for uniqueness of country name (case-insensitive)
-        exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-        if exclusion.exists():
-            raise ValidationError({'name': f'{self.name} already exists.'})
+#     def clean(self):
+#         # Check for uniqueness of country name (case-insensitive)
+#         exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+#         if exclusion.exists():
+#             raise ValidationError({'name': f'{self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
-
-
-class ActivityItineraryDay(BaseModel):
-    day = models.CharField(max_length=255, default="")
-    place = models.CharField(max_length=255, default="", blank=True, null=True)
-    description = models.TextField(default="", blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Itinerary Day'
-        verbose_name_plural = 'Itinerary Day'
-
-    def __str__(self):
-        return f"\n Day : {self.day} - {self.place} : {self.description}"
+#         # Check if the name contains only alphabetic characters
+#         if not self.name.replace(' ', '').isalpha():
+#             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
 class ActivityItinerary(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activity_itinerary_activity')
-    overview = models.TextField(blank=True, default="")
+    overview = CKEditor5Field('Overview', config_name='extends', null=True, blank=True,)
     important_message = models.TextField(blank=True, default="",
                                          verbose_name="important Message")
     things_to_carry = models.TextField(blank=True, default="",
                                          verbose_name="Things to carry")
-    itinerary_day = models.ManyToManyField(
-        ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
+    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
     inclusions = models.ManyToManyField(Inclusions, related_name='activity_itinerary_inclusions', blank=True)
     exclusions = models.ManyToManyField(Exclusions, related_name='activity_itinerary_exclusions', blank=True)
 

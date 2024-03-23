@@ -1,6 +1,20 @@
 {% load i18n jazzmin %}
 {% get_jazzmin_ui_tweaks as jazzmin_ui %}
 
+<head>
+    <style>
+        .delete-btn {
+            background-color: #ffffff;
+            border: 1px solid #c0c0c0;
+            border-radius: 4px;
+            margin-right: 5px;
+            width: 150px;
+            font-size: 17px;
+            color: #4b4b4b;
+        }
+    </style>
+</head>
+
 <div class="actions">
     {% block actions %}
         <div style="display: none;">
@@ -10,7 +24,7 @@
         </div>
 
         {% block actions-submit %}
-            <button type="submit" class="btn {{ jazzmin_ui.button_classes.danger }}" style="margin-right: 5px; width: 150px; font-size: 20px;" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
+            <button type="submit" class="delete-btn" title="{% trans "Run the selected action" %}" name="index" value="{{ action_index|default:0 }}">
                 {% trans "Delete" %}
             </button>
         {% endblock %}

@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
-from api.models import (Package, Itinerary, ItineraryDay, PackageInformations, Pricing,
+from api.models import (Package, Itinerary, PackageInformations, Pricing,
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions, Location,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory)
@@ -23,7 +23,7 @@ class PackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        exclude = ['status', 'is_submitted', 'is_popular']
+        exclude = ['status', 'is_popular', "deal_type"]
 
     def validate(self, data):
         min_members = data.get('min_members')
@@ -41,6 +41,7 @@ class PackageSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
+
         package = Package.objects.create(**validated_data)
 
         for location_data in locations_data:
@@ -93,36 +94,18 @@ class PackageImageSerializer(serializers.ModelSerializer):
         exclude = ['status', 'created_on', 'updated_on',]
 
 
-class ItineraryDaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ItineraryDay
-        exclude = ['status', 'created_on', 'updated_on']
-
-
 class ItinerarySerializer(serializers.ModelSerializer):
-    itinerary_day = ItineraryDaySerializer(many=True)
 
     class Meta:
         model = Itinerary
         exclude = ['status', 'created_on', 'updated_on']
 
     def create(self, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day')
         inclusions_data = validated_data.pop('inclusions', [])
         exclusions_data = validated_data.pop('exclusions', [])
 
         try:
             itinerary = Itinerary.objects.create(**validated_data)
-
-            for day_data in itinerary_day_data:
-                try:
-                    itinerary_day_obj = ItineraryDay.objects.create(**day_data)
-                    itinerary.itinerary_day.add(itinerary_day_obj)
-                except Exception as error:
-                    # Rollback the transaction if an exception occurs
-                    itinerary.delete()
-                    raise ValidationError(f"Error creating ItineraryDay: {error}")
-
             itinerary.inclusions.set(inclusions_data)
             itinerary.exclusions.set(exclusions_data)
         except Exception as error:
@@ -131,7 +114,6 @@ class ItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day', None)
         inclusions_data = validated_data.pop('inclusions', None)
         exclusions_data = validated_data.pop('exclusions', None)
 
@@ -139,16 +121,6 @@ class ItinerarySerializer(serializers.ModelSerializer):
         instance.overview = validated_data.get('overview', instance.overview)
         instance.important_message = validated_data.get('important_message', instance.important_message)
         instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
-
-        # Update or create itinerary day objects using id if data provided
-        if itinerary_day_data is not None:
-            for itinerary_day in instance.itinerary_day.all():
-                itinerary_day_id = itinerary_day.id
-                for day_data in itinerary_day_data:
-                    day_serializer = ItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
-                    day_serializer.is_valid(raise_exception=True)
-                    day_instance = day_serializer.save()
-                    instance.itinerary_day.add(day_instance)
 
         # Update inclusions if data provided
         if inclusions_data is not None:
@@ -412,7 +384,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
         fields = ["id","package_uid","title","tour_class",
                   "agent","package_image","min_price",
                   "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour","locations"]
+                  "duration_night","duration_hour","locations", "deal_type"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()

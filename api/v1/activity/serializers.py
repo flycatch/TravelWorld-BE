@@ -134,11 +134,13 @@ class ActivityExclusionsSerializer(serializers.ModelSerializer):
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    name = serializers.CharField(source='inclusion.name', read_only=True, required=False)
+
     # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
 
     class Meta:
         model = ActivityInclusionInformation
-        fields = ['id', 'inclusion', 'details',]
+        fields = ['id', 'inclusion', 'name', 'details',]
 
 
 class ActivityExclusionInformationSerializer(serializers.ModelSerializer):

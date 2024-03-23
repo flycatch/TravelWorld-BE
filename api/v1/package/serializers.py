@@ -148,11 +148,12 @@ class ExclusionsSerializer(serializers.ModelSerializer):
 
 class InclusionInformationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    name = serializers.CharField(source='inclusion.name', read_only=True, required=False)
     # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
 
     class Meta:
         model = InclusionInformation
-        fields = ['id', 'inclusion', 'details',]
+        fields = ['id', 'inclusion', 'name', 'details',]
 
 
 class ExclusionInformationSerializer(serializers.ModelSerializer):

@@ -1096,7 +1096,7 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(ContactPerson)
 admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
-# admin.site.register(ActivityImage)
+admin.site.register(Itinerary)
 
 
 

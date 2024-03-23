@@ -4,7 +4,7 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
-from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, ActivityPricing,
+from api.models import (Activity, ActivityItinerary, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
                         ActivityImage, PackageCategory, Inclusions, Exclusions, Location,
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
@@ -80,36 +80,18 @@ class ActivityImageSerializer(serializers.ModelSerializer):
         exclude = ['status', 'created_on', 'updated_on',]
 
 
-class ActivityItineraryDaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ActivityItineraryDay
-        exclude = ['status', 'created_on', 'updated_on']
-
-
 class ActivityItinerarySerializer(serializers.ModelSerializer):
-    itinerary_day = ActivityItineraryDaySerializer(many=True)
 
     class Meta:
         model = ActivityItinerary
         exclude = ['status', 'created_on', 'updated_on']
 
     def create(self, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day')
         inclusions_data = validated_data.pop('inclusions', [])
         exclusions_data = validated_data.pop('exclusions', [])
 
         try:
             itinerary = ActivityItinerary.objects.create(**validated_data)
-
-            for day_data in itinerary_day_data:
-                try:
-                    itinerary_day_obj = ActivityItineraryDay.objects.create(**day_data)
-                    itinerary.itinerary_day.add(itinerary_day_obj)
-                except Exception as error:
-                    # Rollback the transaction if an exception occurs
-                    itinerary.delete()
-                    raise ValidationError(f"Error creating ItineraryDay: {error}")
-
             itinerary.inclusions.set(inclusions_data)
             itinerary.exclusions.set(exclusions_data)
         except Exception as error:
@@ -118,7 +100,6 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day', None)
         inclusions_data = validated_data.pop('inclusions', None)
         exclusions_data = validated_data.pop('exclusions', None)
 
@@ -126,16 +107,6 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
         instance.overview = validated_data.get('overview', instance.overview)
         instance.important_message = validated_data.get('important_message', instance.important_message)
         instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
-
-        # Update or create itinerary day objects using id if data provided
-        if itinerary_day_data is not None:
-            for itinerary_day in instance.itinerary_day.all():
-                itinerary_day_id = itinerary_day.id
-                for day_data in itinerary_day_data:
-                    day_serializer = ActivityItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
-                    day_serializer.is_valid(raise_exception=True)
-                    day_instance = day_serializer.save()
-                    instance.itinerary_day.add(day_instance)
 
         # Update inclusions if data provided
         if inclusions_data is not None:

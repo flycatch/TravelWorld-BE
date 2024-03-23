@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
                                      HomePageDestinationViewSet, HomePageStateViewSet)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
-from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, ItineraryDayViewSet,
+from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
@@ -13,7 +13,7 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      HomePageProductsViewSet,
                                     #  HomePageActivityViewSet, HomePagePackageViewSet
                                      )
-from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
+from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
                                      ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet, ActivityHomePageView,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
@@ -59,7 +59,6 @@ router.register(r'home/state', HomePageStateViewSet, basename='HomePage-destinat
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
-router.register(r'package/itineraryday', ItineraryDayViewSet, basename='itinerary-day')
 
 #inclusions and exclusions
 router.register(r'package/inclusions', InclusionsViewSet, basename='inclusions')
@@ -86,7 +85,6 @@ router.register(r'activity/category', ActivityCategoryViewSet, basename='activit
 
 # Itinerary
 router.register(r'activity/itinerary', ActivityItineraryViewSet, basename='activity_itinerary')
-router.register(r'activity/itineraryday', ActivityItineraryDayViewSet, basename='activity_itinerary-day')
 
 #inclusions and exclusions
 router.register(r'activity/inclusions', ActivityInclusionsViewSet, basename='activity_inclusions')

@@ -513,19 +513,22 @@ class Pricing(BaseModel):
     adults_rate = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     adults_commission = models.DecimalField(
-        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True,)
     adults_agent_amount = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     child_rate = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     child_commission = models.DecimalField(
-        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True)
     child_agent_amount = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     infant_rate = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     infant_commission = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0,  max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True)
     infant_agent_amount = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.DecimalField(
@@ -601,11 +604,11 @@ class CancellationPolicy(BaseModel):
         for category in categories:
             if category.to_day == 0:
                 category_info.append(
-                    f"<tr><td style='padding-right: 150px;'>If cancelled before<strong> {category.from_day} </strong>Days :</td><td><strong>{category.amount_percent} %</strong></td></tr>"
+                    f"<tr><td><ul><li>If cancelled before<strong> {category.from_day} </strong>Days, Refund amount <strong>{category.amount_percent} %.</strong></li></ul></td></tr>"
                     )
             else:
                 category_info.append(
-                    f"<tr><td style='padding-right: 150px;'>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days : </td><td> Rate <strong> {category.amount_percent} %</strong></td></tr>"
+                    f"<tr><td><ul><li>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days, Refund amount <strong> {category.amount_percent} %.</strong></li></ul></td></tr>"
                 )
         # Join the category info strings into a single string separated by newlines
         return '<table>' + ''.join(category_info) + '</table>'

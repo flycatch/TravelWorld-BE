@@ -141,6 +141,15 @@ class ActivityAdmin(CustomModelAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
+
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
@@ -242,6 +251,15 @@ class PackageAdmin(CustomModelAdmin):
         PricingInline, CancellationPolicyInline, 
         PackageFaqQuestionAnswerInline,
         ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit

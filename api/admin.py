@@ -662,7 +662,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',),
                     }),
                 )
             else:
@@ -670,7 +673,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',)
                     }),
                 )
         else:  # Add page

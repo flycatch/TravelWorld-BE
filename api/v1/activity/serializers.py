@@ -446,7 +446,7 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ["id","activity_uid","title","tour_class",
-                  "locations","agent","activity_image","min_price",
+                  "locations","agent","activity_image","min_price", "category",
                   "total_reviews","average_review_rating","duration","duration_day",
                   "duration_night","duration_hour", "deal_type"]
         

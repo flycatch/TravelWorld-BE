@@ -668,6 +668,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
     def filter_queryset(self, queryset):
         # Apply additional filtering based on query parameters
+        search_query = self.request.query_params.get('search')
         state = self.request.query_params.get('state')
         city = self.request.query_params.get('city')
         category = self.request.query_params.get('category')
@@ -676,9 +677,20 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         package_id = self.request.query_params.get('package')
         activity_id = self.request.query_params.get('activity')
 
+        price_range_min = self.request.query_params.get('price_range_min')
+        price_range_max = self.request.query_params.get('price_range_max')
+
         # Define Q objects to build complex filter conditions
         activity_filter = Q()
         package_filter = Q()
+
+        if search_query:
+            activity_filter &= (Q(title__icontains=search_query) |
+                                Q(locations__state__name__icontains=search_query) |
+                                Q(locations__destinations__name__icontains=search_query))
+            package_filter &= (Q(title__icontains=search_query) |
+                               Q(locations__state__name__icontains=search_query) |
+                               Q(locations__destinations__name__icontains=search_query))
 
         if package_id:
             packages = self.queryset_packages.filter(pk=package_id)
@@ -701,6 +713,13 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if is_popular:
             activity_filter &= Q(is_popular=True)
             package_filter &= Q(is_popular=True)
+
+        if price_range_min is not None and price_range_max is not None:
+            activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
+            & Q(pricing_activity__adults_rate__lte=price_range_max)
+            package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
+            & Q(pricing_package__adults_rate__lte=price_range_max)
+
 
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)

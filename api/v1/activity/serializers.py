@@ -362,7 +362,7 @@ class ActivityCancellationPolicySerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = ActivityCancellationCategory.objects.get_or_create(**data)
+                category_instance, _ = ActivityCancellationCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 
@@ -407,7 +407,7 @@ class ActivityFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = ActivityFaqCategory.objects.get_or_create(**data)
+                category_instance, _ = ActivityFaqCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 

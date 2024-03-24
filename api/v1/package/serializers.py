@@ -313,7 +313,7 @@ class PackageCancellationPolicySerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = PackageCancellationCategory.objects.get_or_create(**data)
+                category_instance, _ = PackageCancellationCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 
@@ -359,7 +359,7 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = PackageFaqCategory.objects.get_or_create(**data)
+                category_instance, _ = PackageFaqCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 

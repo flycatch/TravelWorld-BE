@@ -141,6 +141,15 @@ class ActivityAdmin(CustomModelAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
+
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
@@ -242,6 +251,15 @@ class PackageAdmin(CustomModelAdmin):
         PricingInline, CancellationPolicyInline, 
         PackageFaqQuestionAnswerInline,
         ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
@@ -662,7 +680,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',),
                     }),
                 )
             else:
@@ -670,7 +691,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',)
                     }),
                 )
         else:  # Add page
@@ -706,7 +730,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             return formatted_policies
         return None
     
-    cancellation_policies.short_description = "Cancellation Policies"
+    cancellation_policies.short_description = ''
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
@@ -1058,9 +1082,9 @@ class CoverPageInputAdmin(CustomModelAdmin):
         ('Cover Images', {
             'fields': ("activity_image", "package_image", "attraction_image")
         }),
-        ('Filters', {
-            'fields': ('price_min','price_max')
-        }),
+        # ('Filters', {
+        #     'fields': ('price_min','price_max')
+        # }),
     )
 
     def has_add_permission(self, request):

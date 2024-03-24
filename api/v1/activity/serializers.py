@@ -134,11 +134,13 @@ class ActivityExclusionsSerializer(serializers.ModelSerializer):
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    name = serializers.CharField(source='inclusion.name', read_only=True, required=False)
+
     # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
 
     class Meta:
         model = ActivityInclusionInformation
-        fields = ['id', 'inclusion', 'details',]
+        fields = ['id', 'inclusion', 'name', 'details',]
 
 
 class ActivityExclusionInformationSerializer(serializers.ModelSerializer):
@@ -444,7 +446,7 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = ["id","activity_uid","title","tour_class",
-                  "locations","agent","activity_image","min_price",
+                  "locations","agent","activity_image","min_price", "category",
                   "total_reviews","average_review_rating","duration","duration_day",
                   "duration_night","duration_hour", "deal_type"]
         

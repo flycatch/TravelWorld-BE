@@ -1,3 +1,4 @@
+from django.utils.html import strip_tags
 from django.contrib import admin
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from api.models import (Itinerary, Pricing, UserReviewImage,
@@ -77,6 +78,19 @@ class AttractionImageInline(admin.TabularInline):
 
 class ItineraryInline(CustomStackedInline):
     model = Itinerary
+    exclude = ['overview', 'description', 'status']
+
+    def overview_display(self, instance):
+        """Custom method to display overview without HTML tags"""
+        return strip_tags(instance.overview)
+    overview_display.short_description = 'Overview'
+
+    def description_display(self, instance):
+        """Custom method to display description without HTML tags"""
+        return strip_tags(instance.description)
+    description_display.short_description = 'Description'
+
+    readonly_fields = ('overview_display', 'description_display', 'important_message')
 
 
 class PackageInformationsInline(CustomStackedInline):
@@ -123,6 +137,19 @@ class ActivityItineraryInline(CustomStackedInline):
     model = ActivityItinerary
     verbose_name = 'Itinerary'
     verbose_name_plural = 'Itinerary'
+    exclude = ['overview', 'description', 'status']
+
+    def overview_display(self, instance):
+        """Custom method to display overview without HTML tags"""
+        return strip_tags(instance.overview)
+    overview_display.short_description = 'Overview'
+
+    def description_display(self, instance):
+        """Custom method to display description without HTML tags"""
+        return strip_tags(instance.description)
+    description_display.short_description = 'Description'
+
+    readonly_fields = ('overview_display', 'description_display', 'important_message')
 
 
 class ActivityInformationsInline(CustomStackedInline):

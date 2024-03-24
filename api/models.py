@@ -191,6 +191,7 @@ class Activity(BaseModel):
         ('pending', _('Pending')),
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
+        ('in-progress', _('In-Progress')),
     ]
     TOUR_CLASS_CHOICE = [
         ('private', _('Private')),

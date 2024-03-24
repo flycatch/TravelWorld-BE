@@ -94,11 +94,29 @@ class PackageImageSerializer(serializers.ModelSerializer):
         exclude = ['status', 'created_on', 'updated_on',]
 
 
+class InclusionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inclusions
+        fields = ['id', 'name']
+
+
+class ExclusionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Exclusions
+        fields = ['id', 'name']
+
+
 class ItinerarySerializer(serializers.ModelSerializer):
+    exclusions_details = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = Itinerary
         exclude = ['status', 'created_on', 'updated_on']
+
+    def get_exclusions_details(self, obj):
+        exclusions = obj.exclusions.all()
+        serializer = ExclusionsSerializer(exclusions, many=True)
+        return serializer.data
 
     def create(self, validated_data):
         inclusions_data = validated_data.pop('inclusions', [])
@@ -134,25 +152,14 @@ class ItinerarySerializer(serializers.ModelSerializer):
         return instance
 
 
-class InclusionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Inclusions
-        fields = ['id', 'name']
-
-
-class ExclusionsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Exclusions
-        fields = ['id', 'name']
-
-
 class InclusionInformationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    name = serializers.CharField(source='inclusion.name', read_only=True, required=False)
     # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
 
     class Meta:
         model = InclusionInformation
-        fields = ['id', 'inclusion', 'details',]
+        fields = ['id', 'inclusion', 'name', 'details',]
 
 
 class ExclusionInformationSerializer(serializers.ModelSerializer):
@@ -382,7 +389,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class",
-                  "agent","package_image","min_price",
+                  "agent","package_image","min_price", "category",
                   "total_reviews","average_review_rating","duration","duration_day",
                   "duration_night","duration_hour","locations", "deal_type"]
         

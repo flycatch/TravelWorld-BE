@@ -127,6 +127,9 @@ class PricingInline(CustomStackedInline):
                 formatted_blackout_dates.append(f"Excluded Dates: {', '.join(blackout_data['excluded_blackout_dates'])}")
         return '\n'.join(formatted_blackout_dates)
 
+    get_blackout_dates.short_description = 'Blackout Dates'
+
+
 
     
 

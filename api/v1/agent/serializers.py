@@ -118,4 +118,4 @@ class BookingAgentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Agent
-        fields = ["id","agent_uid","username",'agent_name',"phone","email"]
+        fields = ["id","agent_uid","username",'agent_name',"phone","email", "profile_image"]

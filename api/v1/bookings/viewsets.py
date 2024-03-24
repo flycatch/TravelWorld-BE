@@ -281,6 +281,7 @@ class CustomerBookingDetailsView(APIView):
                 
 
                 return Response({"message":"Booking created successfully",
+                                 "object_id":instance.object_id,
                                 "status": "success",
                                 "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
 

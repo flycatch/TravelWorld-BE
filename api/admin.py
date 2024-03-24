@@ -730,7 +730,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             return formatted_policies
         return None
     
-    cancellation_policies.short_description = "Cancellation Policies"
+    cancellation_policies.short_description = ''
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     

@@ -19,7 +19,8 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
-                                        PricingSerializer,HomePagePackageSerializer,)
+                                        PricingSerializer,HomePagePackageSerializer,
+                                        HomePageCategorySerializer)
 from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
 from django.db.models import Q
 from django.db import transaction
@@ -745,3 +746,9 @@ class SearchSuggestionAPIView(APIView):
         suggestions = {'results': sorted_values}
 
         return JsonResponse(suggestions)
+
+
+class HomePageCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PackageCategory.objects.all()
+    serializer_class = HomePageCategorySerializer
+    pagination_class = CustomPagination

@@ -134,10 +134,10 @@ class ActivityAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'is_popular', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string', 'locations')
+                       'drop_point', 'drop_time_string', 'locations', 'is_popular')
         }),
     )
 
@@ -239,10 +239,10 @@ class PackageAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'is_popular', 'package_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'package_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string', "locations")
+                       'drop_point', 'drop_time_string', "locations", 'is_popular')
         }),
     )
     

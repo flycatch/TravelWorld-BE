@@ -732,13 +732,13 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 class SearchSuggestionAPIView(APIView):
     def get(self, request):
         # Get distinct values for title, destinations, and state for both Package and Activity
-        package_values = Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct()
-        activity_values = Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct()
+        package_values = set(Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
+        activity_values = set(Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
 
-        # Combine all the distinct values into a single list and exclude None values
-        all_values = list(filter(None, chain.from_iterable(package_values))) + list(filter(None, chain.from_iterable(activity_values)))
+        # Combine all the distinct values into a single set and exclude None values
+        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(None, chain.from_iterable(activity_values)))
 
-        # Sort the combined list by length
+        # Sort the combined set by length
         sorted_values = sorted(all_values, key=len)
 
         # Return the sorted list

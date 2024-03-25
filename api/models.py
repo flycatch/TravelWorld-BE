@@ -84,10 +84,10 @@ class Country(BaseModel):
         if country.exists():
             raise ValidationError({'name': f'Country with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('Country name should contain only alphabetic characters.')})
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class State(BaseModel):
@@ -116,11 +116,10 @@ class State(BaseModel):
         if state.exists():
             raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
 
-        # # Check if the name contains only alphabetic characters
-        # if not self.name.replace(' ', '').isalpha():
-        #     raise ValidationError(
-        #         {'name': _('State name should contain only alphabetic characters.')})
-
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
+            raise ValidationError(
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 class City(BaseModel):
     name = models.CharField(max_length=255)
@@ -147,10 +146,10 @@ class City(BaseModel):
         if city.exists():
             raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
 
-        # # Check if the name contains only alphabetic characters
-        # if not self.name.replace(' ', '').isalpha():
-        #     raise ValidationError(
-        #         {'name': _('City name should contain only alphabetic characters.')})
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
+            raise ValidationError(
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class PackageCategory(BaseModel):

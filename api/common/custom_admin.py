@@ -98,7 +98,7 @@ class PackageInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
-    template = 'admin/fieldset.html'
+    template = 'admin/information_tab.html'
 
 class PricingInline(CustomStackedInline):
     model = Pricing
@@ -175,7 +175,7 @@ class ActivityInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
-    template = 'admin/fieldset.html'
+    template = 'admin/information_tab.html'
 
 class ActivityPricingInline(CustomStackedInline):
 

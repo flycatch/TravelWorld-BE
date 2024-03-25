@@ -84,10 +84,10 @@ class Country(BaseModel):
         if country.exists():
             raise ValidationError({'name': f'Country with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('Country name should contain only alphabetic characters.')})
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class State(BaseModel):
@@ -100,6 +100,7 @@ class State(BaseModel):
     cover_img = models.ImageField(
         upload_to='state/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
         verbose_name = 'State'
@@ -115,11 +116,10 @@ class State(BaseModel):
         if state.exists():
             raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('State name should contain only alphabetic characters.')})
-
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 class City(BaseModel):
     name = models.CharField(max_length=255)
@@ -131,6 +131,7 @@ class City(BaseModel):
     cover_img = models.ImageField(
         upload_to='city/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
         verbose_name = 'Destination'
@@ -145,10 +146,10 @@ class City(BaseModel):
         if city.exists():
             raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('City name should contain only alphabetic characters.')})
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class PackageCategory(BaseModel):
@@ -159,6 +160,7 @@ class PackageCategory(BaseModel):
     cover_img = models.ImageField(
         upload_to='package/category/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
         verbose_name = 'Tour Category'
@@ -244,7 +246,7 @@ class Activity(BaseModel):
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)
-    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
     deal_type = models.CharField(
             max_length=20,
             choices=DEALTYPE_CHOICE,
@@ -329,7 +331,7 @@ class Package(BaseModel):
     )
 
     is_submitted = models.BooleanField(default=False)
-    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
     deal_type = models.CharField(
             max_length=20,
             choices=DEALTYPE_CHOICE,
@@ -830,7 +832,7 @@ class Attraction(BaseModel):
         null=True, blank=True)
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='attraction_state',
-        null=True, blank=True)
+        null=True, blank=True, verbose_name="Destinations")
     thumb_img = models.ImageField(
         upload_to='attraction/thumb_images/', 
         null=True, default=None, blank=True, verbose_name="Thumb Image")

@@ -19,7 +19,7 @@ from TravelWorld.settings import *
 from django.shortcuts import get_object_or_404
 from api.filters.review_filters import ReviewFilter
 from django.utils import timezone
-from django.db.models import Q,Count
+from django.db.models import Q,Count,Avg
 
 
 
@@ -290,7 +290,8 @@ class UserRatingsView(APIView):
                 rating_4=Count('id', filter=Q(rating=4)),
                 rating_3=Count('id', filter=Q(rating=3)),
                 rating_2=Count('id', filter=Q(rating=2)),
-                rating_1=Count('id', filter=Q(rating=1))
+                rating_1=Count('id', filter=Q(rating=1)),
+                rating_avg = Avg('rating')
             )
 
             results = {
@@ -299,7 +300,8 @@ class UserRatingsView(APIView):
                 "rating_4_count": total_reviews['rating_4'],
                 "rating_3_count": total_reviews['rating_3'],
                 "rating_2_count": total_reviews['rating_2'],
-                "rating_1_count": total_reviews['rating_1']
+                "rating_1_count": total_reviews['rating_1'],
+                "rating_avg": total_reviews['rating_avg']
             }
 
             return Response({

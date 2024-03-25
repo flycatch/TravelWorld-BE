@@ -1,5 +1,6 @@
 from api.models import (Package, Activity)
 from django_filters import rest_framework as django_filters
+from django.db.models import Q
 
 
 class PackageFilter(django_filters.FilterSet):
@@ -17,9 +18,9 @@ class PackageFilter(django_filters.FilterSet):
 
     def filter_by_duration(self, queryset, name, value):
         if value == 'full_day':
-            return queryset.filter(duration='day', duration_day=1, duration_night=1)
+            return queryset.filter(Q(duration='day', duration_day=1, duration_night=1)| Q(duration='hour', duration_hour__gt=12))
         elif value == 'multi_day':
-            return queryset.filter(duration='day', duration_day__gt=1, duration_night__gt=1)
+            return queryset.filter(Q(duration='day', duration_day__gt=1, duration_night__gt=1)| Q(duration='hour', duration_hour__gt=24))
         elif value == 'half_day':
             return queryset.filter(duration='hour',duration_hour__lte=12)
         return queryset
@@ -39,9 +40,9 @@ class ActivityFilter(django_filters.FilterSet):
 
     def filter_by_duration(self, queryset, name, value):
         if value == 'full_day':
-            return queryset.filter(duration='day', duration_day=1, duration_night=1)
+            return queryset.filter(Q(duration='day', duration_day=1, duration_night=1)| Q(duration='hour', duration_hour__gt=12))
         elif value == 'multi_day':
-            return queryset.filter(duration='day', duration_day__gt=1, duration_night__gt=1)
+            return queryset.filter(Q(duration='day', duration_day__gt=1, duration_night__gt=1)| Q(duration='hour', duration_hour__gt=24))
         elif value == 'half_day':
             return queryset.filter(duration='hour',duration_hour__lte=12)
         return queryset

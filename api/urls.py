@@ -10,8 +10,7 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     HomePageProductsViewSet, SearchSuggestionAPIView,
-                                    #  HomePageActivityViewSet, HomePagePackageViewSet
+                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet
                                      )
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
@@ -56,6 +55,7 @@ router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-pr
 # router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
 router.register(r'home/destinations', HomePageDestinationViewSet, basename='HomePage-destinations'),
 router.register(r'home/state', HomePageStateViewSet, basename='HomePage-destinations'),
+router.register(r'home/categories', HomePageCategoryViewSet, basename='HomePage-categories'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')

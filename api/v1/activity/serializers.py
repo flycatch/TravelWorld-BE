@@ -4,12 +4,13 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
-from api.models import (Activity, ActivityItinerary, ActivityItineraryDay, ActivityInformations, ActivityPricing,
+from api.models import (Activity, ActivityItinerary, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
                         ActivityImage, PackageCategory, Inclusions, Exclusions, Location,
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
+from django.db.models import Avg
 
 
 class ActivitySerializer(serializers.ModelSerializer):
@@ -19,7 +20,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        exclude = ['status', 'is_submitted', 'is_popular']
+        exclude = ['status', 'is_submitted', 'is_popular', "deal_type"]
 
     def validate(self, data):
         min_members = data.get('min_members')
@@ -37,6 +38,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
+
         activity = Activity.objects.create(**validated_data)
 
         for location_data in locations_data:
@@ -78,36 +80,18 @@ class ActivityImageSerializer(serializers.ModelSerializer):
         exclude = ['status', 'created_on', 'updated_on',]
 
 
-class ActivityItineraryDaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ActivityItineraryDay
-        exclude = ['status', 'created_on', 'updated_on']
-
-
 class ActivityItinerarySerializer(serializers.ModelSerializer):
-    itinerary_day = ActivityItineraryDaySerializer(many=True)
 
     class Meta:
         model = ActivityItinerary
         exclude = ['status', 'created_on', 'updated_on']
 
     def create(self, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day')
         inclusions_data = validated_data.pop('inclusions', [])
         exclusions_data = validated_data.pop('exclusions', [])
 
         try:
             itinerary = ActivityItinerary.objects.create(**validated_data)
-
-            for day_data in itinerary_day_data:
-                try:
-                    itinerary_day_obj = ActivityItineraryDay.objects.create(**day_data)
-                    itinerary.itinerary_day.add(itinerary_day_obj)
-                except Exception as error:
-                    # Rollback the transaction if an exception occurs
-                    itinerary.delete()
-                    raise ValidationError(f"Error creating ItineraryDay: {error}")
-
             itinerary.inclusions.set(inclusions_data)
             itinerary.exclusions.set(exclusions_data)
         except Exception as error:
@@ -116,22 +100,13 @@ class ActivityItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        itinerary_day_data = validated_data.pop('itinerary_day', None)
         inclusions_data = validated_data.pop('inclusions', None)
         exclusions_data = validated_data.pop('exclusions', None)
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
-
-        # Update or create itinerary day objects using id if data provided
-        if itinerary_day_data is not None:
-            for itinerary_day in instance.itinerary_day.all():
-                itinerary_day_id = itinerary_day.id
-                for day_data in itinerary_day_data:
-                    day_serializer = ActivityItineraryDaySerializer(instance=itinerary_day, data=day_data, partial=True)
-                    day_serializer.is_valid(raise_exception=True)
-                    day_instance = day_serializer.save()
-                    instance.itinerary_day.add(day_instance)
+        instance.important_message = validated_data.get('important_message', instance.important_message)
+        instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
 
         # Update inclusions if data provided
         if inclusions_data is not None:
@@ -159,11 +134,13 @@ class ActivityExclusionsSerializer(serializers.ModelSerializer):
 
 class ActivityInclusionInformationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    name = serializers.CharField(source='inclusion.name', read_only=True, required=False)
+
     # inclusion = serializers.PrimaryKeyRelatedField(queryset=Inclusions.objects.all(), required=False)
 
     class Meta:
         model = ActivityInclusionInformation
-        fields = ['id', 'inclusion', 'details',]
+        fields = ['id', 'inclusion', 'name', 'details',]
 
 
 class ActivityExclusionInformationSerializer(serializers.ModelSerializer):
@@ -205,8 +182,6 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         inclusion_details_data = validated_data.pop('inclusiondetails', [])
-
-        instance.important_message = validated_data.get('important_message', instance.important_message)
 
         if inclusion_details_data:
             # Update or create inclusion details
@@ -387,7 +362,7 @@ class ActivityCancellationPolicySerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = ActivityCancellationCategory.objects.get_or_create(**data)
+                category_instance, _ = ActivityCancellationCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 
@@ -432,7 +407,7 @@ class ActivityFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             if category_instance.exists():
                 category_instance = category_instance.first()
             else:
-                category_instance = ActivityFaqCategory.objects.get_or_create(**data)
+                category_instance, _ = ActivityFaqCategory.objects.get_or_create(**data)
             instance.category.add(category_instance)
         return instance
 
@@ -457,3 +432,37 @@ class ActivityMinFieldsSerializer(serializers.ModelSerializer):
 
 class ActivityImageListSerializer(serializers.Serializer):
     image = serializers.ListField(child=serializers.ImageField())
+
+
+class HomePageActivitySerializer(serializers.ModelSerializer):
+    agent = BookingAgentSerializer(required=False)
+    locations = LocationGetSerializer(many=True, required=False)
+    activity_image= ActivityImageSerializer(many=True, required=False)
+    # pricing_activity = PricingSerializer(many=True,required=False)
+    min_price = serializers.SerializerMethodField()
+    total_reviews = serializers.SerializerMethodField()
+    average_review_rating = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Activity
+        fields = ["id","activity_uid","title","tour_class",
+                  "locations","agent","activity_image","min_price", "category",
+                  "total_reviews","average_review_rating","duration","duration_day",
+                  "duration_night","duration_hour", "deal_type"]
+        
+    def get_min_price(self, obj):
+        pricing_activity = obj.pricing_activity.all()
+        if pricing_activity.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_activity)
+            return min_adults_rate
+        return None
+    
+    def get_total_reviews(self, obj):
+        return obj.activity_review.filter(is_active=True, is_deleted=False).count()
+    
+    def get_average_review_rating(self, obj):
+        user_reviews = obj.activity_review.all()
+        if user_reviews.exists():
+            average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
+            return average_rating
+        return None

@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 
+from django_ckeditor_5.fields import CKEditor5Field
 from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
 
@@ -83,10 +84,10 @@ class Country(BaseModel):
         if country.exists():
             raise ValidationError({'name': f'Country with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('Country name should contain only alphabetic characters.')})
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class State(BaseModel):
@@ -99,6 +100,7 @@ class State(BaseModel):
     cover_img = models.ImageField(
         upload_to='state/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
         verbose_name = 'State'
@@ -114,11 +116,10 @@ class State(BaseModel):
         if state.exists():
             raise ValidationError({'name': f'{self.country} with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('State name should contain only alphabetic characters.')})
-
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 class City(BaseModel):
     name = models.CharField(max_length=255)
@@ -130,10 +131,11 @@ class City(BaseModel):
     cover_img = models.ImageField(
         upload_to='city/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
-        verbose_name = 'City'
-        verbose_name_plural = 'Cities'
+        verbose_name = 'Destination'
+        verbose_name_plural = 'Destinations'
 
     def __str__(self):
         return self.name
@@ -144,10 +146,10 @@ class City(BaseModel):
         if city.exists():
             raise ValidationError({'name': f'{self.state} with {self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
+        # Check if the name contains only alphabetic characters, excluding "&"
+        if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
-                {'name': _('City name should contain only alphabetic characters.')})
+                {'name': _('State name should contain only alphabetic characters and "&".')})
 
 
 class PackageCategory(BaseModel):
@@ -158,6 +160,7 @@ class PackageCategory(BaseModel):
     cover_img = models.ImageField(
         upload_to='package/category/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
         verbose_name = 'Tour Category'
@@ -190,6 +193,7 @@ class Activity(BaseModel):
         ('pending', _('Pending')),
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
+        ('in-progress', _('In-Progress')),
     ]
     TOUR_CLASS_CHOICE = [
         ('private', _('Private')),
@@ -210,7 +214,8 @@ class Activity(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    locations = models.ManyToManyField('Location', related_name='activity_location', blank=True)
+    locations = models.ManyToManyField('Location', related_name='activity_location', blank=True,
+                                       verbose_name='Destinations')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE,
         related_name='activity_category',
@@ -241,8 +246,13 @@ class Activity(BaseModel):
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)
-    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
-
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    deal_type = models.CharField(
+            max_length=20,
+            choices=DEALTYPE_CHOICE,
+            default='ACTIVITY',
+            verbose_name='Deal Type'
+        )
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activity'
@@ -262,7 +272,7 @@ class Location(models.Model):
         destination_names = ', '.join(str(dest) for dest in self.destinations.all())
         state_name = self.state.name if self.state else 'Unknown State'
         country_name = self.country.name if self.country else 'Unknown Country'
-        return f"{state_name} : {destination_names}"
+        return f"\n{state_name} : {destination_names}"
 
 
 class Package(BaseModel):
@@ -270,6 +280,7 @@ class Package(BaseModel):
         ('pending', _('Pending')),
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
+        ('in-progress', _('In-Progress')),
     ]
     TOUR_CLASS_CHOICE = [
         ('private', _('Private')),
@@ -290,7 +301,8 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    locations = models.ManyToManyField(Location, related_name='package_location', blank=True)
+    locations = models.ManyToManyField(Location, related_name='package_location', blank=True,
+                                       verbose_name='Destinations')
     category = models.ForeignKey(
         PackageCategory, on_delete=models.CASCADE, related_name='package_category')
     min_members = models.IntegerField(null=True, blank=True)
@@ -314,12 +326,18 @@ class Package(BaseModel):
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
-        default='pending',
+        default='in-progress',
         verbose_name='Stage'
     )
 
     is_submitted = models.BooleanField(default=False)
-    is_popular = models.BooleanField(default=False, verbose_name="Is Popular")
+    is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    deal_type = models.CharField(
+            max_length=20,
+            choices=DEALTYPE_CHOICE,
+            default='PACKAGE',
+            verbose_name='Deal Type'
+        )
 
     class Meta:
         verbose_name = 'Package'
@@ -343,12 +361,9 @@ class Inclusions(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_package')
     activity = models.ForeignKey(
-        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
     is_deleted = models.BooleanField(default=0)
-    icon = models.ImageField(
-        upload_to='inclusions/', 
-        null=True, default=None, blank=True)
-
+   
     class Meta:
         verbose_name = 'Inclusions'
         verbose_name_plural = 'Inclusions'
@@ -373,10 +388,8 @@ class Exclusions(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_package')
     activity = models.ForeignKey(
-        Package, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
-    icon = models.ImageField(
-        upload_to='exclusions/', 
-        null=True, default=None, blank=True)
+        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+    
 
     class Meta:
         verbose_name = 'Exclusions'
@@ -396,31 +409,16 @@ class Exclusions(BaseModel):
             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
-class ItineraryDay(BaseModel):
-    # package = models.ForeignKey(
-    #     Package, on_delete=models.CASCADE, related_name='itinerardays')
-    day = models.CharField(max_length=255, default="")
-    place = models.CharField(max_length=255, default="", blank=True, null=True)
-    description = models.TextField(default="", blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Itinerary Day'
-        verbose_name_plural = 'Itinerary Day'
-
-    def __str__(self):
-        return f"\n Day : {self.day} - {self.place} : {self.description}"
-
-
 class Itinerary(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='itinerary_package')
-    overview = models.TextField(blank=True, default="")
+    overview = CKEditor5Field('Overview', config_name='extends', null=True, blank=True,)
     important_message = models.TextField(blank=True, default="",
                                          verbose_name="important Message")
     things_to_carry = models.TextField(blank=True, default="",
                                          verbose_name="Things to carry")
-    itinerary_day = models.ManyToManyField(
-        ItineraryDay, related_name='itinerary_itinerary_day')
+    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
+    
     inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
     exclusions = models.ManyToManyField(Exclusions, related_name='itinerary_exclusions', blank=True)
 
@@ -488,7 +486,7 @@ class Currency(BaseModel):
         return self.name
 
 def default_blackout_dates():
-    return {'weeks': [], 'custom_date': []}
+    return {'weeks': [], 'custom_date': [], 'excluded_blackout_dates':[]}
 
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [
@@ -508,7 +506,7 @@ class Pricing(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='pricing_package', null=True, blank=True)
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='pricing_activitya', null=True, blank=True)
+        Activity, on_delete=models.CASCADE, related_name='pricing_activity', null=True, blank=True)
     pricing_group = models.CharField(
         max_length=25, choices=PRICING_GROUP_CHOICE, default='per_person')
     price = models.ForeignKey(
@@ -517,19 +515,22 @@ class Pricing(BaseModel):
     adults_rate = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     adults_commission = models.DecimalField(
-        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True,)
     adults_agent_amount = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     child_rate = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     child_commission = models.DecimalField(
-        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True)
     child_agent_amount = models.DecimalField(
         default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     infant_rate = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     infant_commission = models.DecimalField(
-        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+        default=0,  max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True)
     infant_agent_amount = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.DecimalField(
@@ -605,11 +606,11 @@ class CancellationPolicy(BaseModel):
         for category in categories:
             if category.to_day == 0:
                 category_info.append(
-                    f"<tr><td style='padding-right: 150px;'>If cancelled before<strong> {category.from_day} </strong>Days :</td><td><strong>{category.amount_percent} %</strong></td></tr>"
+                    f"<tr><td><ul><li>If cancelled before<strong> {category.from_day} </strong>Days, Refund amount <strong>{category.amount_percent} %.</strong></li></ul></td></tr>"
                     )
             else:
                 category_info.append(
-                    f"<tr><td style='padding-right: 150px;'>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days : </td><td> Rate <strong> {category.amount_percent} %</strong></td></tr>"
+                    f"<tr><td><ul><li>If cancelled between <strong>{category.from_day} - {category.to_day} </strong> Days, Refund amount <strong> {category.amount_percent} %.</strong></li></ul></td></tr>"
                 )
         # Join the category info strings into a single string separated by newlines
         return '<table>' + ''.join(category_info) + '</table>'
@@ -831,7 +832,7 @@ class Attraction(BaseModel):
         null=True, blank=True)
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='attraction_state',
-        null=True, blank=True)
+        null=True, blank=True, verbose_name="Destinations")
     thumb_img = models.ImageField(
         upload_to='attraction/thumb_images/', 
         null=True, default=None, blank=True, verbose_name="Thumb Image")
@@ -903,7 +904,7 @@ class ContactPerson(AuditFields):
         Booking, on_delete=models.CASCADE,null=True, blank=True, related_name='contact_person_booking')
     full_name = models.CharField(max_length=256, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(null=True, blank=True)
     contact_number = models.CharField(max_length=15, blank=True, null=True)
 
 
@@ -915,103 +916,93 @@ ACTIVITY MODELS
 
 class ActivityImage(BaseModel):
     activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='activityimages_activity')
+        Activity, on_delete=models.CASCADE, related_name='activity_image')
     image = models.ImageField(upload_to='activity_images/', null=True, default=None, blank=True)
 
     def __str__(self):
         return f"Image for {self.activity.title}"
 
 
-class ActivityInclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
+# class ActivityInclusions(BaseModel):
+#     # STAGES_CHOICES = [
+#     #     ('pending', _('Pending')),
+#     #     ('approved', _('Approved')),
+#     #     ('rejected', _('Rejected')),
+#     # ]
 
-    name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
+#     name = models.CharField(max_length=255, unique=True)
+#     # stage = models.CharField(
+#     #     max_length=20,
+#     #     choices=STAGES_CHOICES,
+#     #     default='pending',
+#     #     verbose_name='Stage'
+#     # )
+#     activity = models.ForeignKey(
+#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
 
-    class Meta:
-        verbose_name = 'Activity Inclusions'
-        verbose_name_plural = 'Activity Inclusions'
+#     class Meta:
+#         verbose_name = 'Activity Inclusions'
+#         verbose_name_plural = 'Activity Inclusions'
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    def clean(self):
-        # Check for uniqueness of country name (case-insensitive)
-        inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-        if inclusion.exists():
-            raise ValidationError({'name': f'{self.name} already exists.'})
+#     def clean(self):
+#         # Check for uniqueness of country name (case-insensitive)
+#         inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+#         if inclusion.exists():
+#             raise ValidationError({'name': f'{self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError(
-                {'name': _('Inclusions name should contain only alphabetic characters.')})
+#         # Check if the name contains only alphabetic characters
+#         if not self.name.replace(' ', '').isalpha():
+#             raise ValidationError(
+#                 {'name': _('Inclusions name should contain only alphabetic characters.')})
 
 
-class ActivityExclusions(BaseModel):
-    # STAGES_CHOICES = [
-    #     ('pending', _('Pending')),
-    #     ('approved', _('Approved')),
-    #     ('rejected', _('Rejected')),
-    # ]
-    name = models.CharField(max_length=255, unique=True)
-    # stage = models.CharField(
-    #     max_length=20,
-    #     choices=STAGES_CHOICES,
-    #     default='pending',
-    #     verbose_name='Stage'
-    # )
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
+# class ActivityExclusions(BaseModel):
+#     # STAGES_CHOICES = [
+#     #     ('pending', _('Pending')),
+#     #     ('approved', _('Approved')),
+#     #     ('rejected', _('Rejected')),
+#     # ]
+#     name = models.CharField(max_length=255, unique=True)
+#     # stage = models.CharField(
+#     #     max_length=20,
+#     #     choices=STAGES_CHOICES,
+#     #     default='pending',
+#     #     verbose_name='Stage'
+#     # )
+#     activity = models.ForeignKey(
+#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
     
 
-    class Meta:
-        verbose_name = 'Activity Exclusions'
-        verbose_name_plural = 'Activity Exclusions'
+#     class Meta:
+#         verbose_name = 'Activity Exclusions'
+#         verbose_name_plural = 'Activity Exclusions'
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    def clean(self):
-        # Check for uniqueness of country name (case-insensitive)
-        exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-        if exclusion.exists():
-            raise ValidationError({'name': f'{self.name} already exists.'})
+#     def clean(self):
+#         # Check for uniqueness of country name (case-insensitive)
+#         exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
+#         if exclusion.exists():
+#             raise ValidationError({'name': f'{self.name} already exists.'})
 
-        # Check if the name contains only alphabetic characters
-        if not self.name.replace(' ', '').isalpha():
-            raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
-
-
-class ActivityItineraryDay(BaseModel):
-    day = models.CharField(max_length=255, default="")
-    place = models.CharField(max_length=255, default="", blank=True, null=True)
-    description = models.TextField(default="", blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Itinerary Day'
-        verbose_name_plural = 'Itinerary Day'
-
-    def __str__(self):
-        return f"\n Day : {self.day} - {self.place} : {self.description}"
+#         # Check if the name contains only alphabetic characters
+#         if not self.name.replace(' ', '').isalpha():
+#             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
 class ActivityItinerary(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, related_name='activity_itinerary_activity')
-    overview = models.TextField(blank=True, default="")
-    itinerary_day = models.ManyToManyField(
-        ActivityItineraryDay, related_name='activity_itinerary_itinerary_day')
+    overview = CKEditor5Field('Overview', config_name='extends', null=True, blank=True,)
+    important_message = models.TextField(blank=True, default="",
+                                         verbose_name="important Message")
+    things_to_carry = models.TextField(blank=True, default="",
+                                         verbose_name="Things to carry")
+    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
     inclusions = models.ManyToManyField(Inclusions, related_name='activity_itinerary_inclusions', blank=True)
     exclusions = models.ManyToManyField(Exclusions, related_name='activity_itinerary_exclusions', blank=True)
 
@@ -1057,9 +1048,7 @@ class ActivityInformations(BaseModel):
     exclusiondetails = models.ManyToManyField(
         ActivityExclusionInformation, related_name='pactivity_informations_exclusiondetails',
         verbose_name='Exclusion Details', blank=True)
-    important_message = models.TextField(blank=True, default="",
-                                         verbose_name="important Message")
-    
+
     class Meta:
         verbose_name = 'Activity Information'
         verbose_name_plural = 'Activity Informations'
@@ -1217,3 +1206,15 @@ class CoverPageInput(AuditFields):
     clients = models.IntegerField(null=True, blank=True)
     satisfaction = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    activity_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Activity")
+    package_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                      verbose_name="Package")
+    attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="Attraction")
+    price_min = models.IntegerField(null=True, blank=True)
+    price_max = models.IntegerField(null=True, blank=True)
+    
+
+    def __str__(self):
+        return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "

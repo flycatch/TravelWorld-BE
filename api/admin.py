@@ -134,17 +134,27 @@ class ActivityAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'is_popular', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string',)
+                       'drop_point', 'drop_time_string', 'locations', 'is_popular')
         }),
     )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -229,10 +239,10 @@ class PackageAdmin(CustomModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'is_popular', 'package_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'package_uid', 'title', 'agent', 'category', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string',)
+                       'drop_point', 'drop_time_string', "locations", 'is_popular')
         }),
     )
     
@@ -242,10 +252,20 @@ class PackageAdmin(CustomModelAdmin):
         PackageFaqQuestionAnswerInline,
         ]
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(stage='in-progress')
+
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == 'stage':
+            kwargs['choices'] = [('approved', 'Approved'), ('pending', 'Pending'), ('rejected', 'Rejected'),]
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
+
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']] + ['pickup_time_string', 'drop_time_string']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -660,7 +680,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',),
                     }),
                 )
             else:
@@ -668,7 +691,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date', 'cancellation_policies')
+                                'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Cancellation Policy', {
+                        'fields': ('cancellation_policies',)
                     }),
                 )
         else:  # Add page
@@ -704,7 +730,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             return formatted_policies
         return None
     
-    cancellation_policies.short_description = "Cancellation Policies"
+    cancellation_policies.short_description = ''
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
@@ -780,7 +806,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package", "activity", "rating","object_id")
+    list_display = ("user", "package_uid", "activity_uid", "rating","object_id")
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
@@ -792,6 +818,52 @@ class UserReviewAdmin(CustomModelAdmin):
                        "booking", "agent", "agent_comment",)
         }),
         )
+
+    inlines = [UserReviewImageInline]
+
+    def get_fieldsets(self, request, obj=None):
+        if obj:  # Detail page
+            if obj.activity:
+                return (
+                    (None, {
+                        'fields': ("user", "activity_uid", "activity_name", "rating", "review",
+                                "booking", "agent", "agent_comment",)
+                    }),
+                )
+            else:
+                return (
+                    (None, {
+                        'fields': ("user", "package_uid", "package_name", "rating", "review",
+                                "booking", "agent", "agent_comment",)
+                    }),
+                )
+        else:  # Add page
+            return (
+        (None, {
+            'fields': ("user", "package", "activity", "rating", "review",
+                       "booking", "agent", "agent_comment",)
+        }),
+            )
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+
+    def package_name(self, obj):
+        return truncatechars(obj.package.title if obj.package else None, 35)
+    package_name.short_description = "Package Name"
+
+    def activity_name(self, obj):
+        return truncatechars(obj.activity.title if obj.activity else None, 35)
+    activity_name.short_description = "Activity Name"
+
+    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'Package UID'  # Enable sorting by user_uid
+
 
     def has_add_permission(self, request, obj=None):
         return True
@@ -825,21 +897,21 @@ def dashboard_page(request):
 
     #Agents
     total_agent_count = Agent.objects.count()
-    active_agents = Agent.objects.filter(stage='pending').count()
-    inactive_agents = Agent.objects.filter(stage='approved').count()
+    pending_agents = Agent.objects.filter(stage='pending').count()
+    approved_agents = Agent.objects.filter(stage='approved').count()
     rejected_agents = Agent.objects.filter(stage='rejected').count()
 
     #Agent Transactions
     total_agent_transaction_count = AgentTransactionSettlement.objects.count()
     successful_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='SUCCESSFUL').count()
-    failed_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='FAILED').count()
+    rejected_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='REJECTED').count()
     pending_agent_transaction_count = AgentTransactionSettlement.objects.filter(payment_settlement_status='PENDING').count()
 
     #User Transactions
     total_user_transaction_count = UserRefundTransaction.objects.count()
     refunded_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='REFUNDED').count()
-    cancelled_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='FAILED').count()
-    pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='CANCELLED').count()
+    rejected_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='REJECTED').count()
+    pending_user_transaction_count = UserRefundTransaction.objects.filter(refund_status='PENDING').count()
 
     cards = {
         'total_bookings_count': total_bookings_count,
@@ -848,16 +920,16 @@ def dashboard_page(request):
         'successful_bookings':successful_bookings,
         'failed_bookings':failed_bookings,
         'refunded_bookings':refunded_bookings,
-        'active_agents':active_agents,
-        'inactive_agents':inactive_agents,
+        'pending_agents':pending_agents,
+        'approved_agents':approved_agents,
         'rejected_agents':rejected_agents,
         'total_agent_transaction_count':total_agent_transaction_count,
         'successful_agent_transaction_count':successful_agent_transaction_count,
-        'failed_agent_transaction_count':failed_agent_transaction_count,
+        'rejected_agent_transaction_count':rejected_agent_transaction_count,
         'pending_agent_transaction_count':pending_agent_transaction_count,
         'total_user_transaction_count':total_user_transaction_count,
         'refunded_user_transaction_count':refunded_user_transaction_count,
-        'cancelled_user_transaction_count':cancelled_user_transaction_count,
+        'rejected_user_transaction_count':rejected_user_transaction_count,
         'pending_user_transaction_count':pending_user_transaction_count
     }
 
@@ -1000,6 +1072,28 @@ def dashboard_page(request):
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 
+class CoverPageInputAdmin(CustomModelAdmin):
+    list_display = ("id", "experience", "clients", "satisfaction")
+
+    fieldsets = (
+        (None, {
+            'fields': ("experience", "clients", "satisfaction")
+        }),
+        ('Cover Images', {
+            'fields': ("activity_image", "package_image", "attraction_image")
+        }),
+        # ('Filters', {
+        #     'fields': ('price_min','price_max')
+        # }),
+    )
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -1025,8 +1119,8 @@ admin.site.register(UserReview,UserReviewAdmin)
 # admin.site.register(PackageCancellationCategory)
 # admin.site.register(ContactPerson)
 admin.site.register(Pricing)
-admin.site.register(CoverPageInput)
-# admin.site.register(ActivityImage)
+admin.site.register(CoverPageInput, CoverPageInputAdmin)
+admin.site.register(Itinerary)
 
 
 

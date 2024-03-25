@@ -32,7 +32,7 @@ class LocationGetSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     country = CountrySerializer(required=False)
     state = StateSerializer(required=False)
-    destinations = CitySerializer(many=True)  # Include destinations
+    destinations = CitySerializer(many=True,required=False)  # Include destinations
 
     class Meta:
         model = Location
@@ -42,7 +42,8 @@ class CoverPageInputSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CoverPageInput
-        fields = ['experience','clients','satisfaction']
+        fields = ['experience','clients','satisfaction',
+                  'activity_image', 'package_image', 'attraction_image','price_min','price_max']
 
 
 class AttractionSerializer(serializers.ModelSerializer):

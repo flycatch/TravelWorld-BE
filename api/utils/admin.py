@@ -39,11 +39,14 @@ def booking_status_colour(booking_status):
     elif booking_status == 'ORDERED':
         color = '#4576dd'
         bg_color = '#cee8ff'
+    elif booking_status == 'PENDING':
+        color = '#e6b51e'
+        bg_color = '#fef8e8'
     elif booking_status == 'CANCELLED':
         color = 'gray'
         bg_color = ''
     elif booking_status == 'REFUNDED REQUESTED':
-        color = '#e6b51e'
+        color = '#b8530b'
         bg_color = '#fef8e8'
     elif booking_status == 'REFUNDED':
         color = '#62cd61'

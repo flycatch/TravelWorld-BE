@@ -5,15 +5,16 @@ from rest_framework.routers import DefaultRouter
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
                                      HomePageDestinationViewSet, HomePageStateViewSet)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
-from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, ItineraryDayViewSet,
+from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     HomePageProductsViewSet, HomePageActivityViewSet, HomePagePackageViewSet)
-from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet, ActivityItineraryDayViewSet,
+                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet
+                                     )
+from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
-                                     ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet,
+                                     ActivityCancellationPolicyViewSet, ActivityFaqQuestionAnswerViewSet, ActivityHomePageView,
                                      ActivityImageViewSet, ActivityDeleteDraft, ActivityTourCategoryViewSet,
                                      ActivityInclusionsViewSet, ActivityExclusionsViewSet, ActivityImageUploadView)
 from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginViewset, UserForgotPassword, UserCustomPasswordResetConfirmView)
@@ -50,14 +51,14 @@ router.register(r'package/list', PackageGetViewSet, basename='package-list') #pa
 
 # user home page
 router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),
-router.register(r'home/activity', HomePageActivityViewSet, basename='HomePage-activity'),
-router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
+# router.register(r'home/activity', HomePageActivityViewSet, basename='HomePage-activity'),
+# router.register(r'home/package', HomePagePackageViewSet, basename='HomePage-package'),
 router.register(r'home/destinations', HomePageDestinationViewSet, basename='HomePage-destinations'),
 router.register(r'home/state', HomePageStateViewSet, basename='HomePage-destinations'),
+router.register(r'home/categories', HomePageCategoryViewSet, basename='HomePage-categories'),
 
 # Itinerary
 router.register(r'package/itinerary', ItineraryViewSet, basename='itinerary')
-router.register(r'package/itineraryday', ItineraryDayViewSet, basename='itinerary-day')
 
 #inclusions and exclusions
 router.register(r'package/inclusions', InclusionsViewSet, basename='inclusions')
@@ -84,7 +85,6 @@ router.register(r'activity/category', ActivityCategoryViewSet, basename='activit
 
 # Itinerary
 router.register(r'activity/itinerary', ActivityItineraryViewSet, basename='activity_itinerary')
-router.register(r'activity/itineraryday', ActivityItineraryDayViewSet, basename='activity_itinerary-day')
 
 #inclusions and exclusions
 router.register(r'activity/inclusions', ActivityInclusionsViewSet, basename='activity_inclusions')
@@ -113,11 +113,9 @@ urlpatterns = [
     path('v1/<int:user_id>/history/customer-list-bookings/', CustomerBookingHistoryListView.as_view(), name='customer-list-history-bookings'),
     path('v1/<int:user_id>/customer-booking-details/', CustomerBookingDetailsView.as_view(), name='customer-booking'),
     path('v1/<int:user_id>/customer-booking-update/<str:object_id>/', CustomerBookingUpdateView.as_view(), name='customer-update-booking'),
-
-    
-
     path('v1/<int:user_id>/customer-booking-details/<str:object_id>/', CustomerBookingDetailsView.as_view(), name='customer-booking-details'),
 
+    path('v1/<int:user_id>/booking/calculations/<str:object_id>/', BookingCalculationsView.as_view(), name='booking-calculations'),
 
     # Agent View booking
     path('v1/<int:agent_id>/agent-list-bookings/', AgentBookingListView.as_view(), name='agent-list-bookings'),
@@ -173,11 +171,16 @@ urlpatterns = [
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
     path('v1/attractions/', AttractionView.as_view(), name='attractions'),
     path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
+    path('v1/homepage/activity/', ActivityHomePageView.as_view(), name='homepage-activity'),
 
     path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
     path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-delete'),
 
     path('v1/activity/images/', ActivityImageUploadView.as_view(), name='activity-image-upload'),
     path('v1/activity/images/<int:pk>/', ActivityImageUploadView.as_view(), name='activity-image-delete'),
+
+    path('v1/user-ratings/', UserRatingsView.as_view(), name='user-rating'),
+    path('v1/suggestion/', SearchSuggestionAPIView.as_view(), name='search_suggestion'),
+
 
 ]

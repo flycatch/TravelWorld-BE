@@ -19,6 +19,8 @@ from TravelWorld.settings import *
 from django.shortcuts import get_object_or_404
 from api.filters.review_filters import ReviewFilter
 from django.utils import timezone
+from django.db.models import Q,Count,Avg
+
 
 
 class UserReviewView(viewsets.GenericViewSet):
@@ -264,3 +266,53 @@ class AgentUserReviewListView(ListAPIView):
         
         
             
+class UserRatingsView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
+
+    def get(self, request, *args, **kwargs):
+        try:
+            package = self.request.GET.get('package',None)
+            activity = self.request.GET.get('activity',None)
+            queryset =  UserReview.objects.filter(is_deleted=0, is_active=1).order_by("-id")
+
+            if package:
+                queryset = queryset.filter(package=package)
+            else:
+                queryset = queryset.filter(activity=activity)
+
+            
+            # Get total review count for each rating
+            total_reviews = queryset.aggregate(
+                total=Count('id'),
+                rating_5=Count('id', filter=Q(rating=5)),
+                rating_4=Count('id', filter=Q(rating=4)),
+                rating_3=Count('id', filter=Q(rating=3)),
+                rating_2=Count('id', filter=Q(rating=2)),
+                rating_1=Count('id', filter=Q(rating=1)),
+                rating_avg = Avg('rating')
+            )
+
+            results = {
+                "total_reviews": total_reviews['total'],
+                "rating_5_count": total_reviews['rating_5'],
+                "rating_4_count": total_reviews['rating_4'],
+                "rating_3_count": total_reviews['rating_3'],
+                "rating_2_count": total_reviews['rating_2'],
+                "rating_1_count": total_reviews['rating_1'],
+                "rating_avg": total_reviews['rating_avg']
+            }
+
+            return Response({
+                "results": results,
+                "message": "Listed successfully",
+                "status": "success",
+                "statusCode": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
+    
+        except Exception as error_message:
+            response_data = {"message": f"Something went wrong : {error_message}",
+                            "status": "error",
+                            "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

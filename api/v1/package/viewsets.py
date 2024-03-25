@@ -183,8 +183,6 @@ class PackageGetViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-
-
 class PackageDeleteDraft(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
@@ -220,7 +218,6 @@ class ItineraryViewSet(viewsets.ModelViewSet):
         package = self.request.GET.get("package",None)
 
         queryset = Itinerary.objects.all()
-
 
         if package:
             queryset = queryset.filter(package=package)
@@ -341,10 +338,8 @@ class PricingViewSet(viewsets.ModelViewSet):
 class PricingNewView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
     serializer_class = PricingSerializer
     
-
     def post(self, request, *args, **kwargs):
         try:
 
@@ -369,7 +364,6 @@ class PricingNewView(APIView):
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
     def get(self, request, *args, **kwargs):
         try:
             package = self.request.GET.get('package',None)
@@ -391,13 +385,11 @@ class PricingNewView(APIView):
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
 
     def put(self, request, *args, **kwargs):
         try:
 
             with transaction.atomic():
-
                 instance_id = kwargs.get('pk')
                 if instance_id is not None:
                     instance = get_object_or_404(Pricing, id=instance_id)
@@ -414,7 +406,6 @@ class PricingNewView(APIView):
                         return Response({ 'status': 'error', 'message': error_messages,
                                         'statusCode': status.HTTP_400_BAD_REQUEST },
                                         status=status.HTTP_400_BAD_REQUEST)
-                  
 
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",
@@ -696,7 +687,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
             & Q(pricing_package__adults_rate__lte=price_range_max)
 
-
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)
         packages = self.queryset_packages.filter(package_filter)
@@ -752,6 +742,6 @@ class SearchSuggestionAPIView(APIView):
         sorted_values = sorted(all_values, key=len)
 
         # Return the sorted list
-        suggestions = {'values': sorted_values}
+        suggestions = {'results': sorted_values}
 
         return JsonResponse(suggestions)

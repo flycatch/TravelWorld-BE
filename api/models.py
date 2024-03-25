@@ -902,7 +902,7 @@ class ContactPerson(AuditFields):
         Booking, on_delete=models.CASCADE,null=True, blank=True, related_name='contact_person_booking')
     full_name = models.CharField(max_length=256, null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(null=True, blank=True)
     contact_number = models.CharField(max_length=15, blank=True, null=True)
 
 

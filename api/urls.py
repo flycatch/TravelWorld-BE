@@ -10,7 +10,7 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     HomePageProductsViewSet,
+                                     HomePageProductsViewSet, SearchSuggestionAPIView,
                                     #  HomePageActivityViewSet, HomePagePackageViewSet
                                      )
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
@@ -180,5 +180,7 @@ urlpatterns = [
     path('v1/activity/images/<int:pk>/', ActivityImageUploadView.as_view(), name='activity-image-delete'),
 
     path('v1/user-ratings/', UserRatingsView.as_view(), name='user-rating'),
+    path('v1/suggestion/', SearchSuggestionAPIView.as_view(), name='search_suggestion'),
+
 
 ]

@@ -439,8 +439,6 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
 
 
 class ActivityHomePageView(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     serializer_class = HomePageActivitySerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]

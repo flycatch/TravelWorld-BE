@@ -1,0 +1,92 @@
+{% load jazzmin %}
+
+<head>
+    <style>
+        .table td, .table th {
+            padding: 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        td.field-values {
+            width: 135px;
+        }
+
+        .data-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            background-color: rgb(236, 236, 236);
+        }
+
+        .data-table th, .data-table td {
+            border: 1px solid rgb(255, 255, 255);
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            text-align: center;
+            width: 175px;
+        }
+    </style>
+</head>
+
+
+<div class="table-responsive">
+    <table class="table">
+        <tbody>
+            {% for inline_admin_form in inline_admin_formset %}
+                {% for fieldset in inline_admin_form %}
+                    {% for line in fieldset %}
+                        <tr class="{% if line.fields|length_is:'1' and line.errors %} errors{% endif %}{% if not line.has_visible_field %} hidden{% endif %}">
+                            {% for field in line %}
+                                <td class="field-values">
+                                    <label for="id_{{ field.field.name }}">{{ field.field.label|capfirst }}</label>
+                                    {% if field.field.field.required %}
+                                        <span class="text-red">*</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="{% if field.is_readonly %}readonly{% endif %}">
+                                        {% if field.is_readonly %}
+                                            <div class="col-sm-6">
+                                                <div class="readonly">
+                                                    <table class="data-table">
+                                                        <tbody>
+                                                            <script>
+                                                                var contents = "{{ field.contents }}";
+                                                                var items = contents.split(',');
+                                                                for (var val = 0; val < items.length; val++) {
+                                                                    var item = items[val].trim();
+                                                                    if (item) {
+                                                                        var parts = item.split(':');
+                                                                        document.write('<tr>');
+                                                                        var categoryText = parts[0].replace(/<[^>]+>/g, '').trim();
+                                                                        document.write('<td class="category">' + categoryText + '</td>');
+                                                                        document.write('<td class="value">' + parts[1].trim() + '</td>');
+                                                                        document.write('</tr>');
+                                                                    }
+                                                                }
+                                                            </script>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            {{ field.field }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="help-block red">
+                                        {% if not line.fields|length_is:'1' and not field.is_readonly %}{{ field.errors }}{% endif %}
+                                    </div>
+                                    {% if field.field.help_text %}
+                                        <div class="help-block">{{ field.field.help_text|safe }}</div>
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

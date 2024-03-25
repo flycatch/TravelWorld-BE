@@ -1,5 +1,7 @@
 # views.py
 import itertools
+from itertools import chain
+from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         Package, PackageCategory,
@@ -181,8 +183,6 @@ class PackageGetViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-
-
 class PackageDeleteDraft(viewsets.ModelViewSet):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
@@ -218,7 +218,6 @@ class ItineraryViewSet(viewsets.ModelViewSet):
         package = self.request.GET.get("package",None)
 
         queryset = Itinerary.objects.all()
-
 
         if package:
             queryset = queryset.filter(package=package)
@@ -339,10 +338,8 @@ class PricingViewSet(viewsets.ModelViewSet):
 class PricingNewView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
     serializer_class = PricingSerializer
     
-
     def post(self, request, *args, **kwargs):
         try:
 
@@ -367,7 +364,6 @@ class PricingNewView(APIView):
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
     def get(self, request, *args, **kwargs):
         try:
             package = self.request.GET.get('package',None)
@@ -389,13 +385,11 @@ class PricingNewView(APIView):
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
 
     def put(self, request, *args, **kwargs):
         try:
 
             with transaction.atomic():
-
                 instance_id = kwargs.get('pk')
                 if instance_id is not None:
                     instance = get_object_or_404(Pricing, id=instance_id)
@@ -412,7 +406,6 @@ class PricingNewView(APIView):
                         return Response({ 'status': 'error', 'message': error_messages,
                                         'statusCode': status.HTTP_400_BAD_REQUEST },
                                         status=status.HTTP_400_BAD_REQUEST)
-                  
 
         except Exception as error_message:
             response_data = {"message": f"Something went wrong : {error_message}",
@@ -507,13 +500,10 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
 
-
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = PackageFaqQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
-
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)
@@ -547,14 +537,11 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     
 
 class PackageHomePageView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
     serializer_class = HomePagePackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['user__username','booking_id'] 
     filterset_class = PackageFilter
-    
     
     def get_queryset(self):
 
@@ -637,29 +624,9 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
                         status=status.HTTP_204_NO_CONTENT)
 
 
-# class HomePagePackageViewSet(viewsets.ModelViewSet):
-#     queryset = Package.objects.filter(is_submitted=True)
-#     serializer_class = PackageSerializer
-#     pagination_class = CustomPagination
-#     filter_backends = [DjangoFilterBackend,SearchFilter]
-#     filterset_class = PackageFilter
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-
-
-# class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = Activity.objects.filter(is_submitted=True)
-#     serializer_class = ActivityGetSerializer
-#     pagination_class = CustomPagination
-#     filterset_class = ActivityFilter
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-
-
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically
     pagination_class = CustomPagination
-    # ordering_fields = ['is_popular', 'created_on']
     queryset_activities = Activity.objects.filter(is_submitted=True, status='active', stage='approved')
     queryset_packages = Package.objects.filter(is_submitted=True, status='active', stage='approved')
 
@@ -720,7 +687,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
             & Q(pricing_package__adults_rate__lte=price_range_max)
 
-
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)
         packages = self.queryset_packages.filter(package_filter)
@@ -761,3 +727,21 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.serializer_class(filtered_queryset, many=True)
         return Response(serializer.data)
+
+
+class SearchSuggestionAPIView(APIView):
+    def get(self, request):
+        # Get distinct values for title, destinations, and state for both Package and Activity
+        package_values = set(Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
+        activity_values = set(Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
+
+        # Combine all the distinct values into a single set and exclude None values
+        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(None, chain.from_iterable(activity_values)))
+
+        # Sort the combined set by length
+        sorted_values = sorted(all_values, key=len)
+
+        # Return the sorted list
+        suggestions = {'results': sorted_values}
+
+        return JsonResponse(suggestions)

@@ -1,5 +1,7 @@
 # views.py
 import itertools
+from itertools import chain
+from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         Package, PackageCategory,
@@ -507,13 +509,10 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_200_OK)
 
 
-
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = PackageFaqQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
-
-
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)
@@ -547,14 +546,11 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     
 
 class PackageHomePageView(ListAPIView):
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
     serializer_class = HomePagePackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['user__username','booking_id'] 
     filterset_class = PackageFilter
-    
     
     def get_queryset(self):
 
@@ -637,29 +633,9 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
                         status=status.HTTP_204_NO_CONTENT)
 
 
-# class HomePagePackageViewSet(viewsets.ModelViewSet):
-#     queryset = Package.objects.filter(is_submitted=True)
-#     serializer_class = PackageSerializer
-#     pagination_class = CustomPagination
-#     filter_backends = [DjangoFilterBackend,SearchFilter]
-#     filterset_class = PackageFilter
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-
-
-# class HomePageActivityViewSet(viewsets.ReadOnlyModelViewSet):
-#     queryset = Activity.objects.filter(is_submitted=True)
-#     serializer_class = ActivityGetSerializer
-#     pagination_class = CustomPagination
-#     filterset_class = ActivityFilter
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-
-
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically
     pagination_class = CustomPagination
-    # ordering_fields = ['is_popular', 'created_on']
     queryset_activities = Activity.objects.filter(is_submitted=True, status='active', stage='approved')
     queryset_packages = Package.objects.filter(is_submitted=True, status='active', stage='approved')
 
@@ -761,3 +737,21 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = self.serializer_class(filtered_queryset, many=True)
         return Response(serializer.data)
+
+
+class SearchSuggestionAPIView(APIView):
+    def get(self, request):
+        # Get distinct values for title, destinations, and state for both Package and Activity
+        package_values = Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct()
+        activity_values = Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct()
+
+        # Combine all the distinct values into a single list and exclude None values
+        all_values = list(filter(None, chain.from_iterable(package_values))) + list(filter(None, chain.from_iterable(activity_values)))
+
+        # Sort the combined list by length
+        sorted_values = sorted(all_values, key=len)
+
+        # Return the sorted list
+        suggestions = {'values': sorted_values}
+
+        return JsonResponse(suggestions)

@@ -8,11 +8,8 @@ from api.v1.general.serializers import (CountrySerializer, StateSerializer, City
 from api.filters.general_filters import CityFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView, RetrieveAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView
 from api.utils.paginator import CustomPagination
-from rest_framework.authentication import TokenAuthentication
 
 
 class CountryViewSet(viewsets.ModelViewSet):
@@ -48,6 +45,8 @@ class LocationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'message': str(e), 'status': 'error'}, 
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class CoverPageView(APIView):
     
     serializer_class = CoverPageInputSerializer
@@ -70,21 +69,13 @@ class CoverPageView(APIView):
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
-
 class AttractionView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
     serializer_class = AttractionSerializer
     pagination_class = CustomPagination
-    # filter_backends = [DjangoFilterBackend,SearchFilter]
-    # search_fields = ['user__username','booking_id'] 
-    # filterset_class = BookingFilter
     
     def get_queryset(self):
         queryset = Attraction.objects.order_by("-id")
         return queryset
-        
         
     def list(self, request, *args, **kwargs):
         try:
@@ -110,15 +101,8 @@ class HomePageDestinationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = City.objects.filter(status='active')
     serializer_class = HomePageDestinationSerializer
     pagination_class = CustomPagination
-    # filterset_class = CityFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
-
 
 class HomePageStateViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = State.objects.filter(status='active')
     serializer_class = HomePageStateSerializer
     pagination_class = CustomPagination
-    # filterset_class = CityFilter
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]

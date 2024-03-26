@@ -669,8 +669,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity_filter &= Q(state=state)
             package_filter &= Q(state=state)
         if city:
-            activity_filter &= Q(city=city)
-            package_filter &= Q(city=city)
+            activity_filter &= Q(locations__destinations__name=city)
+            package_filter &= Q(locations__destinations__name=city)
         if category:
             activity_filter &= Q(category=category)
             package_filter &= Q(category=category)

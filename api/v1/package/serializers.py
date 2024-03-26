@@ -409,7 +409,12 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
             average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
             return average_rating
         return None
-        
+
+class HomePageCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageCategory
+        fields = ['id', 'name', 'thumb_img', 'cover_img']
+
 
 class PackageMinFieldsSerializer(serializers.ModelSerializer):
     

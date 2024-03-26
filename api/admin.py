@@ -818,7 +818,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.exclude(booking_status='PENDING')
+        queryset = queryset.exclude(payment_settlement_status='PENDING')
         return queryset
 
 

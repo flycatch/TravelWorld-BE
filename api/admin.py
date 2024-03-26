@@ -22,6 +22,7 @@ import calendar
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from datetime import date
+from django.template.loader import render_to_string
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -369,11 +370,15 @@ class BookingAdmin(admin.ModelAdmin):
     def pricing_section(self, obj):
         pricing_list = obj.package.pricing_package.all()
         if pricing_list:
-            pricing_info = "<style>.pricing-table {border-collapse: collapse; width: 100%;} .pricing-table th, .pricing-table td {border: 1px solid #ddd; padding: 15px; text-align: left;} .pricing-table th {background-color: #f2f2f2;} .pricing-table tr {margin-bottom: 10px;}</style>"
-            pricing_info += "<table class='pricing-table'><tr><th>Price</th><th>Adults Rate</th><th>Adults Commission</th><th>Child Rate</th><th>Child Commission</th><th>Infant Rate</th><th>Infant Commission</th><th>Discount</th><th>Total</th><th>Start Date</th><th>End Date</th><th>Blackout Dates</th></tr>"
+            pricing_dict = {}
             for pricing in pricing_list:
-                pricing_info += f"<tr><td>{pricing.price}</td><td>{pricing.adults_rate}</td><td>{pricing.adults_commission}</td><td>{pricing.child_rate}</td><td>{pricing.child_commission}</td><td>{pricing.infant_rate}</td><td>{pricing.infant_commission}</td><td>{pricing.discount}</td><td>{pricing.total}</td><td>{pricing.start_date}</td><td>{pricing.end_date}</td><td>{pricing.blackout_dates}</td></tr>"
-            pricing_info += "</table>"
+                pricing_dict = {'Price': pricing.price, 'Adults Rate': pricing.adults_rate, 'Adults Commission': pricing.adults_commission,
+                                'Child Rate': pricing.child_rate, 'Child Commission': pricing.child_commission, 'Infant Rate': pricing.infant_rate,
+                                'Infant Commission': pricing.infant_commission, 'Discount': pricing.discount, 'Total': pricing.total,
+                                'Start Date': pricing.start_date, 'End Date': pricing.end_date}
+
+            # Render the HTML template with pricing_list
+            pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
             return mark_safe(pricing_info)  # Mark the string as safe HTML
         else:
             return "No pricing information available."

@@ -833,7 +833,7 @@ class Attraction(BaseModel):
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='attraction_state',
         null=True, blank=True, verbose_name="Destinations")
-    thumb_img = models.ImageField(
+    thumb_image = models.ImageField(
         upload_to='attraction/thumb_images/', 
         null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(

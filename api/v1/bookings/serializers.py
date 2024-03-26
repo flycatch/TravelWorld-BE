@@ -17,18 +17,18 @@ class ContactPersonSerializer(serializers.ModelSerializer):
 
 class BookingUserReviewImageSerializer(serializers.ModelSerializer):
 
-    images = serializers.SerializerMethodField()
+    # images = serializers.SerializerMethodField()
 
-    def get_images(self, obj):
-        request = self.context.get('request')
-        print("a2")
-        print(request)
-        print(obj.images)
-        if request is not None and obj.images:
-            print("a3")
-            print(request.build_absolute_uri(obj.images.url))
-            return request.build_absolute_uri(obj.images.url)
-        return None
+    # def get_images(self, obj):
+    #     request = self.context.get('request')
+    #     print("a2")
+    #     print(request)
+    #     print(obj.images)
+    #     if request is not None and obj.images:
+    #         print("a3")
+    #         print(request.build_absolute_uri(obj.images.url))
+    #         return request.build_absolute_uri(obj.images.url)
+    #     return None
     
     class Meta:
         model = UserReviewImage

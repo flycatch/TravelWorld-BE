@@ -97,13 +97,13 @@ class PackageImageSerializer(serializers.ModelSerializer):
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','package']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'package']
 
 
 class ItinerarySerializer(serializers.ModelSerializer):
@@ -388,10 +388,10 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        fields = ["id","package_uid","title","tour_class",
-                  "agent","package_image","min_price", "category",
-                  "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour","locations", "deal_type"]
+        fields = ["id","package_uid","title","tour_class", "agent","package_image",
+                  "min_price", "category", "total_reviews","average_review_rating",
+                  "duration","duration_day", "duration_night","duration_hour","locations", 
+                  "min_members", "max_members", "deal_type"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()
@@ -409,7 +409,12 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
             average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
             return average_rating
         return None
-        
+
+class HomePageCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageCategory
+        fields = ['id', 'name', 'thumb_img', 'cover_img']
+
 
 class PackageMinFieldsSerializer(serializers.ModelSerializer):
     

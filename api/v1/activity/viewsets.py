@@ -400,9 +400,9 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = ActivityImageSerializer(images, many=True,  context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed', 'message': 'Please provide a activity id',
-                             'error':serializer.errors,
-                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'failed',
+                             'message': 'Please provide a activity id',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

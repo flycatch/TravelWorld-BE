@@ -100,6 +100,17 @@ class PackageInformationsInline(CustomStackedInline):
     verbose_name_plural = 'Information'
     template = 'admin/information_tab.html'
 
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+  
+
 class PricingInline(CustomStackedInline):
     model = Pricing
     exclude = ['activity','status', 'blackout_dates']
@@ -177,6 +188,17 @@ class ActivityInformationsInline(CustomStackedInline):
     verbose_name_plural = 'Information'
     template = 'admin/information_tab.html'
 
+    def has_change_permission(self, request, obj=None):
+        return False
+    
+    def has_add_permission(self, request, obj=None):
+        return False
+    
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    
+
 class ActivityPricingInline(CustomStackedInline):
 
     model = Pricing
@@ -239,3 +261,7 @@ class UserReviewImageInline(admin.TabularInline):
 
     verbose_name = 'Images'
     verbose_name_plural = 'Images'
+
+
+
+

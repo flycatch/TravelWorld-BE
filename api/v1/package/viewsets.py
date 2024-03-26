@@ -212,8 +212,20 @@ class PackageDeleteDraft(viewsets.ModelViewSet):
 
 class ItineraryViewSet(viewsets.ModelViewSet):
     serializer_class = ItinerarySerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        permissions = []
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            permissions.append(IsAuthenticated())
+        return permissions
+
+    def get_authenticators(self):
+        authenticators = []
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            authenticators.append(TokenAuthentication())
+        return authenticators
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package",None)
@@ -285,8 +297,21 @@ class ExclusionsViewSet(viewsets.ModelViewSet):
 #Informations
 class PackageInformationsViewSet(viewsets.ModelViewSet):
     serializer_class = PackageInformationsSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        permissions = []
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            permissions.append(IsAuthenticated())
+        return permissions
+
+    def get_authenticators(self):
+        authenticators = []
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            authenticators.append(TokenAuthentication())
+        return authenticators
+
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)

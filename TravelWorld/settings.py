@@ -218,7 +218,7 @@ ADMIN_REORDER = (
 
     {'app': 'api', 'models': ('api.Booking','api.ContactPerson'),'label': 'Bookings'},
 
-    {'app': 'api', 'models': ('api.AgentTransactionSettlement','api.UserRefundTransaction','api.Pricing'),'label': 'Transactions'},
+    {'app': 'api', 'models': ('api.AgentTransactionSettlement','api.UserRefundTransaction'),'label': 'Transactions'},
 
     {'app': 'api', 'models': ('api.UserReview',),'label': 'Reviews'},
 
@@ -226,7 +226,8 @@ ADMIN_REORDER = (
 
     {'app': 'api', 
      'models': ('api.Country', 'api.State', 'api.City', 'api.AdvanceAmountPercentageSetting',
-                'api.CoverPageInput','api.Pricing','api.Itinerary'),
+                'api.CoverPageInput','api.Pricing','api.Itinerary',
+                'api.PackageCancellationCategory','api.CancellationPolicy','api.ActivityCancellationCategory','api.ActivityCancellationPolicy',),
      'label': 'General Settings'},
 
     # {'app': 'api', 

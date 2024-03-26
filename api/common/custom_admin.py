@@ -98,7 +98,7 @@ class PackageInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
-    # template = 'admin/information_tab.html'
+    template = 'admin/information_tab.html'
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -109,16 +109,7 @@ class PackageInformationsInline(CustomStackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super().get_formset(request, obj, **kwargs)
-        
-        class CustomInlineFormset(formset):
-            template = 'admin/information_tab.html'  
-            
-            def __iter__(self):
-                return super().__iter__()
-        
-        return CustomInlineFormset
+  
 
 class PricingInline(CustomStackedInline):
     model = Pricing
@@ -195,6 +186,7 @@ class ActivityInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
+    template = 'admin/information_tab.html'
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -205,16 +197,7 @@ class ActivityInformationsInline(CustomStackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
     
-    def get_formset(self, request, obj=None, **kwargs):
-        formset = super().get_formset(request, obj, **kwargs)
-        
-        class CustomInlineFormset(formset):
-            template = 'admin/information_tab.html'  
-            
-            def __iter__(self):
-                return super().__iter__()
-        
-        return CustomInlineFormset
+    
 
 class ActivityPricingInline(CustomStackedInline):
 
@@ -278,3 +261,8 @@ class UserReviewImageInline(admin.TabularInline):
 
     verbose_name = 'Images'
     verbose_name_plural = 'Images'
+
+
+
+admin.site.register(ActivityInformations, ActivityInformationsInline)
+

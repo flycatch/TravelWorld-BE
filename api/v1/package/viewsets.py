@@ -667,11 +667,11 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity = self.queryset_activities.filter(pk=activity_id)
             return activity
         if state:
-            activity_filter &= Q(locations__state__name=state)
-            package_filter &= Q(locations__state__name=state)
+            activity_filter &= Q(locations__state=state)
+            package_filter &= Q(locations__state=state)
         if city:
-            activity_filter &= Q(locations__destinations__name=city)
-            package_filter &= Q(locations__destinations__name=city)
+            activity_filter &= Q(locations__destinations=city)
+            package_filter &= Q(locations__destinations=city)
         if category:
             activity_filter &= Q(category=category)
             package_filter &= Q(category=category)

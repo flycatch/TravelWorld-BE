@@ -191,18 +191,15 @@ class ActivityInformationsSerializer(serializers.ModelSerializer):
                 inclusion_instance = inclusion_data.get('inclusion')
 
                 if inclusion_id:
-                    print(1)
                     try:
                         inclusion_obj = ActivityInclusionInformation.objects.get(pk=inclusion_id)
                         ActivityInclusionInformationSerializer().update(instance=inclusion_obj, validated_data=inclusion_data)
                     except ObjectDoesNotExist:
                         raise ValidationError(f"InclusionInformation with ID {inclusion_id} does not exist.")
                 else:
-                    print(2)
                     if inclusion_instance:
                         inclusion_id = inclusion_instance.id
                         inclusion_data['inclusion'] = inclusion_id
-                        print(inclusion_data)
                     inclusion_serializer = ActivityInclusionInformationSerializer(data=inclusion_data)
                     inclusion_serializer.is_valid(raise_exception=True)
                     inclusion_instance = inclusion_serializer.save()
@@ -386,7 +383,6 @@ class ActivityFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             activity_faq_data = ActivityFaqQuestionAnswer.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 faq_category_data = ActivityFaqCategory.objects.create(**data)
                 activity_faq_data.category.add(faq_category_data)
         except Exception as error:
@@ -445,11 +441,11 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Activity
-        fields = ["id","activity_uid","title","tour_class",
-                  "locations","agent","activity_image","min_price", "category",
-                  "total_reviews","average_review_rating","duration","duration_day",
-                  "duration_night","duration_hour", "deal_type"]
-        
+        fields = ["id","activity_uid","title","tour_class", "locations","agent",
+                  "activity_image","min_price", "category", "total_reviews",
+                  "average_review_rating","duration","duration_day", "duration_night",
+                  "duration_hour", "min_members", "max_members", "deal_type"]
+
     def get_min_price(self, obj):
         pricing_activity = obj.pricing_activity.all()
         if pricing_activity.exists():

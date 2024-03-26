@@ -103,7 +103,7 @@ class InclusionsSerializer(serializers.ModelSerializer):
 class ExclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'package']
 
 
 class ItinerarySerializer(serializers.ModelSerializer):

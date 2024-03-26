@@ -97,7 +97,7 @@ class PackageImageSerializer(serializers.ModelSerializer):
 class InclusionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inclusions
-        fields = ['id', 'name']
+        fields = ['id', 'name','package']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):

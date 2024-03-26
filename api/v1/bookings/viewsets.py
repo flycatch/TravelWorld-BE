@@ -242,6 +242,29 @@ class CustomerBookingDetailsView(APIView):
 
             with transaction.atomic():
                 # contact_persons_data = request.data.pop('contact_persons', [])
+
+                package_id = request.data['package']
+                package = Package.objects.values('min_members', 'max_members').get(id=package_id)
+
+                package_min_members = package['min_members']
+                package_max_members = package['max_members']
+
+                adult_count = request.data.get('adult', 0)
+                child_count = request.data.get('child', 0)
+                infant_count = request.data.get('infant', 0)
+
+                total_members = adult_count + child_count + infant_count
+
+                if total_members > package_max_members:
+                    return Response({'status': 'error', 'message': 'Total members exceed package maximum limit.',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
+
+                if total_members < package_min_members:
+                    return Response({'status': 'error', 'message': 'Total members are below package minimum limit.',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
+
                 
                 serializer = BookingCreateSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)

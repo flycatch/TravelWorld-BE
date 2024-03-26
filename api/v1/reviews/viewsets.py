@@ -234,8 +234,8 @@ class UserReviewActionView(viewsets.GenericViewSet):
 
 
 class AgentUserReviewListView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     serializer_class = UserReviewDetailSerializer
     pagination_class = CustomPagination
     filterset_class = ReviewFilter
@@ -267,8 +267,8 @@ class AgentUserReviewListView(ListAPIView):
         
             
 class UserRatingsView(APIView):
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     
 
     def get(self, request, *args, **kwargs):

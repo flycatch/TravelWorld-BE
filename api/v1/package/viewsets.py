@@ -538,8 +538,8 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     
 
 class PackageHomePageView(ListAPIView):
-    # serializer_class = HomePagePackageSerializer
-    # pagination_class = CustomPagination
+    serializer_class = HomePagePackageSerializer
+    pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['user__username','booking_id'] 
     filterset_class = PackageFilter

@@ -434,6 +434,13 @@ class BookingAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return True
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.exclude(booking_status='PENDING')
+        return queryset
+    
+    
 
 
 # class TransactionAdmin(CustomModelAdmin):

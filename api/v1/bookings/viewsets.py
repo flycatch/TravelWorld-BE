@@ -298,9 +298,9 @@ class CustomerBookingDetailsView(APIView):
                 #                         status=status.HTTP_400_BAD_REQUEST)
                 
 
-                AgentTransactionSettlement.objects.create(package_id=instance.package_id,
-                                                  booking=instance,
-                                                  agent_id=instance.package.agent_id)
+                # AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                #                                   booking=instance,
+                #                                   agent_id=instance.package.agent_id)
                 
 
                 return Response({"message":"Booking created successfully",
@@ -364,6 +364,11 @@ class CustomerBookingUpdateView(APIView):
                     contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
                     contact_serializer.is_valid(raise_exception=True)
                     contact_serializer.save(booking_id=instance.id)
+
+
+                AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                  booking=instance,
+                                                  agent_id=instance.package.agent_id)
 
             
                 return Response({"message": "Booking Updated Successfully",

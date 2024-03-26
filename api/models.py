@@ -693,7 +693,8 @@ class Booking(BaseModel):
                                         blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
     is_trip_completed = models.BooleanField(default=0)
-
+    pricing = models.ForeignKey(
+        Pricing, on_delete=models.CASCADE, null=True, blank=True,related_name='booking_pricing')
 
 
     def __str__(self):

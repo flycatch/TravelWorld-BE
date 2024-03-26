@@ -98,7 +98,7 @@ class PackageInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
-    template = 'admin/information_tab.html'
+    # template = 'admin/information_tab.html'
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -185,7 +185,7 @@ class ActivityInformationsInline(CustomStackedInline):
     exclude = ['exclusiondetails', 'status']
     verbose_name = 'Information'
     verbose_name_plural = 'Information'
-    template = 'admin/information_tab.html'
+    # template = 'admin/information_tab.html'
 
     def has_change_permission(self, request, obj=None):
         return False

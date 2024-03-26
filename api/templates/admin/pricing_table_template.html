@@ -1,0 +1,30 @@
+<style>
+    .pricing-container {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    .pricing-table {
+        border-collapse: collapse;
+        width: 100%; /* Set the table's width to 100% */
+    }
+    .pricing-table th, .pricing-table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: left;
+    }
+    .pricing-table th {
+        background-color: #f2f2f2;
+    }
+    .pricing-table tr {
+        margin-bottom: 10px;
+    }
+</style>
+
+    <table class='pricing-table'>
+        {% for header, pricing in pricing_dict.items %}
+            <tr>
+                <td>{{ header }}</td>
+                <td>{{ pricing }}</td>
+            </tr>
+        {% endfor %}
+    </table>

@@ -19,7 +19,8 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
-                                        PricingSerializer,HomePagePackageSerializer,)
+                                        PricingSerializer,HomePagePackageSerializer,
+                                        HomePageCategorySerializer)
 from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
 from django.db.models import Q
 from django.db import transaction
@@ -666,11 +667,11 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity = self.queryset_activities.filter(pk=activity_id)
             return activity
         if state:
-            activity_filter &= Q(state=state)
-            package_filter &= Q(state=state)
+            activity_filter &= Q(locations__state__name=state)
+            package_filter &= Q(locations__state__name=state)
         if city:
-            activity_filter &= Q(city=city)
-            package_filter &= Q(city=city)
+            activity_filter &= Q(locations__destinations__name=city)
+            package_filter &= Q(locations__destinations__name=city)
         if category:
             activity_filter &= Q(category=category)
             package_filter &= Q(category=category)
@@ -745,3 +746,9 @@ class SearchSuggestionAPIView(APIView):
         suggestions = {'results': sorted_values}
 
         return JsonResponse(suggestions)
+
+
+class HomePageCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PackageCategory.objects.all()
+    serializer_class = HomePageCategorySerializer
+    pagination_class = CustomPagination

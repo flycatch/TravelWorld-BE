@@ -508,14 +508,17 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
 
 
     def get_permissions(self):
+        permissions = []
         if self.action in ['create', 'update']:
-            return [IsAuthenticated()]
-        return []
+            permissions.append(IsAuthenticated())
+        return permissions
 
     def get_authenticators(self):
+        authenticators = []
         if self.action in ['create', 'update']:
-            return [TokenAuthentication()]
-        return []
+            authenticators.append(TokenAuthentication())
+        return authenticators
+
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)

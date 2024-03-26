@@ -374,8 +374,8 @@ class BookingAdmin(admin.ModelAdmin):
             for pricing in pricing_list:
                 pricing_dict = {'Price': pricing.price, 'Adults Rate': pricing.adults_rate, 'Adults Commission': pricing.adults_commission,
                                 'Child Rate': pricing.child_rate, 'Child Commission': pricing.child_commission, 'Infant Rate': pricing.infant_rate,
-                                'Infant Commission': pricing.infant_commission, 'Discount': pricing.discount, 'Total': pricing.total,
-                                'Start Date': pricing.start_date, 'End Date': pricing.end_date}
+                                'Infant Commission': pricing.infant_commission,
+                                'Tour Date': pricing.start_date, }
 
             # Render the HTML template with pricing_list
             pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})

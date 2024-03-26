@@ -597,9 +597,9 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = PackageImageSerializer(images, many=True, context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed', 'message': 'Please provide a package id',
-                             'error':serializer.errors,
-                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'failed',
+                             'message': 'Please provide a package id',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

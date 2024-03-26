@@ -509,13 +509,13 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         permissions = []
-        if self.action in ['create', 'update']:
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             permissions.append(IsAuthenticated())
         return permissions
 
     def get_authenticators(self):
         authenticators = []
-        if self.action in ['create', 'update']:
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             authenticators.append(TokenAuthentication())
         return authenticators
 

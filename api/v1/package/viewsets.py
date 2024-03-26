@@ -323,8 +323,8 @@ class PackageInformationsViewSet(viewsets.ModelViewSet):
 
 class PricingViewSet(viewsets.ModelViewSet):
     serializer_class = PricingSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package",None)
 
@@ -538,8 +538,8 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     
 
 class PackageHomePageView(ListAPIView):
-    serializer_class = HomePagePackageSerializer
-    pagination_class = CustomPagination
+    # serializer_class = HomePagePackageSerializer
+    # pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['user__username','booking_id'] 
     filterset_class = PackageFilter

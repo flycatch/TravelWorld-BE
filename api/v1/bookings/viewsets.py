@@ -523,8 +523,8 @@ class AdvanceAmountPercentageSettingListView(APIView):
       Returns the advance-amount-percentage-list 
     
     """
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
    

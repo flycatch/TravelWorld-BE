@@ -503,8 +503,19 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
 
 class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = PackageFaqQuestionAnswerSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
+
+
+    def get_permissions(self):
+        if self.action in ['create', 'update']:
+            return [IsAuthenticated()]
+        return []
+
+    def get_authenticators(self):
+        if self.action in ['create', 'update']:
+            return [TokenAuthentication()]
+        return []
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)

@@ -102,7 +102,7 @@ class PackageViewSet(viewsets.ModelViewSet):
         else:
             # Package already submitted, return message
             return Response({'id': instance.id, 
-                             'message': 'This package has already been submitted.', 'status': 'Failed',
+                             'message': 'This package has already been submitted.', 'status': 'error',
                              'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'id': instance.id, 
@@ -634,7 +634,7 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = PackageImageSerializer(images, many=True, context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed',
+            return Response({'status': 'error',
                              'message': 'Please provide a package id',
                              'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
@@ -651,7 +651,7 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             return Response({'status': 'success', 'message': 'Images uploaded successfully',
                              'statusCode': status.HTTP_200_OK}, status=status.HTTP_200_OK)
         else:
-            return Response({'status': 'failed', 'message': 'Images upload failed',
+            return Response({'status': 'error', 'message': 'Images upload failed',
                              'error':serializer.errors,
                              'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -780,6 +780,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             return Response([])
 
         serializer = self.serializer_class(filtered_queryset, many=True)
+        print(serializer.data)
         return Response(serializer.data)
 
 

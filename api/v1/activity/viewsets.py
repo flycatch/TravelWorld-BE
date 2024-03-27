@@ -91,7 +91,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
         else:
             # activity already submitted, return message
             return Response({'id': instance.id, 
-                             'message': 'This activity has already been submitted.', 'status': 'Failed',
+                             'message': 'This activity has already been submitted.', 'status': 'error',
                              'statusCode':status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'id': instance.id, 
@@ -419,7 +419,7 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = ActivityImageSerializer(images, many=True,  context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed',
+            return Response({'status': 'error',
                              'message': 'Please provide a activity id',
                              'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
@@ -439,13 +439,13 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
                     return Response({'status': 'success', 'message': 'Images uploaded successfully',
                                     'statusCode': status.HTTP_200_OK}, status=status.HTTP_200_OK)
                 except Activity.DoesNotExist:
-                    return Response({'status': 'failed', 'message': 'Activity not found',
+                    return Response({'status': 'error', 'message': 'Activity not found',
                                     'statusCode': status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
             else:
-                return Response({'status': 'failed', 'message': 'Activity ID is required',
+                return Response({'status': 'error', 'message': 'Activity ID is required',
                                 'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({'status': 'failed', 'message': 'Images upload failed',
+            return Response({'status': 'error', 'message': 'Images upload failed',
                              'error':serializer.errors,
                              'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
 

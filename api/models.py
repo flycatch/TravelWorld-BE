@@ -242,7 +242,7 @@ class Activity(BaseModel):
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
-        default='pending',
+        default='in-progress',
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)

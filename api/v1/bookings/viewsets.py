@@ -256,12 +256,14 @@ class CustomerBookingDetailsView(APIView):
                 total_members = adult_count + child_count + infant_count
 
                 if total_members > package_max_members:
-                    return Response({'status': 'error', 'message': 'Total members exceed package maximum limit.',
-                             'statusCode': status.HTTP_400_BAD_REQUEST},
-                             status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'status': 'error', 
+                                    'message': f'The total number of members ({total_members}) exceeds the maximum limit allowed . The max range is ({package_max_members}).',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
 
                 if total_members < package_min_members:
-                    return Response({'status': 'error', 'message': 'Total members are below package minimum limit.',
+                    return Response({'status': 'error',
+                            'message': f'The total number of members ({total_members}) is below the minimum required . The min range is ({package_min_members}).',
                              'statusCode': status.HTTP_400_BAD_REQUEST},
                              status=status.HTTP_400_BAD_REQUEST)
 

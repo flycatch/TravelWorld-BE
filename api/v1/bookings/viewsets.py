@@ -345,10 +345,11 @@ class CustomerBookingUpdateView(APIView):
                 return Response({"message": "Booking object not found", "status": "error",
                             "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
             
-
-            if 'adult' in request.data and 'child' in'Bchild' and 'infant' in request.data:
-
+            print("enter")
+            if 'adult' in request.data and 'child' in request.data and 'infant' in request.data:
+                print("hi")
                 if 'package' in request.data:
+                    print("hi12")
                     package_id = request.data['package']
                     package = Package.objects.values('min_members', 'max_members').get(id=package_id)
 
@@ -358,6 +359,7 @@ class CustomerBookingUpdateView(APIView):
 
                     
                 elif 'activity' in request.data:
+                    print("hi13")
                     activity_id = request.data['activity']
                     activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
 

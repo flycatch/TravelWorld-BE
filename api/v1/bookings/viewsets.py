@@ -249,6 +249,7 @@ class CustomerBookingDetailsView(APIView):
 
                     package_min_members = package['min_members']
                     package_max_members = package['max_members']
+                    activity_max_members = activity_min_members = None
                 
                 elif 'activity' in request.data:
                     activity_id = request.data['activity']

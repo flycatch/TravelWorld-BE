@@ -607,8 +607,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                             'from_day': category.from_day,
                             'amount_percent': category.amount_percent,
                             }
-          
-                        # formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
                     else:
                         category_dict = {
                             'from_day': category.from_day,
@@ -616,7 +614,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                             'amount_percent': category.amount_percent,
                             }
 
-                        # formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
                     cancellation_categories.append(category_dict)
 
         if not cancellation_categories:
@@ -791,8 +788,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                             'from_day': category.from_day,
                             'amount_percent': category.amount_percent,
                             }
-          
-                        # formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
                     else:
                         category_dict = {
                             'from_day': category.from_day,
@@ -800,7 +795,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                             'amount_percent': category.amount_percent,
                             }
 
-                        # formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
                     cancellation_categories.append(category_dict)
 
         if obj.activity:
@@ -815,8 +809,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                             'from_day': category.from_day,
                             'amount_percent': category.amount_percent,
                             }
-          
-                        # formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
                     else:
                         category_dict = {
                             'from_day': category.from_day,
@@ -824,7 +816,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                             'amount_percent': category.amount_percent,
                             }
 
-                        # formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
                     cancellation_categories.append(category_dict)
 
         if not cancellation_categories:

@@ -680,6 +680,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         is_popular = self.request.query_params.get('is_popular')
         package_id = self.request.query_params.get('package')
         activity_id = self.request.query_params.get('activity')
+        duration_filter = self.request.query_params.get('duration_filter')
 
         price_range_min = self.request.query_params.get('price_range_min')
         price_range_max = self.request.query_params.get('price_range_max')
@@ -723,6 +724,21 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
             & Q(pricing_package__adults_rate__lte=price_range_max)
+
+        if duration_filter:
+            if duration_filter == 'full_day':
+                activity_filter &= Q(duration='day', duration_day=1, duration_night=1)| \
+                    Q(duration='hour', duration_hour__gt=12)
+                package_filter &= Q(duration='day', duration_day=1, duration_night=1)| \
+                    Q(duration='hour', duration_hour__gt=12)
+            elif duration_filter == 'multi_day':
+                activity_filter &= Q(duration='day', duration_day__gt=1, duration_night__gt=1)| \
+                    Q(duration='hour', duration_hour__gt=24)
+                package_filter &= Q(duration='day', duration_day__gt=1, duration_night__gt=1)| \
+                    Q(duration='hour', duration_hour__gt=24)
+            elif duration_filter == 'half_day':
+                activity_filter &= Q(duration='hour',duration_hour__lte=12)
+                package_filter &= Q(duration='hour',duration_hour__lte=12)
 
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)

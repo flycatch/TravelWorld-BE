@@ -589,9 +589,16 @@ class BookingCalculationsView(APIView):
             child_count  = booking.child
             infant_count = booking.infant
 
+
+            print(adult_count)
+            print(child_count)
+            print(infant_count)
             full_amount_payment = (adult_per_rate * adult_count) + (child_per_rate * child_count) + (infant_per_rate * infant_count)
+            print(full_amount_payment)
             partial_payment_percentage = AdvanceAmountPercentageSetting.objects.first().percentage
+            print(partial_payment_percentage)
             partial_payment_amount = Decimal(full_amount_payment) * Decimal(partial_payment_percentage) / 100
+            print(partial_payment_amount)
             results = {
                             "adult_per_rate": adult_per_rate,
                             "child_per_rate": child_per_rate,
@@ -605,6 +612,7 @@ class BookingCalculationsView(APIView):
 
                         }
 
+            print(results)
             return Response({"results":results,
                             "message":"Listed successfully",
                             "status": "success",

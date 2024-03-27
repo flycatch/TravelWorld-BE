@@ -374,8 +374,8 @@ class BookingAdmin(admin.ModelAdmin):
             for pricing in pricing_list:
                 pricing_dict = {'Price': pricing.price, 'Adults Rate': pricing.adults_rate, 'Adults Commission': pricing.adults_commission,
                                 'Child Rate': pricing.child_rate, 'Child Commission': pricing.child_commission, 'Infant Rate': pricing.infant_rate,
-                                'Infant Commission': pricing.infant_commission, 'Discount': pricing.discount, 'Total': pricing.total,
-                                'Start Date': pricing.start_date, 'End Date': pricing.end_date}
+                                'Infant Commission': pricing.infant_commission,
+                                'Tour Date': pricing.start_date, }
 
             # Render the HTML template with pricing_list
             pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
@@ -818,7 +818,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.exclude(booking_status='PENDING')
+        queryset = queryset.exclude(payment_settlement_status='PENDING')
         return queryset
 
 
@@ -1132,9 +1132,10 @@ admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
 
-# admin.site.register(CancellationPolicy)
-# admin.site.register(PackageCancellationCategory)
-# admin.site.register(ContactPerson)
+admin.site.register(CancellationPolicy)
+admin.site.register(PackageCancellationCategory)
+admin.site.register(ActivityCancellationCategory)
+admin.site.register(ActivityCancellationPolicy)
 admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)

@@ -298,9 +298,9 @@ class CustomerBookingDetailsView(APIView):
                 #                         status=status.HTTP_400_BAD_REQUEST)
                 
 
-                AgentTransactionSettlement.objects.create(package_id=instance.package_id,
-                                                  booking=instance,
-                                                  agent_id=instance.package.agent_id)
+                # AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                #                                   booking=instance,
+                #                                   agent_id=instance.package.agent_id)
                 
 
                 return Response({"message":"Booking created successfully",
@@ -358,12 +358,17 @@ class CustomerBookingUpdateView(APIView):
             # Deserialize and save the updated instance
             serializer = self.serializer_class(instance, data=request.data, partial=True)
             if serializer.is_valid():
-                serializer.save()
+                booking_obj = serializer.save()
 
                 if bool(contact_persons_data):
                     contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
                     contact_serializer.is_valid(raise_exception=True)
                     contact_serializer.save(booking_id=instance.id)
+
+                if booking_obj.booking_status == 'SUCCESSFUL':
+                    AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                    booking=instance,
+                                                    agent_id=instance.package.agent_id)
 
             
                 return Response({"message": "Booking Updated Successfully",
@@ -518,8 +523,8 @@ class AdvanceAmountPercentageSettingListView(APIView):
       Returns the advance-amount-percentage-list 
     
     """
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
    

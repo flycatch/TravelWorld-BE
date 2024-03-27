@@ -344,7 +344,11 @@ class CustomerBookingUpdateView(APIView):
             infant_count = request.data.get('infant', 0)
 
             total_members = adult_count + child_count + infant_count
-
+            print(package)
+            print(adult_count)
+            print(child_count)
+            print(infant_count)
+            print(total_members)
             if total_members > package_max_members:
                 return Response({'status': 'error', 'message': 'Total members exceed package maximum limit.',
                             'statusCode': status.HTTP_400_BAD_REQUEST},

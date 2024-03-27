@@ -171,20 +171,14 @@ class ActivityDeleteDraft(viewsets.ModelViewSet):
 class ActivityItineraryViewSet(viewsets.ModelViewSet):
     queryset = ActivityItinerary.objects.all()
     serializer_class = ActivityItinerarySerializer
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def get_permissions(self):
-        permissions = []
-        if self.request.method in ['POST', 'PUT', 'PATCH']:
-            permissions.append(IsAuthenticated())
-        return permissions
-
-    def get_authenticators(self):
-        authenticators = []
-        if self.request.method in ['POST', 'PUT', 'PATCH']:
-            authenticators.append(TokenAuthentication())
-        return authenticators
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity", None)
@@ -253,6 +247,12 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
     serializer_class = ActivityInformationsSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
@@ -360,20 +360,14 @@ class ActivityCancellationPolicyViewSet(viewsets.ModelViewSet):
 
 class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = ActivityFaqQuestionAnswerSerializer
-    # permission_classes = [IsAuthenticated]
-    # authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
     def get_permissions(self):
-        permissions = []
-        if self.request.method in ['POST', 'PUT', 'PATCH']:
-            permissions.append(IsAuthenticated())
-        return permissions
-
-    def get_authenticators(self):
-        authenticators = []
-        if self.request.method in ['POST', 'PUT', 'PATCH']:
-            authenticators.append(TokenAuthentication())
-        return authenticators
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
 
     def get_queryset(self, **kwargs):

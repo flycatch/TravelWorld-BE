@@ -416,6 +416,7 @@ class PricingNewView(APIView):
                     serializer.is_valid(raise_exception=True)
 
                     if serializer.is_valid:
+                        serializer.save()
                         return Response({"message":"Pricing updated successfully",
                                 "status": "success",
                                 "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)

@@ -593,7 +593,21 @@ class BookingCalculationsView(APIView):
             print(adult_count)
             print(child_count)
             print(infant_count)
-            full_amount_payment = (adult_per_rate * adult_count) + (child_per_rate * child_count) + (infant_per_rate * infant_count)
+
+            # Initialize full_amount_payment
+            full_amount_payment = 0
+
+            # Calculate full_amount_payment if rates are available
+            if adult_per_rate is not None:
+                print("a1")
+                full_amount_payment += adult_per_rate * adult_count
+            if child_per_rate is not None:
+                print("a2")
+                full_amount_payment += child_per_rate * child_count
+            if infant_per_rate is not None:
+                print("a3")
+                full_amount_payment += infant_per_rate * infant_count
+
             print(full_amount_payment)
             partial_payment_percentage = AdvanceAmountPercentageSetting.objects.first().percentage
             print(partial_payment_percentage)

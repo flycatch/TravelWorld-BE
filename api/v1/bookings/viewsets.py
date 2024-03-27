@@ -373,7 +373,6 @@ class CustomerBookingUpdateView(APIView):
                 infant_count = request.data.get('infant', 0)
 
                 total_members = adult_count + child_count + infant_count
-                print(package)
                 print(adult_count)
                 print(child_count)
                 print(infant_count)

@@ -403,7 +403,7 @@ class AgentBookingListView(ListAPIView):
     
     def get_queryset(self):
         
-        queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).order_by("-id")
+        queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).exclude(booking_status='PENDING').order_by("-id")
         return queryset
     
     def list(self, request, *args, **kwargs):

@@ -462,3 +462,21 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
             average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
             return average_rating
         return None
+    
+
+class ActivityImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityImage
+        exclude = ['status', 'created_on', 'updated_on',]
+
+class BookingActivitySerializer(serializers.ModelSerializer):
+    agent = BookingAgentSerializer(required=False)
+    locations = LocationGetSerializer(many=True,required=False)
+    activity_image= ActivityImageSerializer(many=True, required=False)
+
+
+    class Meta:
+        model = Activity
+        fields = ["id","activity_uid","title","tour_class",
+                  "agent","activity_image","locations"]
+            

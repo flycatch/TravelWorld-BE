@@ -749,7 +749,7 @@ class UserRefundTransaction(AuditFields):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='user_refund_transaction_package')
+        Package, on_delete=models.CASCADE, null=True, blank=True, related_name='user_refund_transaction_package')
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='user_refund_transaction_activity')
     booking = models.ForeignKey(

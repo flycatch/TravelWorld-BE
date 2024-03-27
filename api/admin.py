@@ -1181,9 +1181,9 @@ class CoverPageInputAdmin(CustomModelAdmin):
         ('Cover Images', {
             'fields': ("activity_image", "package_image", "attraction_image")
         }),
-        # ('Filters', {
-        #     'fields': ('price_min','price_max')
-        # }),
+        ('Filters', {
+            'fields': ('price_min','price_max')
+        }),
     )
 
     def has_add_permission(self, request):

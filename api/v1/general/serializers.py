@@ -42,11 +42,11 @@ class LocationGetSerializer(serializers.ModelSerializer):
 
 class CoverPageInputSerializer(serializers.ModelSerializer):
     price_max = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = CoverPageInput
         fields = ['experience','clients','satisfaction',
-                  'activity_image', 'package_image', 'attraction_image','price_max']
+                  'activity_image', 'package_image', 'attraction_image','price_max','price_min']
         
     def get_price_max(self, obj):
         max_price = Pricing.objects.aggregate(max_adult_rate=Max('adults_rate'))['max_adult_rate']

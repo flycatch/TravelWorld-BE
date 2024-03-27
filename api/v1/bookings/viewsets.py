@@ -266,13 +266,13 @@ class CustomerBookingDetailsView(APIView):
 
                 total_members = adult_count + child_count + infant_count
 
-                if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members):
+                if (package_max_members is not None and total_members > package_max_members)  or (activity_max_members is not None and total_members > activity_max_members):
                     return Response({'status': 'error', 
                                     'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
                                 'statusCode': status.HTTP_400_BAD_REQUEST},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-                if total_members < package_min_members or (activity_min_members is not None and total_members < activity_min_members):
+                if (package_min_members is not None and total_members < package_min_members)  or (activity_min_members is not None and total_members < activity_min_members):
                     return Response({'status': 'error',
                             'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
                              'statusCode': status.HTTP_400_BAD_REQUEST},
@@ -377,13 +377,13 @@ class CustomerBookingUpdateView(APIView):
                 print(infant_count)
                 print(total_members)
 
-                if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members) :
+                if (package_max_members is not None and total_members > package_max_members)  or (activity_max_members is not None and total_members > activity_max_members) :
                     return Response({'status': 'error',
                                     'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
                                 'statusCode': status.HTTP_400_BAD_REQUEST},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-                if total_members < package_min_members or (activity_min_members is not None and total_members < activity_min_members):
+                if (package_min_members is not None and total_members < package_min_members) or (activity_min_members is not None and total_members < activity_min_members):
                     return Response({'status': 'error',
                                 'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
                                 'statusCode': status.HTTP_400_BAD_REQUEST},

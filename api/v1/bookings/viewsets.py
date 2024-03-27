@@ -345,44 +345,46 @@ class CustomerBookingUpdateView(APIView):
                             "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
             
 
-            if 'package' in request.data:
-                    package_id = request.data['package']
-                    package = Package.objects.values('min_members', 'max_members').get(id=package_id)
+            if 'adult' in request.data and 'child' in'Bchild' and 'infant' in request.data:
 
-                    package_min_members = package['min_members']
-                    package_max_members = package['max_members']
-                    activity_max_members = activity_min_members = None
+                if 'package' in request.data:
+                        package_id = request.data['package']
+                        package = Package.objects.values('min_members', 'max_members').get(id=package_id)
 
-                
-            elif 'activity' in request.data:
-                activity_id = request.data['activity']
-                activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
+                        package_min_members = package['min_members']
+                        package_max_members = package['max_members']
+                        activity_max_members = activity_min_members = None
 
-                activity_min_members = activity['min_members']
-                activity_max_members = activity['max_members']
+                    
+                elif 'activity' in request.data:
+                    activity_id = request.data['activity']
+                    activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
 
-            adult_count = request.data.get('adult', 0)
-            child_count = request.data.get('child', 0)
-            infant_count = request.data.get('infant', 0)
+                    activity_min_members = activity['min_members']
+                    activity_max_members = activity['max_members']
 
-            total_members = adult_count + child_count + infant_count
-            print(package)
-            print(adult_count)
-            print(child_count)
-            print(infant_count)
-            print(total_members)
+                adult_count = request.data.get('adult', 0)
+                child_count = request.data.get('child', 0)
+                infant_count = request.data.get('infant', 0)
 
-            if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members) :
-                return Response({'status': 'error',
-                                'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
-                            'statusCode': status.HTTP_400_BAD_REQUEST},
-                            status=status.HTTP_400_BAD_REQUEST)
+                total_members = adult_count + child_count + infant_count
+                print(package)
+                print(adult_count)
+                print(child_count)
+                print(infant_count)
+                print(total_members)
 
-            if total_members < package_min_members or (activity_min_members is not None and total_members < activity_min_members):
-                return Response({'status': 'error',
-                            'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
-                            'statusCode': status.HTTP_400_BAD_REQUEST},
-                            status=status.HTTP_400_BAD_REQUEST)
+                if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members) :
+                    return Response({'status': 'error',
+                                    'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+                if total_members < package_min_members or (activity_min_members is not None and total_members < activity_min_members):
+                    return Response({'status': 'error',
+                                'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             # Deserialize and save the updated instance
             serializer = self.serializer_class(instance, data=request.data, partial=True)

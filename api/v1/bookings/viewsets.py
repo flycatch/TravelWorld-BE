@@ -265,7 +265,7 @@ class CustomerBookingDetailsView(APIView):
 
                 total_members = adult_count + child_count + infant_count
 
-                if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members) :
+                if total_members > package_max_members or (activity_max_members is not None and total_members > activity_max_members):
                     return Response({'status': 'error', 
                                     'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
                                 'statusCode': status.HTTP_400_BAD_REQUEST},
@@ -351,6 +351,8 @@ class CustomerBookingUpdateView(APIView):
 
                     package_min_members = package['min_members']
                     package_max_members = package['max_members']
+                    activity_max_members = activity_min_members = None
+
                 
             elif 'activity' in request.data:
                 activity_id = request.data['activity']

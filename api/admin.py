@@ -362,20 +362,17 @@ class BookingAdmin(admin.ModelAdmin):
                     'fields': ('user', 'package', 'activity', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 'end_date',
-                               'refund_amount', )
+                               'refund_amount', 'pricing')
                 }),
             )
 
 
     def pricing_section(self, obj):
-        pricing_list = obj.package.pricing_package.all()
-        if pricing_list:
-            pricing_dict = {}
-            for pricing in pricing_list:
-                pricing_dict = {'Price': pricing.price, 'Adults Rate': pricing.adults_rate, 'Adults Commission': pricing.adults_commission,
-                                'Child Rate': pricing.child_rate, 'Child Commission': pricing.child_commission, 'Infant Rate': pricing.infant_rate,
-                                'Infant Commission': pricing.infant_commission,
-                                'Tour Date': pricing.start_date, }
+        pricing_obj = obj.pricing
+        if pricing_obj:
+            pricing_dict = {'Tour Date': pricing_obj.start_date, 'Adults Rate': pricing_obj.adults_rate, 'Adults Commission': pricing_obj.adults_commission,
+                            'Child Rate': pricing_obj.child_rate, 'Child Commission': pricing_obj.child_commission, 'Infant Rate': pricing_obj.infant_rate,
+                            'Infant Commission': pricing_obj.infant_commission, }
 
             # Render the HTML template with pricing_list
             pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})

@@ -805,6 +805,25 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
+class SendEnquiry(AuditFields):
+  
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_package')
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_activity')
+    name = models.CharField(max_length=256, null=True, blank=True, unique=True)
+    email = models.EmailField(null=True, blank=True)
+    message = models.TextField(blank=True, null=True)
+    country_code = models.CharField(max_length=5, null=True, blank=True, verbose_name='Country Code')
+    contact_number = models.CharField(max_length=15, null=True, blank=True, verbose_name='Contact Number')
+
+    class Meta:
+        verbose_name = 'Send Enquiry'
+        verbose_name_plural = 'Send Enquiry'
+
+
 # class TourType(AuditFields):
 #     title = models.CharField(max_length=256, null=True, blank=True)
 

@@ -257,6 +257,7 @@ class CustomerBookingDetailsView(APIView):
 
                     activity_min_members = activity['min_members']
                     activity_max_members = activity['max_members']
+                    package_max_members = package_min_members = None
 
 
                 adult_count = request.data.get('adult', 0)
@@ -348,12 +349,12 @@ class CustomerBookingUpdateView(APIView):
             if 'adult' in request.data and 'child' in'Bchild' and 'infant' in request.data:
 
                 if 'package' in request.data:
-                        package_id = request.data['package']
-                        package = Package.objects.values('min_members', 'max_members').get(id=package_id)
+                    package_id = request.data['package']
+                    package = Package.objects.values('min_members', 'max_members').get(id=package_id)
 
-                        package_min_members = package['min_members']
-                        package_max_members = package['max_members']
-                        activity_max_members = activity_min_members = None
+                    package_min_members = package['min_members']
+                    package_max_members = package['max_members']
+                    activity_max_members = activity_min_members = None
 
                     
                 elif 'activity' in request.data:
@@ -362,6 +363,8 @@ class CustomerBookingUpdateView(APIView):
 
                     activity_min_members = activity['min_members']
                     activity_max_members = activity['max_members']
+                    package_max_members = package_min_members = None
+
 
                 adult_count = request.data.get('adult', 0)
                 child_count = request.data.get('child', 0)

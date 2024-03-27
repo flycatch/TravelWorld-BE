@@ -256,12 +256,14 @@ class CustomerBookingDetailsView(APIView):
                 total_members = adult_count + child_count + infant_count
 
                 if total_members > package_max_members:
-                    return Response({'status': 'error', 'message': 'Total members exceed package maximum limit.',
-                             'statusCode': status.HTTP_400_BAD_REQUEST},
-                             status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'status': 'error', 
+                                    'message': f'The total number of members ({total_members}) exceeds the maximum limit allowed . The max range is ({package_max_members}).',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
 
                 if total_members < package_min_members:
-                    return Response({'status': 'error', 'message': 'Total members are below package minimum limit.',
+                    return Response({'status': 'error',
+                            'message': f'The total number of members ({total_members}) is below the minimum required . The min range is ({package_min_members}).',
                              'statusCode': status.HTTP_400_BAD_REQUEST},
                              status=status.HTTP_400_BAD_REQUEST)
 
@@ -572,9 +574,6 @@ class BookingCalculationsView(APIView):
         try:
 
             pricing_id = self.request.GET.get('pricing_id',None)
-
-            print(pricing_id)
-
             pricing = Pricing.objects.get(id=pricing_id)
 
             booking = Booking.objects.get(object_id=self.kwargs['object_id'])
@@ -583,36 +582,23 @@ class BookingCalculationsView(APIView):
             child_per_rate = pricing.child_rate
             infant_per_rate = pricing.infant_rate
 
-            print(booking)
-
             adult_count = booking.adult
             child_count  = booking.child
             infant_count = booking.infant
-
-
-            print(adult_count)
-            print(child_count)
-            print(infant_count)
 
             # Initialize full_amount_payment
             full_amount_payment = 0
 
             # Calculate full_amount_payment if rates are available
             if adult_per_rate is not None:
-                print("a1")
                 full_amount_payment += adult_per_rate * adult_count
             if child_per_rate is not None:
-                print("a2")
                 full_amount_payment += child_per_rate * child_count
             if infant_per_rate is not None:
-                print("a3")
                 full_amount_payment += infant_per_rate * infant_count
 
-            print(full_amount_payment)
             partial_payment_percentage = AdvanceAmountPercentageSetting.objects.first().percentage
-            print(partial_payment_percentage)
             partial_payment_amount = Decimal(full_amount_payment) * Decimal(partial_payment_percentage) / 100
-            print(partial_payment_amount)
             results = {
                             "adult_per_rate": adult_per_rate,
                             "child_per_rate": child_per_rate,
@@ -626,7 +612,6 @@ class BookingCalculationsView(APIView):
 
                         }
 
-            print(results)
             return Response({"results":results,
                             "message":"Listed successfully",
                             "status": "success",

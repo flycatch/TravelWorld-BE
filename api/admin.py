@@ -706,7 +706,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
         # Check if refund_status has changed and the new status is either "CANCELLED" or "REFUNDED"
         if change and obj.refund_status in ['CANCELLED', 'REFUNDED'] and obj.refund_status != original_obj.refund_status:
-            print("hi2")
             if obj.refund_status == 'REFUNDED':
                 Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
             elif obj.refund_status == 'CANCELLED':

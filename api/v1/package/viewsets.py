@@ -30,7 +30,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework.views import exception_handler
@@ -353,6 +353,11 @@ class PricingNewView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = PricingSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE','POST']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
     
     def post(self, request, *args, **kwargs):
         try:

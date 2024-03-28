@@ -722,8 +722,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity_filter &= Q(is_popular=True)
             package_filter &= Q(is_popular=True)
         if deal_type:
-            activity_filter &= Q(is_popular=True)
-            package_filter &= Q(is_popular=True)
+            activity_filter &= Q(deal_type=deal_type)
+            package_filter &= Q(deal_type=deal_type)
 
         if price_range_min is not None and price_range_max is not None:
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \

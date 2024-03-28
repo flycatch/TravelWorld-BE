@@ -324,6 +324,12 @@ class ActivityCancellationPolicyViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
 

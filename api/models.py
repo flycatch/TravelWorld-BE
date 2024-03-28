@@ -242,7 +242,7 @@ class Activity(BaseModel):
     stage = models.CharField(
         max_length=20,
         choices=STAGES_CHOICES,
-        default='pending',
+        default='in-progress',
         verbose_name='Stage'
     )
     is_submitted = models.BooleanField(default=False)
@@ -693,7 +693,8 @@ class Booking(BaseModel):
                                         blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
     is_trip_completed = models.BooleanField(default=0)
-
+    pricing = models.ForeignKey(
+        Pricing, on_delete=models.CASCADE, null=True, blank=True,related_name='booking_pricing')
 
 
     def __str__(self):
@@ -748,7 +749,7 @@ class UserRefundTransaction(AuditFields):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
     package = models.ForeignKey(
-        Package, on_delete=models.CASCADE, related_name='user_refund_transaction_package')
+        Package, on_delete=models.CASCADE, null=True, blank=True, related_name='user_refund_transaction_package')
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True,related_name='user_refund_transaction_activity')
     booking = models.ForeignKey(
@@ -804,6 +805,28 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
 
+class SendEnquiry(AuditFields):
+  
+    object_id = models.UUIDField(
+        unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_package')
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_activity')
+    name = models.CharField(max_length=256, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+    message = models.TextField(blank=True, null=True)
+    country_code = models.CharField(max_length=5, null=True, blank=True, verbose_name='Country Code')
+    contact_number = models.CharField(max_length=15, null=True, blank=True, verbose_name='Contact Number')
+
+    class Meta:
+        verbose_name = 'Send Enquiry'
+        verbose_name_plural = 'Send Enquiry'
+
+    def __str__(self):
+        return self.name if self.name else self.email
+
+
 # class TourType(AuditFields):
 #     title = models.CharField(max_length=256, null=True, blank=True)
 
@@ -833,7 +856,7 @@ class Attraction(BaseModel):
     city = models.ForeignKey(
         City, on_delete=models.CASCADE, related_name='attraction_state',
         null=True, blank=True, verbose_name="Destinations")
-    thumb_img = models.ImageField(
+    thumb_image = models.ImageField(
         upload_to='attraction/thumb_images/', 
         null=True, default=None, blank=True, verbose_name="Thumb Image")
     cover_img = models.ImageField(
@@ -1212,7 +1235,7 @@ class CoverPageInput(AuditFields):
                                       verbose_name="Package")
     attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
                                        verbose_name="Attraction")
-    price_min = models.IntegerField(null=True, blank=True)
+    price_min = models.IntegerField(null=True, blank=True,default=0)
     price_max = models.IntegerField(null=True, blank=True)
     
 

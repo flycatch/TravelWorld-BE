@@ -22,6 +22,7 @@ import calendar
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from datetime import date
+from django.template.loader import render_to_string
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -109,6 +110,12 @@ class InclusionsAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
+    def get_queryset(self, request):
+        # Get the base queryset
+        queryset = super().get_queryset(request)
+        # Filter the queryset to exclude exclusions with non-null package and activity
+        queryset = queryset.filter(package__isnull=True, activity__isnull=True)
+        return queryset
 
 class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
@@ -122,6 +129,12 @@ class ExclusionsAdmin(CustomModelAdmin):
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
+    def get_queryset(self, request):
+        # Get the base queryset
+        queryset = super().get_queryset(request)
+        # Filter the queryset to exclude exclusions with non-null package and activity
+        queryset = queryset.filter(package__isnull=True, activity__isnull=True)
+        return queryset
 
 class ActivityAdmin(CustomModelAdmin):
     list_display = ("activity_uid", "agent", "truncated_title", "tour_class","category",
@@ -361,23 +374,26 @@ class BookingAdmin(admin.ModelAdmin):
                     'fields': ('user', 'package', 'activity', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 'end_date',
-                               'refund_amount', )
+                               'refund_amount', 'pricing')
                 }),
             )
 
 
     def pricing_section(self, obj):
-        pricing_list = obj.package.pricing_package.all()
-        if pricing_list:
-            pricing_info = "<style>.pricing-table {border-collapse: collapse; width: 100%;} .pricing-table th, .pricing-table td {border: 1px solid #ddd; padding: 15px; text-align: left;} .pricing-table th {background-color: #f2f2f2;} .pricing-table tr {margin-bottom: 10px;}</style>"
-            pricing_info += "<table class='pricing-table'><tr><th>Price</th><th>Adults Rate</th><th>Adults Commission</th><th>Child Rate</th><th>Child Commission</th><th>Infant Rate</th><th>Infant Commission</th><th>Discount</th><th>Total</th><th>Start Date</th><th>End Date</th><th>Blackout Dates</th></tr>"
-            for pricing in pricing_list:
-                pricing_info += f"<tr><td>{pricing.price}</td><td>{pricing.adults_rate}</td><td>{pricing.adults_commission}</td><td>{pricing.child_rate}</td><td>{pricing.child_commission}</td><td>{pricing.infant_rate}</td><td>{pricing.infant_commission}</td><td>{pricing.discount}</td><td>{pricing.total}</td><td>{pricing.start_date}</td><td>{pricing.end_date}</td><td>{pricing.blackout_dates}</td></tr>"
-            pricing_info += "</table>"
+        pricing_obj = obj.pricing
+        if pricing_obj:
+            pricing_dict = {'Tour Date': pricing_obj.start_date, 'Adults Rate': pricing_obj.adults_rate, 'Adults Commission': pricing_obj.adults_commission,
+                            'Child Rate': pricing_obj.child_rate, 'Child Commission': pricing_obj.child_commission, 'Infant Rate': pricing_obj.infant_rate,
+                            'Infant Commission': pricing_obj.infant_commission, }
+
+            # Render the HTML template with pricing_list
+            pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
             return mark_safe(pricing_info)  # Mark the string as safe HTML
         else:
             return "No pricing information available."
-        
+
+    pricing_section.short_description = ""
+
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
@@ -433,7 +449,14 @@ class BookingAdmin(admin.ModelAdmin):
         return True
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return True
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.exclude(booking_status='PENDING')
+        return queryset
+    
+    
 
 
 # class TransactionAdmin(CustomModelAdmin):
@@ -520,7 +543,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
                                 'activity_uid', 'activity_name', 'agent', 'agent_uid', 'display_created_on',
-                                    'refund_status', 'refund_amount','cancellation_policies')
+                                    'refund_status', 'refund_amount')
+                    }),
+                    ('Cancellation policy', {
+                        'fields': ('cancellation_policies',)
                     }),
                 )
             else:
@@ -528,13 +554,16 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                     (None, {
                         'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
                                 'package_uid', 'package_name', 'agent', 'agent_uid', 'display_created_on',
-                                    'refund_status', 'refund_amount','cancellation_policies')
+                                    'refund_status', 'refund_amount')
+                    }),
+                    ('Cancellation policy', {
+                        'fields': ('cancellation_policies',)
                     }),
                 )
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'booking', 'refund_status', 'refund_amount', 'user',)
+                    'fields': ('package', 'activity', 'booking', 'refund_status', 'refund_amount', 'user',)
                 }),
             )
         
@@ -547,23 +576,54 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     exclude = ('status',)
 
     def cancellation_policies(self, obj):
+        cancellation_categories = []
+        
         if obj.package:
             policies = CancellationPolicy.objects.filter(package=obj.package)
-            formatted_policies = ""
             for policy in policies:
                 categories = policy.category.all()
-                formatted_categories = []
                 for category in categories:
                     if category.to_day == 0:
-                        formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'amount_percent': category.amount_percent,
+                            }
                     else:
-                        formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
-                    formatted_categories.append(formatted_category)
-                formatted_policies += "\n".join(formatted_categories) + "\n"
-            return formatted_policies
-        return None
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'to_day': category.to_day,
+                            'amount_percent': category.amount_percent,
+                            }
+                    cancellation_categories.append(category_dict)
+
+        if obj.activity:
+            policies = ActivityCancellationPolicy.objects.filter(activity=obj.activity)
+            for policy in policies:
+                categories = policy.category.all()
+                cancellation_categories = []
+                for category in categories:
+                    if category.to_day == 0:
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'amount_percent': category.amount_percent,
+                            }
+                    else:
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'to_day': category.to_day,
+                            'amount_percent': category.amount_percent,
+                            }
+
+                    cancellation_categories.append(category_dict)
+
+        if not cancellation_categories:
+            return "No cancellation policies available."
+        
+        # Render the HTML template with pricing_list
+        cancellation_info = render_to_string('admin/cancellation_table_template.html', {'cancellation_category': cancellation_categories})
+        return mark_safe(cancellation_info)  # Mark the string as safe HTML
     
-    cancellation_policies.short_description = "Cancellation Policies"
+    cancellation_policies.short_description = ""
 
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
@@ -631,7 +691,8 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid',"booking_date", 'agent',
-                                 'display_created_on', 'package_name','booking_amount','cancellation_policies','user')
+                                 'display_created_on', 'package_name','booking_amount','cancellation_policies','user',
+                                 'activity_uid', 'activity_name')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -645,7 +706,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
         # Check if refund_status has changed and the new status is either "CANCELLED" or "REFUNDED"
         if change and obj.refund_status in ['CANCELLED', 'REFUNDED'] and obj.refund_status != original_obj.refund_status:
-            print("hi2")
             if obj.refund_status == 'REFUNDED':
                 Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
             elif obj.refund_status == 'CANCELLED':
@@ -714,22 +774,56 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     exclude = ('status',)
 
     def cancellation_policies(self, obj):
+        cancellation_categories = []
+        
         if obj.package:
             policies = CancellationPolicy.objects.filter(package=obj.package)
             formatted_policies = ""
             for policy in policies:
                 categories = policy.category.all()
-                formatted_categories = []
                 for category in categories:
                     if category.to_day == 0:
-                        formatted_category = f"The cancellation policy before {category.from_day} days: {category.amount_percent}%"
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'amount_percent': category.amount_percent,
+                            }
                     else:
-                        formatted_category = f"The cancellation policy from {category.from_day} to {category.to_day} days: {category.amount_percent}%"
-                    formatted_categories.append(formatted_category)
-                formatted_policies += "\n".join(formatted_categories) + "\n"
-            return formatted_policies
-        return None
-    
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'to_day': category.to_day,
+                            'amount_percent': category.amount_percent,
+                            }
+
+                    cancellation_categories.append(category_dict)
+
+        if obj.activity:
+            policies = ActivityCancellationPolicy.objects.filter(activity=obj.activity)
+            formatted_policies = ""
+            for policy in policies:
+                categories = policy.category.all()
+                cancellation_categories = []
+                for category in categories:
+                    if category.to_day == 0:
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'amount_percent': category.amount_percent,
+                            }
+                    else:
+                        category_dict = {
+                            'from_day': category.from_day,
+                            'to_day': category.to_day,
+                            'amount_percent': category.amount_percent,
+                            }
+
+                    cancellation_categories.append(category_dict)
+
+        if not cancellation_categories:
+            return "No cancellation policies available."
+        
+        # Render the HTML template with pricing_list
+        cancellation_info = render_to_string('admin/cancellation_table_template.html', {'cancellation_category': cancellation_categories})
+        return mark_safe(cancellation_info)  # Mark the string as safe HTML
+
     cancellation_policies.short_description = ''
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
@@ -769,7 +863,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                  'display_created_on', 'package_name','booking_amount', 'booking_type',
-                                 'cancellation_policies')
+                                 'cancellation_policies', 'activity_uid', 'activity_name')
         return super().change_view(request, object_id, form_url, extra_context)
     
     def save_model(self, request, obj, form, change):
@@ -803,6 +897,11 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
+    
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.exclude(payment_settlement_status='PENDING')
+        return queryset
 
 
 class UserReviewAdmin(CustomModelAdmin):
@@ -1115,12 +1214,15 @@ admin.site.register(PackageCategory,PackageCategoryAdmin)
 admin.site.register(Currency)
 admin.site.register(UserReview,UserReviewAdmin)
 
-# admin.site.register(CancellationPolicy)
-# admin.site.register(PackageCancellationCategory)
-# admin.site.register(ContactPerson)
+admin.site.register(CancellationPolicy)
+admin.site.register(PackageCancellationCategory)
+admin.site.register(ActivityCancellationCategory)
+admin.site.register(ActivityCancellationPolicy)
 admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
+admin.site.register(SendEnquiry)
+
 
 
 

@@ -5,7 +5,7 @@ from rest_framework import serializers
 from api.v1.package.serializers import BookingPackageSerializer
 from api.v1.user.serializers import UserBookingSerializer
 from api.v1.agent.serializers import BookingAgentSerializer
-
+from api.v1.activity.serializers import BookingActivitySerializer
 
 
 class ContactPersonSerializer(serializers.ModelSerializer):
@@ -17,18 +17,18 @@ class ContactPersonSerializer(serializers.ModelSerializer):
 
 class BookingUserReviewImageSerializer(serializers.ModelSerializer):
 
-    images = serializers.SerializerMethodField()
+    # images = serializers.SerializerMethodField()
 
-    def get_images(self, obj):
-        request = self.context.get('request')
-        print("a2")
-        print(request)
-        print(obj.images)
-        if request is not None and obj.images:
-            print("a3")
-            print(request.build_absolute_uri(obj.images.url))
-            return request.build_absolute_uri(obj.images.url)
-        return None
+    # def get_images(self, obj):
+    #     request = self.context.get('request')
+    #     print("a2")
+    #     print(request)
+    #     print(obj.images)
+    #     if request is not None and obj.images:
+    #         print("a3")
+    #         print(request.build_absolute_uri(obj.images.url))
+    #         return request.build_absolute_uri(obj.images.url)
+    #     return None
     
     class Meta:
         model = UserReviewImage
@@ -52,6 +52,7 @@ class BookingSerializer(serializers.ModelSerializer):
     user = UserBookingSerializer(required=False)
     contact_person_booking = ContactPersonSerializer(many=True, read_only=True)
     user_review_booking = BookingUserReviewSerializer(required=False)
+    activity = BookingActivitySerializer(required=False)
 
 
     class Meta:

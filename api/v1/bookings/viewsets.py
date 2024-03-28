@@ -99,7 +99,7 @@ class CustomerBookingListView(ListAPIView):
 
         queryset = Booking.objects.filter(user=self.kwargs['user_id'],
                                           is_trip_completed=0,
-                                          tour_date__gt=today_date,
+                                          tour_date__gte=today_date,
                                           booking_status__in=["SUCCESSFUL","REFUNDED REQUESTED"]).order_by("-id")
         return queryset
         
@@ -242,6 +242,42 @@ class CustomerBookingDetailsView(APIView):
 
             with transaction.atomic():
                 # contact_persons_data = request.data.pop('contact_persons', [])
+
+                if 'package' in request.data:
+                    package_id = request.data['package']
+                    package = Package.objects.values('min_members', 'max_members').get(id=package_id)
+
+                    package_min_members = package['min_members']
+                    package_max_members = package['max_members']
+                    activity_max_members = activity_min_members = None
+                
+                elif 'activity' in request.data:
+                    activity_id = request.data['activity']
+                    activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
+
+                    activity_min_members = activity['min_members']
+                    activity_max_members = activity['max_members']
+                    package_max_members = package_min_members = None
+
+
+                adult_count = request.data.get('adult', 0)
+                child_count = request.data.get('child', 0)
+                infant_count = request.data.get('infant', 0)
+
+                total_members = adult_count + child_count + infant_count
+
+                if (package_max_members is not None and total_members > package_max_members)  or (activity_max_members is not None and total_members > activity_max_members):
+                    return Response({'status': 'error', 
+                                    'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+                if (package_min_members is not None and total_members < package_min_members)  or (activity_min_members is not None and total_members < activity_min_members):
+                    return Response({'status': 'error',
+                            'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},
+                             status=status.HTTP_400_BAD_REQUEST)
+
                 
                 serializer = BookingCreateSerializer(data=request.data)
                 serializer.is_valid(raise_exception=True)
@@ -275,9 +311,9 @@ class CustomerBookingDetailsView(APIView):
                 #                         status=status.HTTP_400_BAD_REQUEST)
                 
 
-                AgentTransactionSettlement.objects.create(package_id=instance.package_id,
-                                                  booking=instance,
-                                                  agent_id=instance.package.agent_id)
+                # AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                #                                   booking=instance,
+                #                                   agent_id=instance.package.agent_id)
                 
 
                 return Response({"message":"Booking created successfully",
@@ -308,16 +344,72 @@ class CustomerBookingUpdateView(APIView):
             if not instance:
                 return Response({"message": "Booking object not found", "status": "error",
                             "statusCode": status.HTTP_404_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND)
+            
+            print("enter")
+            if 'adult' in request.data and 'child' in request.data and 'infant' in request.data:
+                print("hi")
+                if 'package' in request.data:
+                    print("hi12")
+                    package_id = request.data['package']
+                    package = Package.objects.values('min_members', 'max_members').get(id=package_id)
+
+                    package_min_members = package['min_members']
+                    package_max_members = package['max_members']
+                    activity_max_members = activity_min_members = None
+
+                    
+                elif 'activity' in request.data:
+                    print("hi13")
+                    activity_id = request.data['activity']
+                    activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
+
+                    activity_min_members = activity['min_members']
+                    activity_max_members = activity['max_members']
+                    package_max_members = package_min_members = None
+
+
+                adult_count = request.data.get('adult', 0)
+                child_count = request.data.get('child', 0)
+                infant_count = request.data.get('infant', 0)
+
+                total_members = adult_count + child_count + infant_count
+                print(adult_count)
+                print(child_count)
+                print(infant_count)
+                print(total_members)
+
+                if (package_max_members is not None and total_members > package_max_members)  or (activity_max_members is not None and total_members > activity_max_members) :
+                    return Response({'status': 'error',
+                                    'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+                if (package_min_members is not None and total_members < package_min_members) or (activity_min_members is not None and total_members < activity_min_members):
+                    return Response({'status': 'error',
+                                'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
+                                'statusCode': status.HTTP_400_BAD_REQUEST},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             # Deserialize and save the updated instance
             serializer = self.serializer_class(instance, data=request.data, partial=True)
             if serializer.is_valid():
-                serializer.save()
+                booking_obj = serializer.save()
 
                 if bool(contact_persons_data):
                     contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
                     contact_serializer.is_valid(raise_exception=True)
                     contact_serializer.save(booking_id=instance.id)
+
+                if booking_obj.booking_status == 'SUCCESSFUL':
+                    if 'package' in request.data:
+                        AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                    booking=instance,
+                                                    agent_id=instance.package.agent_id)
+                    else:
+                        AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                    booking=instance,
+                                                    agent_id=instance.activity.agent_id)
+
 
             
                 return Response({"message": "Booking Updated Successfully",
@@ -348,7 +440,7 @@ class AgentBookingListView(ListAPIView):
     
     def get_queryset(self):
         
-        queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).order_by("-id")
+        queryset = Booking.objects.filter(package__agent_id=self.kwargs['agent_id']).exclude(booking_status='PENDING').order_by("-id")
         return queryset
     
     def list(self, request, *args, **kwargs):
@@ -472,8 +564,8 @@ class AdvanceAmountPercentageSettingListView(APIView):
       Returns the advance-amount-percentage-list 
     
     """
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
 
 
    
@@ -517,9 +609,6 @@ class BookingCalculationsView(APIView):
         try:
 
             pricing_id = self.request.GET.get('pricing_id',None)
-
-            print(pricing_id)
-
             pricing = Pricing.objects.get(id=pricing_id)
 
             booking = Booking.objects.get(object_id=self.kwargs['object_id'])
@@ -528,13 +617,21 @@ class BookingCalculationsView(APIView):
             child_per_rate = pricing.child_rate
             infant_per_rate = pricing.infant_rate
 
-            print(booking)
-
             adult_count = booking.adult
             child_count  = booking.child
             infant_count = booking.infant
 
-            full_amount_payment = (adult_per_rate * adult_count) + (child_per_rate * child_count) + (infant_per_rate * infant_count)
+            # Initialize full_amount_payment
+            full_amount_payment = 0
+
+            # Calculate full_amount_payment if rates are available
+            if adult_per_rate is not None:
+                full_amount_payment += adult_per_rate * adult_count
+            if child_per_rate is not None:
+                full_amount_payment += child_per_rate * child_count
+            if infant_per_rate is not None:
+                full_amount_payment += infant_per_rate * infant_count
+
             partial_payment_percentage = AdvanceAmountPercentageSetting.objects.first().percentage
             partial_payment_amount = Decimal(full_amount_payment) * Decimal(partial_payment_percentage) / 100
             results = {

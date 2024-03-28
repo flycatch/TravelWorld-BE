@@ -174,6 +174,12 @@ class ActivityItineraryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity", None)
         queryset = super().get_queryset()
@@ -241,6 +247,12 @@ class ActivityInformationsViewSet(viewsets.ModelViewSet):
     serializer_class = ActivityInformationsSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
@@ -351,6 +363,13 @@ class ActivityFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
+
     def get_queryset(self, **kwargs):
         activity = self.request.GET.get("activity",None)
 
@@ -400,9 +419,9 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = ActivityImageSerializer(images, many=True,  context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed', 'message': 'Please provide a activity id',
-                             'error':serializer.errors,
-                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'failed',
+                             'message': 'Please provide a activity id',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

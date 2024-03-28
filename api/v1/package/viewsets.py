@@ -30,7 +30,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from django.db.models import Q
 from rest_framework.views import exception_handler
@@ -149,8 +149,8 @@ class PackageGetViewSet(viewsets.ModelViewSet):
     A ViewSet for handling CRUD operations related to packages.
     """
 
-    serializer_class = PackageGetSerializer
-    permission_classes = [IsAuthenticated]
+    # serializer_class = PackageGetSerializer
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
@@ -214,6 +214,12 @@ class ItineraryViewSet(viewsets.ModelViewSet):
     serializer_class = ItinerarySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package",None)
@@ -288,6 +294,13 @@ class PackageInformationsViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
+
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)
 
@@ -323,8 +336,8 @@ class PackageInformationsViewSet(viewsets.ModelViewSet):
 
 class PricingViewSet(viewsets.ModelViewSet):
     serializer_class = PricingSerializer
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [TokenAuthentication]
+    # permission_classes = [IsAuthenticated]
+    # authentication_classes = [TokenAuthentication]
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package",None)
 
@@ -340,6 +353,11 @@ class PricingNewView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = PricingSerializer
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'DELETE','POST']:
+            return [IsAuthenticated()]
+        return [AllowAny()]
     
     def post(self, request, *args, **kwargs):
         try:
@@ -398,6 +416,7 @@ class PricingNewView(APIView):
                     serializer.is_valid(raise_exception=True)
 
                     if serializer.is_valid:
+                        serializer.save()
                         return Response({"message":"Pricing updated successfully",
                                 "status": "success",
                                 "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)
@@ -448,6 +467,12 @@ class PackageCategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
 
 class PackageTourCategoryViewSet(viewsets.ModelViewSet):
     serializer_class = PackageTourCategorySerializer
@@ -469,6 +494,12 @@ class PackageCancellationPolicyViewSet(viewsets.ModelViewSet):
     serializer_class = PackageCancellationPolicySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)
@@ -505,6 +536,12 @@ class PackageFaqQuestionAnswerViewSet(viewsets.ModelViewSet):
     serializer_class = PackageFaqQuestionAnswerSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
 
     def get_queryset(self, **kwargs):
         package = self.request.GET.get("package", None)
@@ -597,9 +634,9 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
             serializer = PackageImageSerializer(images, many=True, context={'request': request})
             return Response(serializer.data)
         else:
-            return Response({'status': 'failed', 'message': 'Please provide a package id',
-                             'error':serializer.errors,
-                             'statusCode': status.HTTP_400_BAD_REQUEST}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'failed',
+                             'message': 'Please provide a package id',
+                             'statusCode': status.HTTP_400_BAD_REQUEST},status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -628,8 +665,8 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically
     pagination_class = CustomPagination
-    queryset_activities = Activity.objects.filter(is_submitted=True, status='active', stage='approved')
-    queryset_packages = Package.objects.filter(is_submitted=True, status='active', stage='approved')
+    queryset_activities = Activity.objects.filter(is_submitted=True, status='active', stage='approved').distinct()
+    queryset_packages = Package.objects.filter(is_submitted=True, status='active', stage='approved').distinct()
 
     def get_queryset(self):
         return list(self.queryset_activities) + list(self.queryset_packages)
@@ -644,6 +681,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         is_popular = self.request.query_params.get('is_popular')
         package_id = self.request.query_params.get('package')
         activity_id = self.request.query_params.get('activity')
+        duration_filter = self.request.query_params.get('duration_filter')
+        deal_type = self.request.query_params.get('deal_type')
+
 
         price_range_min = self.request.query_params.get('price_range_min')
         price_range_max = self.request.query_params.get('price_range_max')
@@ -667,11 +707,11 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity = self.queryset_activities.filter(pk=activity_id)
             return activity
         if state:
-            activity_filter &= Q(state=state)
-            package_filter &= Q(state=state)
+            activity_filter &= Q(locations__state=state)
+            package_filter &= Q(locations__state=state)
         if city:
-            activity_filter &= Q(city=city)
-            package_filter &= Q(city=city)
+            activity_filter &= Q(locations__destinations=city)
+            package_filter &= Q(locations__destinations=city)
         if category:
             activity_filter &= Q(category=category)
             package_filter &= Q(category=category)
@@ -681,6 +721,26 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if is_popular:
             activity_filter &= Q(is_popular=True)
             package_filter &= Q(is_popular=True)
+        if deal_type:
+            activity_filter &= Q(deal_type=deal_type)
+            package_filter &= Q(deal_type=deal_type)
+
+        
+
+        if duration_filter:
+            if duration_filter == 'full_day':
+                activity_filter &= Q(duration='day', duration_day=1, duration_night=1)| \
+                    Q(duration='hour', duration_hour__gt=12)
+                package_filter &= Q(duration='day', duration_day=1, duration_night=1)| \
+                    Q(duration='hour', duration_hour__gt=12)
+            elif duration_filter == 'multi_day':
+                activity_filter &= Q(duration='day', duration_day__gt=1, duration_night__gt=1)| \
+                    Q(duration='hour', duration_hour__gt=24)
+                package_filter &= Q(duration='day', duration_day__gt=1, duration_night__gt=1)| \
+                    Q(duration='hour', duration_hour__gt=24)
+            elif duration_filter == 'half_day':
+                activity_filter &= Q(duration='hour',duration_hour__lte=12)
+                package_filter &= Q(duration='hour',duration_hour__lte=12)
 
         if price_range_min is not None and price_range_max is not None:
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \

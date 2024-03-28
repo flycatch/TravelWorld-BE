@@ -1,0 +1,38 @@
+<style>
+    .pricing-container {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+    .pricing-table {
+        border-collapse: collapse;
+        width: 100%; /* Set the table's width to 100% */
+    }
+    .pricing-table th, .pricing-table td {
+        border: 1px solid #ddd;
+        padding: 15px;
+        text-align: left;
+    }
+    .pricing-table th {
+        background-color: #f2f2f2;
+    }
+    .pricing-table tr {
+        margin-bottom: 10px;
+    }
+
+</style>
+
+<table class='pricing-table'>
+    {% for item in cancellation_category %}
+        <tr>
+            {% if item.to_day %}
+                <th>If Cancelled Between</th>
+                <td>{{ item.from_day }} - {{ item.to_day }} Days</td>
+            {% else %}
+                <th>If Cancelled Before</th>
+                <td>{{ item.from_day }} Days</td>
+            {% endif %}
+            <th>Rate (%)</th>
+            <td>{{ item.amount_percent }}</td>
+        </tr>
+    {% endfor %}
+</table>

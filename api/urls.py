@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
-                                     HomePageDestinationViewSet, HomePageStateViewSet)
+                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
@@ -168,11 +168,13 @@ urlpatterns = [
     path('v1/pricing/new/', PricingNewView.as_view(), name='pricing-package-activity'),
     path('v1/pricing/new/<int:pk>/', PricingNewView.as_view(), name='pricing-package-activity'),
 
+    # homepage
     path('v1/cover-page/inputs/', CoverPageView.as_view(), name='cover-page-inputs'),
     path('v1/attractions/', AttractionView.as_view(), name='attractions'),
     path('v1/homepage/package/', PackageHomePageView.as_view(), name='homepage-package'),
     path('v1/homepage/activity/', ActivityHomePageView.as_view(), name='homepage-activity'),
 
+    # upload images
     path('v1/package/images/', PackageImageUploadView.as_view(), name='package-image-upload'),
     path('v1/package/images/<int:pk>/', PackageImageUploadView.as_view(), name='package-image-delete'),
 
@@ -181,6 +183,10 @@ urlpatterns = [
 
     path('v1/user-ratings/', UserRatingsView.as_view(), name='user-rating'),
     path('v1/suggestion/', SearchSuggestionAPIView.as_view(), name='search_suggestion'),
+
+    #send enquiry
+    path('v1/send-enquiry/', SendEnquiryView.as_view(), name='send-enquiry'),
+
 
 
 ]

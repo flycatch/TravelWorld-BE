@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Country, City, State, Location,CoverPageInput, Attraction,Pricing
+from api.models import Country, City, State, Location,CoverPageInput, Attraction,Pricing,SendEnquiry
 from django.db.models import Max
 
 
@@ -70,3 +70,9 @@ class HomePageStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
         fields = ['id', 'name', 'thumb_image', 'cover_img']
+
+
+class SendEnquirySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendEnquiry
+        fields = '__all__'

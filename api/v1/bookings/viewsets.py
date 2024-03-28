@@ -99,7 +99,7 @@ class CustomerBookingListView(ListAPIView):
 
         queryset = Booking.objects.filter(user=self.kwargs['user_id'],
                                           is_trip_completed=0,
-                                          tour_date__gt=today_date,
+                                          tour_date__gte=today_date,
                                           booking_status__in=["SUCCESSFUL","REFUNDED REQUESTED"]).order_by("-id")
         return queryset
         

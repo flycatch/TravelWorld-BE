@@ -1221,6 +1221,8 @@ admin.site.register(ActivityCancellationPolicy)
 admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
+admin.site.register(SendEnquiry)
+
 
 
 

@@ -220,7 +220,7 @@ ADMIN_REORDER = (
 
     {'app': 'api', 'models': ('api.AgentTransactionSettlement','api.UserRefundTransaction'),'label': 'Transactions'},
 
-    {'app': 'api', 'models': ('api.UserReview',),'label': 'Reviews'},
+    {'app': 'api', 'models': ('api.UserReview','api.SendEnquiry'),'label': 'Reviews'},
 
 
 

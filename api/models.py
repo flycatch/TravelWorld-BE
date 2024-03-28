@@ -813,7 +813,7 @@ class SendEnquiry(AuditFields):
         Package, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_package')
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, null=True, blank=True, related_name='send_enquiry_activity')
-    name = models.CharField(max_length=256, null=True, blank=True, unique=True)
+    name = models.CharField(max_length=256, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     message = models.TextField(blank=True, null=True)
     country_code = models.CharField(max_length=5, null=True, blank=True, verbose_name='Country Code')
@@ -822,6 +822,9 @@ class SendEnquiry(AuditFields):
     class Meta:
         verbose_name = 'Send Enquiry'
         verbose_name_plural = 'Send Enquiry'
+
+    def __str__(self):
+        return self.name if self.name else self.email
 
 
 # class TourType(AuditFields):

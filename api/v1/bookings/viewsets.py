@@ -401,9 +401,15 @@ class CustomerBookingUpdateView(APIView):
                     contact_serializer.save(booking_id=instance.id)
 
                 if booking_obj.booking_status == 'SUCCESSFUL':
-                    AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                    if 'package' in request.data:
+                        AgentTransactionSettlement.objects.create(package_id=instance.package_id,
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
+                    else:
+                        AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                                                    booking=instance,
+                                                    agent_id=instance.activity.agent_id)
+
 
             
                 return Response({"message": "Booking Updated Successfully",

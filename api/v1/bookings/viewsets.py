@@ -244,21 +244,22 @@ class CustomerBookingDetailsView(APIView):
                 # contact_persons_data = request.data.pop('contact_persons', [])
 
                 if 'package' in request.data:
-                    package_id = request.data['package']
-                    package = Package.objects.values('min_members', 'max_members').get(id=package_id)
-
-                    package_min_members = package['min_members']
-                    package_max_members = package['max_members']
-                    activity_max_members = activity_min_members = None
-                
+                    item_id = request.data['package']
+                    item_type = 'package'
                 elif 'activity' in request.data:
-                    activity_id = request.data['activity']
-                    activity = Activity.objects.values('min_members', 'max_members').get(id=activity_id)
+                    item_id = request.data['activity']
+                    item_type = 'activity'
+                else:
+                    raise ValueError("Either 'package' or 'activity' must be provided in the request data.")
 
-                    activity_min_members = activity['min_members']
-                    activity_max_members = activity['max_members']
-                    package_max_members = package_min_members = None
+                item = None
+                if item_type == 'package':
+                    item = Package.objects.values('min_members', 'max_members').get(id=item_id)
+                elif item_type == 'activity':
+                    item = Activity.objects.values('min_members', 'max_members').get(id=item_id)
 
+                min_members = item['min_members']
+                max_members = item['max_members']
 
                 adult_count = request.data.get('adult', 0)
                 child_count = request.data.get('child', 0)
@@ -266,17 +267,17 @@ class CustomerBookingDetailsView(APIView):
 
                 total_members = adult_count + child_count + infant_count
 
-                if (package_max_members is not None and total_members > package_max_members)  or (activity_max_members is not None and total_members > activity_max_members):
+                if max_members is not None and total_members > max_members:
                     return Response({'status': 'error', 
-                                    'message': f'The total number of members {total_members} exceeds the maximum limit allowed . The max range is {package_max_members}.',
-                                'statusCode': status.HTTP_400_BAD_REQUEST},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                    'message': f'The total number of members {total_members} exceeds the maximum limit allowed. The max range is {max_members}.',
+                                    'statusCode': status.HTTP_400_BAD_REQUEST},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
-                if (package_min_members is not None and total_members < package_min_members)  or (activity_min_members is not None and total_members < activity_min_members):
+                if min_members is not None and total_members < min_members:
                     return Response({'status': 'error',
-                            'message': f'The total number of members {total_members} is below the minimum required . The min range is {package_min_members}.',
-                             'statusCode': status.HTTP_400_BAD_REQUEST},
-                             status=status.HTTP_400_BAD_REQUEST)
+                                    'message': f'The total number of members {total_members} is below the minimum required. The min range is {min_members}.',
+                                    'statusCode': status.HTTP_400_BAD_REQUEST},
+                                    status=status.HTTP_400_BAD_REQUEST)
 
                 
                 serializer = BookingCreateSerializer(data=request.data)

@@ -1,6 +1,9 @@
 from django.utils.html import strip_tags
 from django.contrib import admin
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+
 from api.models import (Itinerary, Pricing, UserReviewImage,
                         TourCategory, ActivityTourCategory,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
@@ -153,7 +156,32 @@ class TourCategoryInline(CustomStackedInline):
 
 class CancellationPolicyInline(CustomStackedInline):
     model = CancellationPolicy
-    template = 'admin/inline_admin.html'
+    fields = ['cancellation_policies']
+    readonly_fields = ['cancellation_policies']
+
+    def cancellation_policies(self, obj):
+        cancellation_categories = []
+        policies = CancellationPolicy.objects.filter(package=obj.package)
+        for policy in policies:
+            categories = policy.category.all()
+            for category in categories:
+                if category.to_day == 0:
+                    category_dict = {
+                        'from_day': category.from_day,
+                        'amount_percent': category.amount_percent,
+                        }
+                else:
+                    category_dict = {
+                        'from_day': category.from_day,
+                        'to_day': category.to_day,
+                        'amount_percent': category.amount_percent,
+                        }
+                cancellation_categories.append(category_dict)
+        # Render the HTML template with pricing_list
+        cancellation_info = render_to_string('admin/cancellation_table_template.html', {'cancellation_category': cancellation_categories})
+        return mark_safe(cancellation_info)  # Mark the string as safe HTML
+
+    cancellation_policies.short_description = ''
 
 
 class PackageFaqQuestionAnswerInline(CustomStackedInline):
@@ -246,10 +274,34 @@ class ActivityFaqQuestionAnswerInline(CustomStackedInline):
 
 class ActivityCancellationPolicyInline(CustomStackedInline):
     model = ActivityCancellationPolicy
-    template = 'admin/inline_admin.html'
+    fields = ['cancellation_policies']
+    readonly_fields = ['cancellation_policies']
     verbose_name = 'Cancellation Policy'
     verbose_name_plural = 'Cancellation Policies'
 
+    def cancellation_policies(self, obj):
+        cancellation_categories = []
+        policies = ActivityCancellationPolicy.objects.filter(activity=obj.activity)
+        for policy in policies:
+            categories = policy.category.all()
+            for category in categories:
+                if category.to_day == 0:
+                    category_dict = {
+                        'from_day': category.from_day,
+                        'amount_percent': category.amount_percent,
+                        }
+                else:
+                    category_dict = {
+                        'from_day': category.from_day,
+                        'to_day': category.to_day,
+                        'amount_percent': category.amount_percent,
+                        }
+                cancellation_categories.append(category_dict)
+        # Render the HTML template with pricing_list
+        cancellation_info = render_to_string('admin/cancellation_table_template.html', {'cancellation_category': cancellation_categories})
+        return mark_safe(cancellation_info)  # Mark the string as safe HTML
+
+    cancellation_policies.short_description = ''
 
 class UserReviewImageInline(admin.TabularInline):
     model = UserReviewImage

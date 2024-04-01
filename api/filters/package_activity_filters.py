@@ -10,6 +10,7 @@ class PackageFilter(django_filters.FilterSet):
     category = django_filters.CharFilter(field_name='category', lookup_expr='exact')
     is_popular = django_filters.BooleanFilter(field_name='is_popular', lookup_expr='exact')
     duration_filter = django_filters.CharFilter(method='filter_by_duration')
+    city = django_filters.CharFilter(field_name='locations__destinations', lookup_expr='exact')
 
     class Meta:
         model = Package
@@ -33,6 +34,7 @@ class ActivityFilter(django_filters.FilterSet):
     category = django_filters.CharFilter(field_name='category', lookup_expr='exact')
     is_popular = django_filters.BooleanFilter(field_name='is_popular', lookup_expr='exact')
     duration_filter = django_filters.CharFilter(method='filter_by_duration')
+    city = django_filters.CharFilter(field_name='locations__destinations', lookup_expr='exact')
     
     class Meta:
         model = Activity

@@ -1179,7 +1179,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
             'fields': ("experience", "clients", "satisfaction")
         }),
         ('Cover Images', {
-            'fields': ("activity_image", "package_image", "attraction_image")
+            'fields': ("activity_image", "package_image", "attraction_image","product_image")
         }),
         # ('Filters', {
         #     'fields': ('price_min','price_max')

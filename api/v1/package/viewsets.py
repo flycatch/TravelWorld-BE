@@ -778,15 +778,12 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         page = self.paginate_queryset(filtered_queryset)
 
         if page is not None:
-            print(page)
             serialized_data = []
             for obj in page:
                 # Determine serializer based on object type
                 if isinstance(obj, Activity):
-                    print('ACTIVITY')
                     serializer = HomePageActivitySerializer(obj, context={'request':request})
                 elif isinstance(obj, Package):
-                    print('PACKAGES')
                     serializer = HomePagePackageSerializer(obj, context={'request':request})
                 serialized_data.append(serializer.data)
             return self.get_paginated_response(serialized_data)

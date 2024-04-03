@@ -760,7 +760,10 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         print(type(price_range_min))
         print(type(price_range_max))
         print("p1")
-        if price_range_min !='0' and price_range_max !='0':
+
+        if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
+            
+            print("p2")
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \

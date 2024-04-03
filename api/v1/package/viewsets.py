@@ -596,7 +596,7 @@ class PackageHomePageView(ListAPIView):
         print(type(price_range_max))
 
          # Check if both values are 0
-        if price_range_min == 0 and price_range_max == 0:
+        if price_range_min == '0' and price_range_max == '0':
             print("hii")
             return queryset  # Skip the filters
         

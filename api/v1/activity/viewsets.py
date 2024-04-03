@@ -476,8 +476,8 @@ class ActivityHomePageView(generics.ListAPIView):
         return queryset
     
     def apply_additional_filters(self, queryset):
-        price_range_min = self.request.query_params.get('price_range_min',None)
-        price_range_max = self.request.query_params.get('price_range_max',None)
+        price_range_min = self.request.query_params.get('price_range_min','0')
+        price_range_max = self.request.query_params.get('price_range_max','0')
 
         # Check if both values are 0
         if price_range_min == '0' and price_range_max == '0':

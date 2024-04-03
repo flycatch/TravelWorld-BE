@@ -698,8 +698,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         deal_type = self.request.query_params.get('deal_type')
 
 
-        price_range_min = self.request.query_params.get('price_range_min')
-        price_range_max = self.request.query_params.get('price_range_max')
+        price_range_min = self.request.query_params.get('price_range_min','0')
+        price_range_max = self.request.query_params.get('price_range_max','0')
 
         # Define Q objects to build complex filter conditions
         activity_filter = Q()

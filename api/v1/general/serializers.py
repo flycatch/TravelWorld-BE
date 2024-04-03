@@ -46,7 +46,8 @@ class CoverPageInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoverPageInput
         fields = ['experience','clients','satisfaction',
-                  'activity_image', 'package_image', 'attraction_image','price_max','price_min']
+                  'activity_image', 'package_image', 'attraction_image','product_image',
+                  'price_max','price_min']
         
     def get_price_max(self, obj):
         max_price = Pricing.objects.aggregate(max_adult_rate=Max('adults_rate'))['max_adult_rate']

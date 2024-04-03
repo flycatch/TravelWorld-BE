@@ -754,8 +754,13 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             elif duration_filter == 'half_day':
                 activity_filter &= Q(duration='hour',duration_hour__lte=12)
                 package_filter &= Q(duration='hour',duration_hour__lte=12)
-
-        if price_range_min is not None and price_range_max is not None:
+        print("p0")
+        print(price_range_min)
+        print(price_range_max)
+        print(type(price_range_min))
+        print(type(price_range_max))
+        print("p1")
+        if price_range_min !='0' and price_range_max !='0':
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \

@@ -14,7 +14,7 @@ class Command(BaseCommand):
         print(today)
 
         # Get bookings where the tour_date is in the past and is_trip_completed is False
-        past_bookings = Booking.objects.filter(tour_date__lte=today, is_trip_completed=False)
+        past_bookings = Booking.objects.filter(tour_date__lt=today, is_trip_completed=False)
 
         # Update is_trip_completed to True for these bookings
         for booking in past_bookings:

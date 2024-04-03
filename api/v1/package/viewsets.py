@@ -587,8 +587,8 @@ class PackageHomePageView(ListAPIView):
         return queryset
     
     def apply_additional_filters(self, queryset):
-        price_range_min = self.request.query_params.get('price_range_min')
-        price_range_max = self.request.query_params.get('price_range_max')
+        price_range_min = self.request.query_params.get('price_range_min','0')
+        price_range_max = self.request.query_params.get('price_range_max','0')
 
         print(price_range_min)
         print(price_range_max)

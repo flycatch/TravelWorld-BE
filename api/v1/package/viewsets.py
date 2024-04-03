@@ -754,16 +754,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             elif duration_filter == 'half_day':
                 activity_filter &= Q(duration='hour',duration_hour__lte=12)
                 package_filter &= Q(duration='hour',duration_hour__lte=12)
-        print("p0")
-        print(price_range_min)
-        print(price_range_max)
-        print(type(price_range_min))
-        print(type(price_range_max))
-        print("p1")
-
+    
+        # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
         if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
-            
-            print("p2")
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
@@ -785,15 +778,12 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         page = self.paginate_queryset(filtered_queryset)
 
         if page is not None:
-            print(page)
             serialized_data = []
             for obj in page:
                 # Determine serializer based on object type
                 if isinstance(obj, Activity):
-                    print('ACTIVITY')
                     serializer = HomePageActivitySerializer(obj, context={'request':request})
                 elif isinstance(obj, Package):
-                    print('PACKAGES')
                     serializer = HomePagePackageSerializer(obj, context={'request':request})
                 serialized_data.append(serializer.data)
             return self.get_paginated_response(serialized_data)

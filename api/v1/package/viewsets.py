@@ -587,8 +587,8 @@ class PackageHomePageView(ListAPIView):
         return queryset
     
     def apply_additional_filters(self, queryset):
-        price_range_min = self.request.query_params.get('price_range_min')
-        price_range_max = self.request.query_params.get('price_range_max')
+        price_range_min = self.request.query_params.get('price_range_min',None)
+        price_range_max = self.request.query_params.get('price_range_max',None)
         if price_range_min is not None and price_range_max is not None:
             queryset = queryset.filter(
                 Q(pricing_package__adults_rate__gte=price_range_min) &

@@ -590,15 +590,23 @@ class PackageHomePageView(ListAPIView):
         price_range_min = self.request.query_params.get('price_range_min',None)
         price_range_max = self.request.query_params.get('price_range_max',None)
 
+        print(price_range_min)
+        print(price_range_max)
+        print(type(price_range_min))
+        print(type(price_range_max))
+
          # Check if both values are 0
         if price_range_min == 0 and price_range_max == 0:
+            print("hii")
             return queryset  # Skip the filters
         
+        print("hi23")
         queryset = queryset.filter(
             Q(pricing_package__adults_rate__gte=price_range_min) &
             Q(pricing_package__adults_rate__lte=price_range_max)
         ).distinct()
         
+        print("hi44")
         return queryset
         
         

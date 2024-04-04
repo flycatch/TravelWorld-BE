@@ -1235,6 +1235,8 @@ class CoverPageInput(AuditFields):
                                       verbose_name="Package")
     attraction_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
                                        verbose_name="Attraction")
+    product_image = models.ImageField(upload_to='cover_images/', null=True, blank=True,
+                                       verbose_name="All Deals")
     price_min = models.IntegerField(null=True, blank=True,default=0)
     price_max = models.IntegerField(null=True, blank=True)
     

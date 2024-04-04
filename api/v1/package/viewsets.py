@@ -587,13 +587,26 @@ class PackageHomePageView(ListAPIView):
         return queryset
     
     def apply_additional_filters(self, queryset):
-        price_range_min = self.request.query_params.get('price_range_min')
-        price_range_max = self.request.query_params.get('price_range_max')
-        if price_range_min is not None and price_range_max is not None:
-            queryset = queryset.filter(
-                Q(pricing_package__adults_rate__gte=price_range_min) &
-                Q(pricing_package__adults_rate__lte=price_range_max)
-            ).distinct()
+        price_range_min = self.request.query_params.get('price_range_min','0')
+        price_range_max = self.request.query_params.get('price_range_max','0')
+
+        print(price_range_min)
+        print(price_range_max)
+        print(type(price_range_min))
+        print(type(price_range_max))
+
+         # Check if both values are 0
+        if price_range_min == '0' and price_range_max == '0':
+            print("hii")
+            return queryset  # Skip the filters
+        
+        print("hi23")
+        queryset = queryset.filter(
+            Q(pricing_package__adults_rate__gte=price_range_min) &
+            Q(pricing_package__adults_rate__lte=price_range_max)
+        ).distinct()
+        
+        print("hi44")
         return queryset
         
         
@@ -685,8 +698,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         deal_type = self.request.query_params.get('deal_type')
 
 
-        price_range_min = self.request.query_params.get('price_range_min')
-        price_range_max = self.request.query_params.get('price_range_max')
+        price_range_min = self.request.query_params.get('price_range_min','0')
+        price_range_max = self.request.query_params.get('price_range_max','0')
 
         # Define Q objects to build complex filter conditions
         activity_filter = Q()
@@ -741,8 +754,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             elif duration_filter == 'half_day':
                 activity_filter &= Q(duration='hour',duration_hour__lte=12)
                 package_filter &= Q(duration='hour',duration_hour__lte=12)
-
-        if price_range_min is not None and price_range_max is not None:
+    
+        # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
+        if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
@@ -764,15 +778,12 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         page = self.paginate_queryset(filtered_queryset)
 
         if page is not None:
-            print(page)
             serialized_data = []
             for obj in page:
                 # Determine serializer based on object type
                 if isinstance(obj, Activity):
-                    print('ACTIVITY')
                     serializer = HomePageActivitySerializer(obj, context={'request':request})
                 elif isinstance(obj, Package):
-                    print('PACKAGES')
                     serializer = HomePagePackageSerializer(obj, context={'request':request})
                 serialized_data.append(serializer.data)
             return self.get_paginated_response(serialized_data)

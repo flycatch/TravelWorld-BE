@@ -399,7 +399,7 @@ class CustomerBookingUpdateView(APIView):
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
                     else:
-                        AgentTransactionSettlement.objects.create(package_id=instance.package_id,
+                        AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
                                                     booking=instance,
                                                     agent_id=instance.activity.agent_id)
 

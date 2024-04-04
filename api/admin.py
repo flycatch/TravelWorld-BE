@@ -897,11 +897,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
-    
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.exclude(payment_settlement_status='PENDING')
-        return queryset
 
 
 class UserReviewAdmin(CustomModelAdmin):

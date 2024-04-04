@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.utils.html import strip_tags
 from django.contrib import admin
 from django.template.loader import render_to_string
@@ -113,7 +115,6 @@ class PackageInformationsInline(CustomStackedInline):
         return False
 
   
-
 class PricingInline(CustomStackedInline):
     model = Pricing
     exclude = ['activity','status', 'blackout_dates']
@@ -137,9 +138,11 @@ class PricingInline(CustomStackedInline):
             if blackout_data.get('weeks'):
                 formatted_blackout_dates.append(f"Weekdays: {', '.join(blackout_data['weeks']).title()}")
             if blackout_data.get('custom_date'):
-                formatted_blackout_dates.append(f"Custom Dates: {', '.join(blackout_data['custom_date'])}")
+                custom_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['custom_date'])
+                formatted_blackout_dates.append(f"Custom Dates: {custom_dates}")
             if blackout_data.get('excluded_blackout_dates'):
-                formatted_blackout_dates.append(f"Excluded Dates: {', '.join(blackout_data['excluded_blackout_dates'])}")
+                excluded_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['excluded_blackout_dates'])
+                formatted_blackout_dates.append(f"Excluded Dates: {excluded_dates}")
         return '\n'.join(formatted_blackout_dates)
 
     get_blackout_dates.short_description = 'Blackout Dates'
@@ -251,9 +254,11 @@ class ActivityPricingInline(CustomStackedInline):
             if blackout_data.get('weeks'):
                 formatted_blackout_dates.append(f"Weekdays: {', '.join(blackout_data['weeks']).title()}")
             if blackout_data.get('custom_date'):
-                formatted_blackout_dates.append(f"Custom Dates: {', '.join(blackout_data['custom_date'])}")
+                custom_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['custom_date'])
+                formatted_blackout_dates.append(f"Custom Dates: {custom_dates}")
             if blackout_data.get('excluded_blackout_dates'):
-                formatted_blackout_dates.append(f"Excluded Dates: {', '.join(blackout_data['excluded_blackout_dates'])}")
+                excluded_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['excluded_blackout_dates'])
+                formatted_blackout_dates.append(f"Excluded Dates: {excluded_dates}")
         return '\n'.join(formatted_blackout_dates)
 
     get_blackout_dates.short_description = 'Blackout Dates'

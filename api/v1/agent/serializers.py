@@ -7,6 +7,7 @@ from django.db import transaction
 
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import AuthenticationFailed
 
 from api.models import Agent
 from django.core.validators import FileExtensionValidator, RegexValidator
@@ -78,30 +79,34 @@ class AgentLoginSerializer(serializers.Serializer):
         username_or_email = validated_data.get('username_or_email')
         password = validated_data.get('password')
 
-        # Authenticate user using either email or username
-        user = authenticate(username=username_or_email, email=username_or_email, password=password, model=Agent)
-        if not user:
-            raise serializers.ValidationError({"message": "Invalid credentials"})
-
-        # Check if Agent exists and has an approved stage
         try:
-            agent = Agent.objects.get(email=user.email)
-            if agent.stage != 'approved':
-                if agent.stage == 'rejected':
-                    raise serializers.ValidationError({"message": "Agent is rejected by admin"})
-                else:
-                    raise serializers.ValidationError({"message": "Agent not approved by admin"})
-        except Agent.DoesNotExist:
-            raise serializers.ValidationError({"message": "Agent not found"})
+            # Authenticate user using either email or username
+            user = authenticate(username=username_or_email, email=username_or_email, password=password, model=Agent)
 
-        # Generate token and construct response
-        token, created = Token.objects.get_or_create(user=user)
-        return {
-            'status': 'success',
-            'message': 'Login successful',
-            'token': token.key
-        }
+            # If user is not authenticated, raise AuthenticationFailed exception
+            if user is None:
+                raise AuthenticationFailed('Invalid username or email, or incorrect password')
 
+            # Check if Agent exists and has an approved stage
+            try:
+                agent = Agent.objects.get(email=user.email)
+                if agent.stage != 'approved':
+                    if agent.stage == 'rejected':
+                        raise AuthenticationFailed('Agent is rejected by admin')
+                    else:
+                        raise AuthenticationFailed('Agent not approved by admin')
+            except Agent.DoesNotExist:
+                raise AuthenticationFailed('Agent not found')
+
+            # Generate token and construct response
+            token, created = Token.objects.get_or_create(user=user)
+            return token.key
+
+        except AuthenticationFailed as e:
+            raise e  # Re-raise AuthenticationFailed exceptions as they are already specific
+        except Exception as e:
+            # Handle any other exceptions that may occur during authentication
+            raise AuthenticationFailed('Invalid username or email, or incorrect password')
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):

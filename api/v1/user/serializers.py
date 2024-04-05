@@ -12,7 +12,7 @@ from api.models import *
 
 class UserBookingSerializer(serializers.ModelSerializer):
     # profile_image = serializers.SerializerMethodField()
-
+    mobile = serializers.CharField(required=False)
 
     # def get_profile_image(self, obj):
     #     request = self.context.get('request')
@@ -22,7 +22,7 @@ class UserBookingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id","username","first_name","last_name","email","profile_image"]
+        fields = ["id","username","first_name","last_name","email", "mobile", "profile_image"]
 
 
 class UserSerializer(serializers.ModelSerializer):

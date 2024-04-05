@@ -70,17 +70,18 @@ class LoginViewSet(viewsets.ModelViewSet):
     http_method_names = ['post']
 
     def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
         try:
-            serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             response_data = serializer.save()
-            return Response({'status': 'success', 'message': 'Login Successful', 
-                             'token': response_data, 'statusCode': status.HTTP_200_OK},
-                             status=status.HTTP_200_OK)
-        except:
-            return Response({'status': 'error', 'message': "Invalid username or email, or incorrect password",
-                             'statusCode': status.HTTP_400_BAD_REQUEST},
-                             status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'success', 'message': 'Login successful',
+                            'token': response_data, "statusCode": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            # Construct response with error message from the exception
+            error_message = {'message': e.detail, 'status': 'error',
+                             "statusCode": status.HTTP_404_NOT_FOUND}
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ForgotPassword(APIView):

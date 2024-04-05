@@ -124,18 +124,31 @@ class SendEnquiryView(APIView):
 
                 if 'package' in request.data:
                         instance = Package.objects.get(id=request.data['package'])
+                        product_uid = instance.package_uid
                 else:
                         instance = Activity.objects.get(id=request.data['activity'])
+                        product_uid = instance.activity_uid
 
                 serializer = self.serializer_class(data=request.data)
                 serializer.is_valid(raise_exception=True)
                 if serializer.is_valid():
                     serializer.save()
 
-                    subject = f"SEND ENQUIRY"
-                    message = request.data['message']
-                    send_email.delay(subject,message,instance.agent.email)
-                
+                    send_enquiry_email.delay(
+                        "Explore World | New Enquiry",
+                        'email/custom_email_template.html',
+                        instance.agent.email,
+                        {'data': {
+                            'name': request.data['name'],
+                            'email': request.data['email'],
+                            'contact_number': request.data['country_code'] + request.data['contact_number'],
+                            'message': request.data['message'],
+                            'product_id': product_uid,
+                            'product_title': instance.title,
+                            }
+                        },
+                    )
+
                     return Response({"message":"Enquiry send successfully",
                                 "status": "success",
                                 "statusCode": status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)

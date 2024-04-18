@@ -1191,6 +1191,27 @@ class CoverPageInputAdmin(CustomModelAdmin):
         return True
    
 
+class SendEnquiryAdmin(CustomModelAdmin):
+    list_display = ("id","package_uid", "activity_uid", "name", )
+    search_fields = ("package_uid", "activity_uid", "name")
+
+    def package_uid(self, obj):
+        return obj.package.package_uid if obj.package else None
+    package_uid.short_description = "Package UID"
+
+    def activity_uid(self, obj):
+        return obj.activity.activity_uid if obj.activity else None
+    activity_uid.short_description = "Activity UID"
+  
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+    
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 # Unregister model
@@ -1221,7 +1242,7 @@ admin.site.register(ActivityCancellationPolicy)
 admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
-admin.site.register(SendEnquiry)
+admin.site.register(SendEnquiry,SendEnquiryAdmin)
 
 
 

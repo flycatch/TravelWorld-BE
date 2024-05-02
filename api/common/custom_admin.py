@@ -1,10 +1,12 @@
 from datetime import datetime
 
-from django.utils.html import strip_tags
+from django.db import models
 from django.contrib import admin
+from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
+from django.core.exceptions import ValidationError
 
 from api.models import (Itinerary, Pricing, UserReviewImage,
                         TourCategory, ActivityTourCategory,
@@ -15,6 +17,17 @@ from api.models import (Itinerary, Pricing, UserReviewImage,
 
 
 admin.site.site_header = 'Explore World'
+
+
+def validate_file_size(file):
+    """
+    Custom validator to check if the file size is less than 3MB.
+    """
+    file_size = file.size
+    max_size = 3 * 1024 * 1024  # 3MB in bytes
+    if file_size > max_size:
+        raise ValidationError('Image should be less than 3MB.',
+                              params={'file_name': file.name, 'max_size': max_size / (1024 * 1024)})
 
 
 class CustomModelAdmin(admin.ModelAdmin):
@@ -79,7 +92,9 @@ class AttractionImageInline(admin.TabularInline):
     extra = 3
     verbose_name = 'Image'
     verbose_name_plural = 'Images'
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 class ItineraryInline(CustomStackedInline):
     model = Itinerary
@@ -147,9 +162,6 @@ class PricingInline(CustomStackedInline):
 
     get_blackout_dates.short_description = 'Blackout Dates'
 
-
-
-    
 
 class TourCategoryInline(CustomStackedInline):
     model = TourCategory

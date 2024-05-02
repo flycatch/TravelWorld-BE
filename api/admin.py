@@ -90,13 +90,17 @@ class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 class CityAdmin(CustomModelAdmin):
     list_display = ("name", "state",)
     search_fields = ("name", "state__name")
     exclude = ("status",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
@@ -218,7 +222,9 @@ class AttractionAdmin(CustomModelAdmin):
     list_display = ("truncated_title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
     inlines = [AttractionImageInline]
 
     def status_colour(self, obj):
@@ -334,7 +340,7 @@ class PricingDateFilter(admin.SimpleListFilter):
             return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
         
 
-class BookingAdmin(admin.ModelAdmin):
+class BookingAdmin(CustomModelAdmin):
     list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
                     "package_uid", "activity_uid", "agent_id","booking_status_colour",)
     list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
@@ -453,7 +459,7 @@ class BookingAdmin(admin.ModelAdmin):
     
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.exclude(booking_status='PENDING')
+        queryset = queryset.exclude(booking_status='PENDING').order_by('-tour_date')
         return queryset
     
     
@@ -976,7 +982,9 @@ class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 
 def dashboard_page(request):
@@ -1239,7 +1247,7 @@ admin.site.register(CancellationPolicy)
 admin.site.register(PackageCancellationCategory)
 admin.site.register(ActivityCancellationCategory)
 admin.site.register(ActivityCancellationPolicy)
-admin.site.register(Pricing)
+# admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
 admin.site.register(SendEnquiry,SendEnquiryAdmin)

@@ -5,24 +5,64 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 
-# @receiver(post_save, sender=Agent)
-# def send_email_on_stage_update(sender, instance, created, **kwargs):
-#     if not created:
-#         subject = ''
-#         message = ''
-#         if instance.stage == 'approved':
-#             print(instance.stage)
-#             subject = 'Welcome To TravelWorld'
-#             message = f'Hi {instance.username}, Your application to TravelWorld is approved. You can log in using our portal. Thank You'
-#         elif instance.stage == 'rejected':
-#             subject = 'Application Rejected by TravelWorld'
-#             message = f'Hi {instance.username}, Your application to TravelWorld is rejected. Please contact customer section. Thank You'
+@receiver(post_save, sender=Agent)
+def send_email_on_stage_update(sender, instance, created, **kwargs):
+    if not created:
+        subject = ''
+        message = ''
+        if instance.stage == 'approved':
+            print(instance.stage)
+            subject = 'Welcome To TravelWorld'
+            message = f'Hi {instance.username}, Your application to TravelWorld is approved. You can login using our portal. Thank You'
+        elif instance.stage == 'rejected':
+            subject = 'Application Rejected by TravelWorld'
+            message = f'Hi {instance.username}, Your application to TravelWorld is rejected. Please contact customer portal. Thank You'
 
-#         if subject and message:
-#             from_email = settings.DEFAULT_FROM_EMAIL
-#             recipient_list = [instance.email]
+        if subject and message:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [instance.email]
 
-#             send_mail(subject, message, from_email, recipient_list)
+            send_mail(subject, message, from_email, recipient_list)
+
+
+@receiver(post_save, sender=Package)
+def send_email_on_stage_update_package(sender, instance, created, **kwargs):
+    if not created:
+        subject = ''
+        message = ''
+        if instance.stage == 'approved':
+            print(instance.stage)
+            subject = 'Explore World - Package Approved'
+            message = f'Hi {instance.agent.username}, Your Package "{instance.package_uid} - {instance.title}" is approved by admin. Thank You'
+        elif instance.stage == 'rejected':
+            subject = 'Explore World - Package Rejected'
+            message = f'Hi {instance.agent.username}, Your Package "{instance.package_uid} - {instance.title}" is Rejected by admin. Please contact customer portal. Thank You'
+
+        if subject and message:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [instance.agent.email]
+
+            send_mail(subject, message, from_email, recipient_list)
+
+
+@receiver(post_save, sender=Activity)
+def send_email_on_stage_update_activity(sender, instance, created, **kwargs):
+    if not created:
+        subject = ''
+        message = ''
+        if instance.stage == 'approved':
+            print(instance.stage)
+            subject = 'Explore World - Activity Approved'
+            message = f'Hi {instance.agent.username}, Your Activity "{instance.activity_uid} - {instance.title}" is approved by admin. Thank You'
+        elif instance.stage == 'rejected':
+            subject = 'Explore World - Activity Rejected'
+            message = f'Hi {instance.agent.username}, Your Activity "{instance.activity_uid} - {instance.title}" is Rejected by admin. Please contact customer portal. Thank You'
+
+        if subject and message:
+            from_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [instance.agent.email]
+
+            send_mail(subject, message, from_email, recipient_list)
 
 
 @receiver(post_save, sender=Booking)

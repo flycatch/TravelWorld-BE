@@ -90,7 +90,9 @@ class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 class CityAdmin(CustomModelAdmin):
     list_display = ("name", "state",)
@@ -220,7 +222,9 @@ class AttractionAdmin(CustomModelAdmin):
     list_display = ("truncated_title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
     inlines = [AttractionImageInline]
 
     def status_colour(self, obj):
@@ -978,7 +982,9 @@ class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 
 def dashboard_page(request):

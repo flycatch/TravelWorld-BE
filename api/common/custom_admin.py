@@ -1,7 +1,8 @@
 from datetime import datetime
 
-from django.utils.html import strip_tags
+from django.db import models
 from django.contrib import admin
+from django.utils.html import strip_tags
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
@@ -91,7 +92,9 @@ class AttractionImageInline(admin.TabularInline):
     extra = 3
     verbose_name = 'Image'
     verbose_name_plural = 'Images'
-
+    formfield_overrides = {
+        models.ImageField: {'validators': [validate_file_size]},
+    }
 
 class ItineraryInline(CustomStackedInline):
     model = Itinerary

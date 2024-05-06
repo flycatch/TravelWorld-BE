@@ -43,7 +43,11 @@ class Agent(BaseUser):
     )
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
-    agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True,null=True)
+    agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True, null=True)
+    company_id = models.CharField(_("Company ID"), max_length=150, blank=True, null=True)
+    company_name = models.CharField(_("Company Name"), max_length=150, blank=True, null=True)
+    company_site = models.CharField(_("Company Site"), max_length=150, blank=True, null=True)
+    message = models.TextField(_("Message"), blank=True, null=True)
 
 
     class Meta:

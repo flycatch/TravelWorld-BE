@@ -20,8 +20,9 @@ class AgentSerializer(serializers.ModelSerializer):
         """Meta info."""
 
         model = Agent
-        fields = [ "id", "first_name", "username",
-                  "last_name", "email", "phone", "password", "profile_image","agent_uid","agent_name"]
+        fields = [ "id", "first_name", "username", "last_name", "email",
+                  "phone", "password", "profile_image","agent_uid","agent_name",
+                  "company_id", "company_name", "company_site", "message"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters

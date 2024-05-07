@@ -178,8 +178,6 @@ class CustomPasswordResetConfirmView(APIView):
 class AgentBankDetailsAPIView(viewsets.ModelViewSet):
     queryset = AgentBankDetails.objects.all()
     serializer_class = AgentBankDetailsSerializer
-    filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['agent__id'] 
 
     def list(self, request, *args, **kwargs):
         # Get the current logged-in agent's ID

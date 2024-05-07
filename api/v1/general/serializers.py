@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from api.models import Country, City, State, Location,CoverPageInput, Attraction,Pricing,SendEnquiry
+from api.models import (Country, City, State, Location, CoverPageInput, Attraction,
+                        Pricing, SendEnquiry, PackageCategory, SuitableFor)
 from django.db.models import Max
 
 
@@ -38,6 +39,17 @@ class LocationGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['id', 'country', 'state', 'destinations']
+
+class HomePageCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageCategory
+        fields = ['id', 'name', 'thumb_img', 'cover_img']
+
+
+class HomePageSuitableForSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuitableFor
+        fields = ["id", "name"]
 
 
 class CoverPageInputSerializer(serializers.ModelSerializer):

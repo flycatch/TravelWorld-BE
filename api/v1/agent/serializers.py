@@ -9,7 +9,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 
-from api.models import Agent
+from api.models import Agent, AgentBankDetails
 from django.core.validators import FileExtensionValidator, RegexValidator
 
 
@@ -125,3 +125,10 @@ class BookingAgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
         fields = ["id","agent_uid","username",'agent_name',"phone","email", "profile_image"]
+
+
+class AgentBankDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentBankDetails
+        fields = ['id', 'agent', 'account_holder_name',
+                  'account_number', 'ifsc_code', 'cancelled_cheque']

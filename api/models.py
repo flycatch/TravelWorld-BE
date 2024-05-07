@@ -69,6 +69,21 @@ class Agent(BaseUser):
     #     super().save(*args, **kwargs)
 
 
+class AgentBankDetails(BaseModel):
+    agent = models.OneToOneField(
+        Agent, on_delete=models.CASCADE, related_name='bank_details')
+    account_holder_name = models.CharField(max_length=255)
+    account_number = models.IntegerField(verbose_name='Account Number')
+    ifsc_code = models.CharField(max_length=255, verbose_name='IFSC Code')
+    cancelled_cheque = models.ImageField(
+        upload_to='cancelled_cheques/', null=True, default=None, blank=True,
+        verbose_name="Cancelled Cheque")
+
+    class Meta:
+        verbose_name = 'Agent Bank Details'
+        verbose_name_plural = 'Agent Bank Details'
+
+
 class Country(BaseModel):
     name = models.CharField(max_length=255)
     image = models.ImageField(upload_to='country_images/', null=True, default=None, blank=True)

@@ -703,7 +703,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         search_query = self.request.query_params.get('search')
         state = self.request.query_params.get('state')
         city = self.request.query_params.get('city')
-        category = self.request.query_params.get('category')
+        activities = self.request.query_params.get('activities')
+        suitable_for = self.request.query_params.get('suitable_for')
         tour_class = self.request.query_params.get('tour_class')
         is_popular = self.request.query_params.get('is_popular')
         package_id = self.request.query_params.get('package')
@@ -739,9 +740,12 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if city:
             activity_filter &= Q(locations__destinations=city)
             package_filter &= Q(locations__destinations=city)
-        if category:
-            activity_filter &= Q(category=category)
-            package_filter &= Q(category=category)
+        if activities:
+            activity_filter &= Q(activities=activities)
+            package_filter &= Q(activities=activities)
+        if suitable_for:
+            activity_filter &= Q(suitable_for=suitable_for)
+            package_filter &= Q(suitable_for=suitable_for)
         if tour_class:
             activity_filter &= Q(tour_class=tour_class)
             package_filter &= Q(tour_class=tour_class)

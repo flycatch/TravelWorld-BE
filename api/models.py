@@ -30,7 +30,7 @@ class Agent(BaseUser):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
-
+ 
     agent_uid = models.CharField(max_length=10, unique=True, editable=False, verbose_name='Agent UID')
     profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
     stage = models.CharField(

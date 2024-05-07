@@ -1,13 +1,13 @@
 
-<h1 align="center"> ComBus </h1> <br>
+<h1 align="center"> Explore World </h1> <br>
 <p align="center">
-  <a href="https://gitpoint.co/">
+  <!-- <a href="https://gitpoint.co/">
     <img alt="Logo" title="Logo of the project" src="https://combus.flycatchtech.in/assets/combus.svg" width="450">
-  </a>
+  </a> -->
 </p>
 
 <p align="center">
-Embark on a Journey of Convenience with Combus – Your Modern Solution for Effortless Bus Ticket Bookings. Experience Connectivity, Ease, and Innovation in Travel. 
+Embark on a Journey of Convenience with Explore World – Your Modern Solution for Effortless Tour Package Bookings.
 </p>
 
 
@@ -20,13 +20,12 @@ Embark on a Journey of Convenience with Combus – Your Modern Solution for Effo
 
 
 # Introduction
-ComBus is an online ticketing platform, Combus caters to the diverse needs of travelers, providing a user-friendly interface for the hassle-free booking of bus tickets. Whether you're planning a quick city getaway or a long-distance journey, Combus offers a comprehensive selection of routes, ensuring connectivity and convenience.
-This platform is a Proof of Concept (POC) project, designed to showcase the potential of modern technology in simplifying and enhancing the process of reserving bus seats.
+Explore World Travel and Tourism Booking Website aims to revolutionise the way travel and tourism services are offered and experienced.The project encompasses the development of a robust and user-friendly online platform that caters to the diverse needs of Super Admins, Agents, and End Users in the travel and tourism industry.
 
 ## Requirements
 
  - Python version `3.10.12`
- - Django version `4.3.1`
+ - Django version `5.0.1`
 
 
 # Steps to run the project
@@ -77,7 +76,7 @@ This platform is a Proof of Concept (POC) project, designed to showcase the pote
 ### Remove Static
 ```
     docker compose down
-    docker volume rm combus_static_volume
+    docker volume rm explore_static_volume
 ```
 
 ### Load Static

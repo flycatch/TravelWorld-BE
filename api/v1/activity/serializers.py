@@ -6,7 +6,7 @@ from django.db import transaction
 
 from api.models import (Activity, ActivityItinerary, ActivityInformations, ActivityPricing,
                         ActivityTourCategory,ActivityCancellationPolicy, ActivityFaqCategory, ActivityFaqQuestionAnswer,
-                        ActivityImage, PackageCategory, Inclusions, Exclusions, Location,
+                        ActivityImage, PackageCategory, Inclusions, Exclusions, Location, SuitableFor,
                         ActivityInclusionInformation, ActivityExclusionInformation, ActivityCancellationCategory)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
@@ -38,6 +38,8 @@ class ActivitySerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
+        activities_data = validated_data.pop('activities', [])
+        suitable_for_data = validated_data.pop('suitable_for', [])
 
         activity = Activity.objects.create(**validated_data)
 
@@ -51,11 +53,14 @@ class ActivitySerializer(serializers.ModelSerializer):
             except Exception as error:
                 raise serializers.ValidationError(error)
 
+        activity.activities.set(activities_data)
+        activity.suitable_for.set(suitable_for_data)
+
         return activity
 
     def update(self, instance, validated_data):
         locations_data = validated_data.pop('locations', [])
-
+        
         # Update or create related locations
         for location_data in locations_data:
             location_id = location_data.get('id')
@@ -438,11 +443,13 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
     min_price = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     average_review_rating = serializers.SerializerMethodField()
+    activities = HomePageCategorySerializer(many=True,required=False)
+    suitable_for = HomePageSuitableForSerializer(many=True,required=False)
 
     class Meta:
         model = Activity
         fields = ["id","activity_uid","title","tour_class", "locations","agent",
-                  "activity_image","min_price", "category", "total_reviews",
+                  "activity_image","min_price", "activities", "suitable_for", "total_reviews",
                   "average_review_rating","duration","duration_day", "duration_night",
                   "duration_hour", "min_members", "max_members", "deal_type"]
 

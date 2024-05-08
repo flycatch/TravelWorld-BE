@@ -30,15 +30,14 @@ class Agent(BaseUser):
         ('approved', _('Approved')),
         ('rejected', _('Rejected')),
     ]
-
+    ACCOUNT_VERIFICATION_CHOICES = [
+        ('pending', _('Pending')),
+        ('approved', _('Approved')),
+        ('rejected', _('Rejected')),
+    ]
+ 
     agent_uid = models.CharField(max_length=10, unique=True, editable=False, verbose_name='Agent UID')
     profile_image = models.ImageField(upload_to='profile_images/agent/', null=True, blank=True)
-    stage = models.CharField(
-        max_length=20,
-        choices=STAGES_CHOICES,
-        default='pending',
-        verbose_name=_('Stage'),
-    )
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
     agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True, null=True)
@@ -46,7 +45,18 @@ class Agent(BaseUser):
     company_name = models.CharField(_("Company Name"), max_length=150, blank=True, null=True)
     company_site = models.CharField(_("Company Site"), max_length=150, blank=True, null=True)
     message = models.TextField(_("Message"), blank=True, null=True)
-
+    stage = models.CharField(
+        max_length=20,
+        choices=STAGES_CHOICES,
+        default='pending',
+        verbose_name=_('Stage'),
+    )
+    account_verification_status = models.CharField(
+        max_length=20,
+        choices=ACCOUNT_VERIFICATION_CHOICES,
+        default='pending',
+        verbose_name=_('Bank Account Verification'),
+    )
 
     class Meta:
         verbose_name = 'Agent'
@@ -67,6 +77,21 @@ class Agent(BaseUser):
     #         self.unique_username = f'{self.username}_{new_id}'
 
     #     super().save(*args, **kwargs)
+
+
+class AgentBankDetails(BaseModel):
+    agent = models.OneToOneField(
+        Agent, on_delete=models.CASCADE, related_name='bank_details')
+    account_holder_name = models.CharField(max_length=255)
+    account_number = models.CharField(max_length=255, verbose_name='Account Number')
+    ifsc_code = models.CharField(max_length=255, verbose_name='IFSC Code')
+    cancelled_cheque = models.ImageField(
+        upload_to='cancelled_cheques/', null=True, default=None, blank=True,
+        verbose_name="Cancelled Cheque")
+
+    class Meta:
+        verbose_name = 'Agent Bank Details'
+        verbose_name_plural = 'Agent Bank Details'
 
 
 class Country(BaseModel):

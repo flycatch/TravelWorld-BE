@@ -9,7 +9,7 @@ from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.core.exceptions import ValidationError
 
 from api.models import (Itinerary, Pricing, UserReviewImage,
-                        TourCategory, ActivityTourCategory,
+                        TourCategory, ActivityTourCategory, AgentBankDetails,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
                         CancellationPolicy, ActivityCancellationPolicy,
                         PackageImage, ActivityImage, AttractionImage,
@@ -332,5 +332,9 @@ class UserReviewImageInline(admin.TabularInline):
     verbose_name_plural = 'Images'
 
 
+class AgentBankDetailsInline(CustomStackedInline):
+    model = AgentBankDetails
+    verbose_name = 'Agent Bank Details'
+    verbose_name_plural = 'Agent Bank Details'
 
 

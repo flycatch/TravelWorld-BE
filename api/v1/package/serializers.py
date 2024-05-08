@@ -25,6 +25,13 @@ class PackageSerializer(serializers.ModelSerializer):
         model = Package
         exclude = ['status', 'is_popular', "deal_type"]
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Add activities_data and suitable_for_data to the response data
+        data['activities'] = HomePageCategorySerializer(instance.activities.all(), many=True).data
+        data['suitable_for'] = HomePageSuitableForSerializer(instance.suitable_for.all(), many=True).data
+        return data
+    
     def validate(self, data):
         min_members = data.get('min_members')
         max_members = data.get('max_members')

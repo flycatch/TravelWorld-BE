@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
                                      HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView)
-from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
+from api.v1.agent.viewsets import (AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,
+                                   CustomPasswordResetConfirmView,AgentBankDetailsAPIView)
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
@@ -37,6 +38,7 @@ router.register(r'activities', PackageCategoryViewSet, basename='activities'),
 router.register(r'agents', AgentViewSet, basename='agent')
 router.register(r'agent/register', RegisterViewSet, basename='register')
 router.register(r'agent/login', LoginViewSet, basename='login')
+router.register(r'agent/bank-details', AgentBankDetailsAPIView, basename='agent-bank-details')
 
 #User
 router.register(r'users', UserViewSet, basename='user')

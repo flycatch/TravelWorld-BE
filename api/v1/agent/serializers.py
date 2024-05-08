@@ -9,12 +9,13 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 
-from api.models import Agent
+from api.models import Agent, AgentBankDetails
 from django.core.validators import FileExtensionValidator, RegexValidator
 
 
 class AgentSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},required=False)
+    account_verification_status = serializers.CharField(required=False)
 
     class Meta:
         """Meta info."""
@@ -22,7 +23,8 @@ class AgentSerializer(serializers.ModelSerializer):
         model = Agent
         fields = [ "id", "first_name", "username", "last_name", "email",
                   "phone", "password", "profile_image","agent_uid","agent_name",
-                  "company_id", "company_name", "company_site", "message"]
+                  "company_id", "company_name", "company_site", "message",
+                  "account_verification_status"]
 
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters
@@ -125,3 +127,10 @@ class BookingAgentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
         fields = ["id","agent_uid","username",'agent_name',"phone","email", "profile_image"]
+
+
+class AgentBankDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentBankDetails
+        fields = ['id', 'agent', 'account_holder_name',
+                  'account_number', 'ifsc_code', 'cancelled_cheque']

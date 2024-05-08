@@ -1,11 +1,9 @@
-from api.models import Agent
-from api.tasks import *
-from api.v1.agent.serializers import (AgentLoginSerializer, AgentSerializer,
-                                      PasswordResetConfirmSerializer)
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
@@ -13,6 +11,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import serializers
+from rest_framework.filters import SearchFilter
+
+from api.models import Agent, AgentBankDetails
+from api.tasks import *
+from api.v1.agent.serializers import (AgentLoginSerializer, AgentSerializer,
+                                      PasswordResetConfirmSerializer,
+                                      AgentBankDetailsSerializer)
 
 
 class AgentViewSet(viewsets.ModelViewSet):
@@ -168,3 +173,57 @@ class CustomPasswordResetConfirmView(APIView):
                              "status": "error",
                              "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class AgentBankDetailsAPIView(viewsets.ModelViewSet):
+    queryset = AgentBankDetails.objects.all()
+    serializer_class = AgentBankDetailsSerializer
+
+    def list(self, request, *args, **kwargs):
+        # Get the current logged-in agent's ID
+        agent_id = request.user.agent.id
+        # Filter queryset based on the current agent's ID
+        queryset = self.queryset.filter(agent_id=agent_id)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            request.data['agent'] = request.user.agent.id
+            request.user.agent.account_verification_status = 'pending'
+            request.user.agent.save()
+
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response({"message": "Agent Bank Details Added Successfully",
+                             "status": "success",
+                             "statusCode": status.HTTP_201_CREATED},
+                             status=status.HTTP_201_CREATED, headers=headers)
+        except Exception:
+            error_message = ", ".join([f"{field}: {', '.join(errors)}" for field, errors in serializer.errors.items()])
+            return Response({"message": error_message,
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            request.data['agent'] = request.user.agent.id
+            request.user.agent.account_verification_status = 'pending'
+            request.user.agent.save()
+            
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response({"message": "Agent Bank Details Updated Successfully",
+                             "status": "success",
+                             "statusCode": status.HTTP_200_OK})
+        except Exception:
+            error_message = ", ".join([f"{field}: {', '.join(errors)}" for field, errors in serializer.errors.items()])
+            return Response({"message": f"Failed To Update Agent Bank Details: {error_message}",
+                             "status": "error",
+                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR},
+                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

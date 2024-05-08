@@ -28,23 +28,31 @@ class AgentAdmin(CustomModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('agent_uid', 
          'company_name', 'agent_name', 'phone', 'email', 'profile_image')}),
-        ('Permissions', {'fields': ('status', 'stage')}),
+        ('Permissions', {'fields': ('status', 'stage', 'account_verification_status')}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("agent_uid", "company_name", "agent_name", "email", "phone", "status_colour", "stage_colour")
-    list_filter = ("status", "stage")
+    list_display = ("agent_uid", "company_name", "agent_name", "email", "phone",
+                    "status_colour", "stage_colour", "account_verification_status_colour")
+    list_filter = ("status", "stage", "account_verification_status")
     search_fields = ("agent_uid", "company_name", "agent_name", "email", "phone")
     readonly_fields = ("agent_uid","company_name", "agent_name", "email", "phone", "profile_image",)
 
+    inlines = [AgentBankDetailsInline]
+
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
+
+    def account_verification_status_colour(self, obj):
+        return stage_colour(obj.account_verification_status)
 
     def status_colour(self, obj):
         return status_colour(obj.status)
 
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
+    account_verification_status_colour.short_description = 'Account Status'  # Set a custom column header
+    account_verification_status_colour.admin_order_field = 'account_verification_status'  # Enable sorting by stage
     status_colour.short_description = 'Status'  # Set a custom column header
     status_colour.admin_order_field = 'Status'  # Enable sorting by stage
     # agent_uid.short_description = 'Agent UID'  # Enable sorting by stage

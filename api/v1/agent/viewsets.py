@@ -190,6 +190,9 @@ class AgentBankDetailsAPIView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         try:
             request.data['agent'] = request.user.agent.id
+            request.user.agent.account_verification_status = 'pending'
+            request.user.agent.save()
+
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
@@ -209,6 +212,9 @@ class AgentBankDetailsAPIView(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
             request.data['agent'] = request.user.agent.id
+            request.user.agent.account_verification_status = 'pending'
+            request.user.agent.save()
+            
             serializer = self.get_serializer(instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)

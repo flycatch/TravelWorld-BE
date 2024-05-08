@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
                                      HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView)
 from api.v1.agent.viewsets import AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,CustomPasswordResetConfirmView
-from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet,
+from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
                                      PackageInformationsViewSet, PricingViewSet, PackageCategoryViewSet,
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
@@ -30,6 +30,8 @@ router.register(r'cities', CityViewSet, basename='city')
 router.register(r'states', StateViewSet, basename='state')
 router.register(r'countries', CountryViewSet, basename='country')
 router.register(r'locations', LocationViewSet, basename='locations'),
+router.register(r'suitablefor', SuitableForViewSet, basename='suitablefor'),
+router.register(r'activities', PackageCategoryViewSet, basename='activities'),
 
 # Agent
 router.register(r'agents', AgentViewSet, basename='agent')
@@ -46,7 +48,7 @@ Package urls
 """
 router.register(r'package/create', PackageViewSet, basename='package') #package crud operations
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
-router.register(r'packages/category', PackageCategoryViewSet, basename='category'),
+router.register(r'packages/activities', PackageCategoryViewSet, basename='category'),
 router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
 
 # user home page
@@ -81,7 +83,7 @@ Activity urls
 router.register(r'activity/create', ActivityViewSet, basename='activity') #activity crud operations
 router.register(r'activity/upload', ActivityImageViewSet, basename='activity_image_upload')
 router.register(r'activity/delete-draft', ActivityDeleteDraft, basename='delete_draft_activity'),
-router.register(r'activity/category', ActivityCategoryViewSet, basename='activity_category'),
+router.register(r'activity/activities', ActivityCategoryViewSet, basename='activity_category'),
 
 # Itinerary
 router.register(r'activity/itinerary', ActivityItineraryViewSet, basename='activity_itinerary')

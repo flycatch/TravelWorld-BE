@@ -22,8 +22,6 @@ class User(BaseUser):
 
     def __str__(self):
         return self.user_uid if self.user_uid else self.username
-    
-   
 
 
 class Agent(BaseUser):
@@ -43,7 +41,11 @@ class Agent(BaseUser):
     )
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
-    agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True,null=True)
+    agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True, null=True)
+    company_id = models.CharField(_("Company Registration Number"), max_length=150, blank=True, null=True)
+    company_name = models.CharField(_("Company Name"), max_length=150, blank=True, null=True)
+    company_site = models.CharField(_("Company Site"), max_length=150, blank=True, null=True)
+    message = models.TextField(_("Message"), blank=True, null=True)
 
 
     class Meta:
@@ -163,8 +165,8 @@ class PackageCategory(BaseModel):
     is_popular = models.BooleanField(default=False, verbose_name="Popular")
 
     class Meta:
-        verbose_name = 'Tour Category'
-        verbose_name_plural = 'Tour Category'
+        verbose_name = 'Activity'
+        verbose_name_plural = 'Activities'
 
     def __str__(self):
         return self.name
@@ -183,6 +185,17 @@ class ActivityCategory(BaseModel):
     class Meta:
         verbose_name = 'Activity Category'
         verbose_name_plural = 'Activity Category'
+
+    def __str__(self):
+        return self.name
+
+
+class SuitableFor(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Suitable For'
+        verbose_name_plural = 'Suitable For'
 
     def __str__(self):
         return self.name
@@ -216,10 +229,10 @@ class Activity(BaseModel):
     )
     locations = models.ManyToManyField('Location', related_name='activity_location', blank=True,
                                        verbose_name='Destinations')
-    category = models.ForeignKey(
-        PackageCategory, on_delete=models.CASCADE,
-        related_name='activity_category',
-        blank=True, null=True)
+    activities = models.ManyToManyField(
+        PackageCategory, related_name='activity_tour_activity', blank=True, verbose_name='Activities')
+    suitable_for = models.ManyToManyField(
+        SuitableFor, related_name='activity_suitablefor', blank=True, verbose_name='Suitable For')
     
     min_members = models.IntegerField(null=True, blank=True)
     max_members = models.IntegerField(null=True, blank=True)
@@ -301,10 +314,14 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-    locations = models.ManyToManyField(Location, related_name='package_location', blank=True,
-                                       verbose_name='Destinations')
-    category = models.ForeignKey(
-        PackageCategory, on_delete=models.CASCADE, related_name='package_category')
+
+    locations = models.ManyToManyField(
+        Location, related_name='package_location', blank=True, verbose_name='Destinations')
+    activities = models.ManyToManyField(
+        PackageCategory, related_name='package_tour_activity', blank=True, verbose_name='Activities')
+    suitable_for = models.ManyToManyField(
+        SuitableFor, related_name='package_suitablefor', blank=True, verbose_name='Suitable For')
+    
     min_members = models.IntegerField(null=True, blank=True)
     max_members = models.IntegerField(null=True, blank=True)
     duration = models.CharField(

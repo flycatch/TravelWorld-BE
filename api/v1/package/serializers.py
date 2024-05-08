@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
-from api.models import (Package, Itinerary, PackageInformations, Pricing,
+from api.models import (Package, Itinerary, PackageInformations, Pricing, SuitableFor,
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions, Location,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory)
@@ -41,7 +41,9 @@ class PackageSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         locations_data = validated_data.pop('locations', [])
-
+        activities_data = validated_data.pop('activities', [])
+        suitable_for_data = validated_data.pop('suitable_for', [])
+        
         package = Package.objects.create(**validated_data)
 
         for location_data in locations_data:
@@ -53,6 +55,9 @@ class PackageSerializer(serializers.ModelSerializer):
 
             except Exception as error:
                 raise serializers.ValidationError(error)
+
+        package.activities.set(activities_data)
+        package.suitable_for.set(suitable_for_data)
 
         return package
 
@@ -253,6 +258,11 @@ class PackageCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
+class SuitableForSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SuitableFor
+        fields = ['id', 'name']
+
 
 class PackageTourCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -384,12 +394,13 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     min_price = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     average_review_rating = serializers.SerializerMethodField()
-
+    activities = HomePageCategorySerializer(many=True,required=False)
+    suitable_for = HomePageSuitableForSerializer(many=True,required=False)
 
     class Meta:
         model = Package
         fields = ["id","package_uid","title","tour_class", "agent","package_image",
-                  "min_price", "category", "total_reviews","average_review_rating",
+                  "min_price", "activities", "suitable_for", "total_reviews","average_review_rating",
                   "duration","duration_day", "duration_night","duration_hour","locations", 
                   "min_members", "max_members", "deal_type"]
         
@@ -409,11 +420,6 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
             average_rating = user_reviews.aggregate(Avg('rating'))['rating__avg']
             return average_rating
         return None
-
-class HomePageCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PackageCategory
-        fields = ['id', 'name', 'thumb_img', 'cover_img']
 
 
 class PackageMinFieldsSerializer(serializers.ModelSerializer):

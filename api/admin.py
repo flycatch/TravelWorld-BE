@@ -27,15 +27,15 @@ from django.template.loader import render_to_string
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('agent_uid', 
-         'agent_name', 'username', 'phone', 'email', 'profile_image')}),
+         'company_name', 'agent_name', 'phone', 'email', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage')}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("agent_uid", "username", "agent_name", "email", "phone", "status_colour", "stage_colour")
+    list_display = ("agent_uid", "company_name", "agent_name", "email", "phone", "status_colour", "stage_colour")
     list_filter = ("status", "stage")
-    search_fields = ("agent_uid", "username", "agent_name", "email", "phone")
-    readonly_fields = ("agent_uid", "username", "agent_name","email", "phone", "profile_image",)
+    search_fields = ("agent_uid", "company_name", "agent_name", "email", "phone")
+    readonly_fields = ("agent_uid","company_name", "agent_name", "email", "phone", "profile_image",)
 
     def stage_colour(self, obj):
         return stage_colour(obj.stage)
@@ -140,21 +140,23 @@ class ExclusionsAdmin(CustomModelAdmin):
         queryset = queryset.filter(package__isnull=True, activity__isnull=True)
         return queryset
 
+
 class ActivityAdmin(CustomModelAdmin):
-    list_display = ("activity_uid", "agent", "truncated_title", "tour_class","category",
+    list_display = ("activity_uid", "agent", "truncated_title", "tour_class",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class", "category", "status", "stage")
+    list_filter = ("tour_class", "activities", "status", "stage")
     list_filter = ("status", "stage")
     search_fields = ("title", "agent__agent_uid", "tour_class",
-                     "category__name", "activity_uid")
+                     "activities__name", "activity_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'activity_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'activity_uid', 'title', 'agent', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string', 'locations', 'is_popular')
+                       'drop_point', 'drop_time_string', 'locations',
+                       'activities', 'suitable_for', 'is_popular')
         }),
     )
 
@@ -171,7 +173,7 @@ class ActivityAdmin(CustomModelAdmin):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
-                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations', 'activities', 'suitable_for']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -247,21 +249,20 @@ class AttractionAdmin(CustomModelAdmin):
 
 
 class PackageAdmin(CustomModelAdmin):
-    list_display = ("package_uid", "agent", "truncated_title", "tour_class", "category",
+    list_display = ("package_uid", "agent", "truncated_title", "tour_class",
                     "status_colour", "stage_colour",)
-    list_filter = ("tour_class", "category",
-                   "status", "stage")
-    list_filter = ("status", "stage")
+    list_filter = ("tour_class", "status", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
-                     "category__name", "tour_class", "package_uid")
+                     "activities__name", "tour_class", "package_uid")
     exclude = ('is_submitted',)
 
     fieldsets = (
         (None, {
-            'fields': ('stage', 'package_uid', 'title', 'agent', 'category', 'tour_class',
+            'fields': ('stage', 'package_uid', 'title', 'agent', 'tour_class',
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
-                       'drop_point', 'drop_time_string', "locations", 'is_popular')
+                       'drop_point', 'drop_time_string', "locations",
+                       'activities', 'suitable_for', 'is_popular')
         }),
     )
     
@@ -284,7 +285,7 @@ class PackageAdmin(CustomModelAdmin):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
-                    ] + ['pickup_time_string', 'drop_time_string', 'locations']
+                    ] + ['pickup_time_string', 'drop_time_string', 'locations', 'suitable_for', 'activities']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
                     if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on']]
@@ -1222,6 +1223,10 @@ class SendEnquiryAdmin(CustomModelAdmin):
         return False
 
 
+class SuitableForAdmin(CustomModelAdmin):
+    list_display = ("name",)
+
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -1250,6 +1255,7 @@ admin.site.register(ActivityCancellationPolicy)
 # admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
+admin.site.register(SuitableFor, SuitableForAdmin)
 admin.site.register(SendEnquiry,SendEnquiryAdmin)
 
 

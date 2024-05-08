@@ -4,7 +4,7 @@ from itertools import chain
 from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
-                        Package, PackageCategory,
+                        Package, PackageCategory, SuitableFor,
                         PackageFaqQuestionAnswer, PackageImage,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
@@ -17,6 +17,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageImageSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
+                                        SuitableForSerializer,
                                         PackageGetSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,
@@ -464,6 +465,19 @@ class PricingNewView(APIView):
 class PackageCategoryViewSet(viewsets.ModelViewSet):
     queryset = PackageCategory.objects.all()
     serializer_class = PackageCategorySerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
+
+class SuitableForViewSet(viewsets.ModelViewSet):
+    queryset = SuitableFor.objects.all()
+    serializer_class = SuitableForSerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 

@@ -213,8 +213,9 @@ ADMIN_REORDER = (
     {'app': 'api', 'models': ('api.Agent', 'api.User',),'label': 'Users'},
 
     {'app': 'api', 
-     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions','api.PackageCategory'),
-     'label': 'Products'},
+     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions',
+                'api.PackageCategory', 'api.SuitableFor'),
+                'label': 'Products'},
 
     {'app': 'api', 'models': ('api.Booking','api.ContactPerson'),'label': 'Bookings'},
 

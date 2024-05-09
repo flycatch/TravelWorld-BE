@@ -164,7 +164,7 @@ class ActivityAdmin(CustomModelAdmin):
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
                        'drop_point', 'drop_time_string', 'locations',
-                       'activities', 'suitable_for', 'is_popular')
+                       'activities', 'suitable_for', 'is_popular', 'is_recommended')
         }),
     )
 
@@ -180,7 +180,7 @@ class ActivityAdmin(CustomModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular', 'is_recommended']
                     ] + ['pickup_time_string', 'drop_time_string', 'locations', 'activities', 'suitable_for']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
@@ -270,7 +270,7 @@ class PackageAdmin(CustomModelAdmin):
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
                        'drop_point', 'drop_time_string', "locations",
-                       'activities', 'suitable_for', 'is_popular')
+                       'activities', 'suitable_for', 'is_popular', 'is_recommended')
         }),
     )
     
@@ -292,7 +292,7 @@ class PackageAdmin(CustomModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular', 'is_recommended']
                     ] + ['pickup_time_string', 'drop_time_string', 'locations', 'suitable_for', 'activities']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields

@@ -707,6 +707,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         suitable_for = self.request.query_params.get('suitable_for')
         tour_class = self.request.query_params.get('tour_class')
         is_popular = self.request.query_params.get('is_popular')
+        is_recommended = self.request.query_params.get('is_recommended')
         package_id = self.request.query_params.get('package')
         activity_id = self.request.query_params.get('activity')
         duration_filter = self.request.query_params.get('duration_filter')
@@ -752,6 +753,9 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if is_popular:
             activity_filter &= Q(is_popular=True)
             package_filter &= Q(is_popular=True)
+        if is_recommended:
+            activity_filter &= Q(is_recommended=True)
+            package_filter &= Q(is_recommended=True)
         if deal_type:
             activity_filter &= Q(deal_type=deal_type)
             package_filter &= Q(deal_type=deal_type)

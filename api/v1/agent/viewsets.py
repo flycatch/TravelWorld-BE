@@ -184,7 +184,7 @@ class AgentBankDetailsAPIView(viewsets.ModelViewSet):
         agent_id = request.user.agent.id
         # Filter queryset based on the current agent's ID
         queryset = self.queryset.filter(agent_id=agent_id)
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):

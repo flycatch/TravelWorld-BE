@@ -12,10 +12,11 @@ class PackageFilter(django_filters.FilterSet):
     is_popular = django_filters.BooleanFilter(field_name='is_popular', lookup_expr='exact')
     duration_filter = django_filters.CharFilter(method='filter_by_duration')
     city = django_filters.CharFilter(field_name='locations__destinations', lookup_expr='exact')
+    is_recommended = django_filters.BooleanFilter(field_name='is_recommended', lookup_expr='exact')
 
     class Meta:
         model = Package
-        fields = ['tour_class', 'stage', 'state', 'activities', 'suitable_for', 'is_popular']
+        fields = ['tour_class', 'stage', 'state', 'activities', 'suitable_for', 'is_popular', 'is_recommended']
 
 
     def filter_by_duration(self, queryset, name, value):
@@ -37,10 +38,11 @@ class ActivityFilter(django_filters.FilterSet):
     is_popular = django_filters.BooleanFilter(field_name='is_popular', lookup_expr='exact')
     duration_filter = django_filters.CharFilter(method='filter_by_duration')
     city = django_filters.CharFilter(field_name='locations__destinations', lookup_expr='exact')
+    is_recommended = django_filters.BooleanFilter(field_name='is_recommended', lookup_expr='exact')
 
     class Meta:
         model = Activity
-        fields = ['tour_class', 'stage', 'state', 'activities', 'suitable_for', 'is_popular']
+        fields = ['tour_class', 'stage', 'state', 'activities', 'suitable_for', 'is_popular', 'is_recommended']
 
     def filter_by_duration(self, queryset, name, value):
         if value == 'full_day':

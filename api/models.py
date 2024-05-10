@@ -285,6 +285,7 @@ class Activity(BaseModel):
     )
     is_submitted = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    is_recommended = models.BooleanField(default=False, verbose_name="Recommended")
     deal_type = models.CharField(
             max_length=20,
             choices=DEALTYPE_CHOICE,
@@ -374,6 +375,7 @@ class Package(BaseModel):
 
     is_submitted = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    is_recommended = models.BooleanField(default=False, verbose_name="Recommended")
     deal_type = models.CharField(
             max_length=20,
             choices=DEALTYPE_CHOICE,

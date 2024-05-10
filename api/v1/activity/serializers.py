@@ -78,13 +78,6 @@ class ActivitySerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        # Add activities_data and suitable_for_data to the response data
-        data['activities'] = HomePageCategorySerializer(instance.activities.all(), many=True).data
-        data['suitable_for'] = HomePageSuitableForSerializer(instance.suitable_for.all(), many=True).data
-        return data
-
 
 class ActivityImageSerializer(serializers.ModelSerializer):
     class Meta:

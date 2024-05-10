@@ -4,8 +4,8 @@ from itertools import chain
 from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
-                        Package, PackageCategory, SuitableFor,
-                        PackageFaqQuestionAnswer, PackageImage,
+                        Package, PackageCategory, SuitableFor, FavoriteProducts,
+                        PackageFaqQuestionAnswer, PackageImage, User,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
@@ -18,7 +18,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
                                         SuitableForSerializer,
-                                        PackageGetSerializer,
+                                        FavoriteProductSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,
                                         HomePageCategorySerializer)
@@ -846,3 +846,60 @@ class HomePageCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PackageCategory.objects.all()
     serializer_class = HomePageCategorySerializer
     pagination_class = CustomPagination
+
+
+class FavoriteProductViewSet(viewsets.ModelViewSet):
+    queryset = FavoriteProducts.objects.all()
+    serializer_class = FavoriteProductSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return FavoriteProducts.objects.filter(user=user)
+
+    def create(self, request):
+        try:
+            user = request.user
+            package_id = request.data.get('package')
+            activity_id = request.data.get('activity')
+
+            if not package_id and not activity_id:
+                return Response({"status": "error", "message": "Provide either package id or activity id"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            existing_favorite = FavoriteProducts.objects.filter(user=user)
+            if package_id:
+                existing_favorite = existing_favorite.filter(package=package_id)
+                item = get_object_or_404(Package, pk=package_id)
+            elif activity_id:
+                existing_favorite = existing_favorite.filter(activity=activity_id)
+                item = get_object_or_404(Activity, pk=activity_id)
+
+            if existing_favorite.exists():
+                return Response({"status": "error", "message": "Already Added to Favorites"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            favorite_product = FavoriteProducts.objects.create(user=user, package=item) if package_id else \
+                            FavoriteProducts.objects.create(user=user, activity=item)
+
+            serializer = FavoriteProductSerializer(favorite_product)
+
+            return Response({'status': 'success', 'message': 'Favorite product created successfully',
+                            'data': serializer.data, 'statusCode': status.HTTP_201_CREATED},
+                            status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'status': 'error', 'message': 'An error occurred while creating favorite product',
+                            'error': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({'status': 'success', 'message': 'Favorite product deleted successfully',
+                             'statusCode': status.HTTP_204_NO_CONTENT},
+                            status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'status': 'error', 'message': 'An error occurred while deleting favorite product',
+                             'error': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

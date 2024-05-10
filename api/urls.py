@@ -11,7 +11,8 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet
+                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet,
+                                     FavoriteProductViewSet
                                      )
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
@@ -52,6 +53,7 @@ router.register(r'package/create', PackageViewSet, basename='package') #package 
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/activities', PackageCategoryViewSet, basename='category'),
 router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
+router.register(r'favorite-products', FavoriteProductViewSet, basename='favorite-products')
 
 # user home page
 router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),

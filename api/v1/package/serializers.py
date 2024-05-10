@@ -9,7 +9,8 @@ from django.db import transaction
 from api.models import (Package, Itinerary, PackageInformations, Pricing, SuitableFor,
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions, Location,
-                        InclusionInformation, ExclusionInformation, PackageCancellationCategory)
+                        InclusionInformation, ExclusionInformation, PackageCancellationCategory,
+                        FavoriteProducts)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.general.serializers import LocationSerializer
@@ -429,6 +430,11 @@ class PackageMinFieldsSerializer(serializers.ModelSerializer):
         fields = ['id','package_uid','title']
 
 
-
 class PackageImageListSerializer(serializers.Serializer):
     image = serializers.ListField(child=serializers.ImageField())
+
+
+class FavoriteProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FavoriteProducts
+        fields = ['id', 'user', 'package', 'activity']

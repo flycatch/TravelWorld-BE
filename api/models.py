@@ -1287,3 +1287,13 @@ class CoverPageInput(AuditFields):
 
     def __str__(self):
         return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "
+
+
+class FavoriteProducts(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, null=True, blank=True)
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Favorite Product'
+        verbose_name_plural = 'Favorites Products'

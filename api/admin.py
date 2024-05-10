@@ -894,7 +894,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         # Check if the object exists and if the agent's account verification status is not approved
         if obj and obj.agent and obj.agent.account_verification_status != 'approved':
             # Add additional read-only fields if the condition is met
-            self.readonly_fields += ['payment_settlement_amount',
+            self.readonly_fields += ['payment_settlement_status',
+                                     'payment_settlement_amount',
                                      'payment_settlement_date']
             # Display error message when agent bank account is not approved
             messages.error(request, "Bank Account Not verified.")

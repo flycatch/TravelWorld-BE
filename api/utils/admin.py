@@ -18,6 +18,28 @@ def stage_colour(stage):
                 uppercase; min-width: 100px; display: inline-block; text-align: center;">{}</span>',
                 color, bg_color, stage)
 
+def account_verification_status_colour(status):
+    # Define colors based on the verification status
+    if status == 'approved':
+        color = '#62cd61'  # Green color for approved status
+        bg_color = '#ebf9eb'  # Light green background
+    elif status == 'rejected':
+        color = '#f46566'  # Red color for rejected status
+        bg_color = '#fdebeb'  # Light red background
+    elif status == 'pending':
+        color = '#e6b51e'  # Yellow color for pending status
+        bg_color = '#fef8e8'  # Light yellow background
+    else:
+        color = 'black'  # Default color for unknown status
+        bg_color = ''  # No background color for unknown status
+    
+    # Construct HTML span element with inline styles based on the status and colors
+    return format_html(
+        '<span style="color: {};  border: 1px solid; background-color: {}; \
+            padding-left: 8px; padding-right: 8px; border-radius: 4px; text-transform: \
+                uppercase; min-width: 100px; display: inline-block; text-align: center;">{}</span>',
+        color, bg_color, status)
+
 def status_colour(status):
     if status == 'active':
         color = '#62cd61'
@@ -81,8 +103,8 @@ def refund_status_colour(refund_status):
         color = '#62cd61'
         bg_color = '#ebf9eb'
     else:
-        color = '#4576dd'  # Default color
-        bg_color = '#cee8ff'
+        color = '#f46566'
+        bg_color = '#fdebeb'
 
     return format_html(
         '<span style="color: {};  border: 1px solid; background-color: {}; \

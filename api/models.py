@@ -1287,3 +1287,19 @@ class CoverPageInput(AuditFields):
 
     def __str__(self):
         return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "
+
+
+class BlogCategory(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Blogs(AuditFields):
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    is_active = models.BooleanField(default=1)
+
+
+    def __str__(self):
+        return self.title

@@ -1266,6 +1266,11 @@ admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
 admin.site.register(SuitableFor, SuitableForAdmin)
 admin.site.register(SendEnquiry,SendEnquiryAdmin)
+admin.site.register(BlogCategory)
+
+admin.site.register(Blogs)
+
+
 
 
 

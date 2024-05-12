@@ -346,7 +346,8 @@ class PricingDateFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         if self.value() in [str(i) for i in range(1, 13)]:
-            return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
+            return queryset.filter(tour_date__month=int(self.value()))
+            # return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
         
 
 class BookingAdmin(CustomModelAdmin):
@@ -1260,7 +1261,7 @@ admin.site.register(CancellationPolicy)
 admin.site.register(PackageCancellationCategory)
 admin.site.register(ActivityCancellationCategory)
 admin.site.register(ActivityCancellationPolicy)
-# admin.site.register(Pricing)
+admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
 admin.site.register(SuitableFor, SuitableForAdmin)

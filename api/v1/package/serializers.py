@@ -385,6 +385,7 @@ class BookingPackageSerializer(serializers.ModelSerializer):
         fields = ["id","package_uid","title","tour_class",
                   "agent","package_image","locations"]
         
+from decimal import Decimal
 
 class HomePagePackageSerializer(serializers.ModelSerializer):
     agent = BookingAgentSerializer(required=False)
@@ -392,6 +393,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
     package_image= PackageImageSerializer(many=True, required=False)
     # pricing_package = PricingSerializer(many=True,required=False)
     min_price = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
     total_reviews = serializers.SerializerMethodField()
     average_review_rating = serializers.SerializerMethodField()
     activities = HomePageCategorySerializer(many=True,required=False)
@@ -399,8 +401,8 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Package
-        fields = ["id","package_uid","title","tour_class", "agent","package_image",
-                  "min_price", "activities", "suitable_for", "total_reviews","average_review_rating",
+        fields = ["id","package_uid","title","tour_class", "agent","package_image","min_price",
+                  "price", "activities", "suitable_for", "total_reviews","average_review_rating",
                   "duration","duration_day", "duration_night","duration_hour","locations", 
                   "min_members", "max_members", "deal_type"]
         
@@ -410,6 +412,22 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
             min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
             return min_adults_rate
         return None
+        
+    def get_price(self, obj):
+        pricing_packages = obj.pricing_package.all()
+        if pricing_packages.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
+            discount = pricing_packages.first().discount if pricing_packages.first().discount else 0
+            return self.calculate_discounted_price(min_adults_rate, discount)
+        return None
+
+    def calculate_discounted_price(self, actual_price, discount):
+        if discount is None or discount == 0:
+            return {"actual_price": actual_price, "discounted_price": None}
+        
+        discount_decimal = Decimal(str(discount))  # Convert discount to Decimal
+        discounted_price = actual_price * (1 - discount_decimal / 100)
+        return {"actual_price": actual_price, "discounted_price": discounted_price}
     
     def get_total_reviews(self, obj):
         return obj.package_review.filter(is_active=True, is_deleted=False).count()

@@ -1294,12 +1294,28 @@ class BlogCategory(models.Model):
 
     def __str__(self):
         return self.name
+    
+class BlogImage(models.Model):
+    blog = models.ForeignKey('Blogs', on_delete=models.CASCADE,
+                related_name='blogs_image',null=True, blank=True)
+    image = models.ImageField(upload_to='blog_images',null=True, blank=True,
+                                       verbose_name="Blog Image")
+
+    def __str__(self):
+        return self.image.name
 
 class Blogs(AuditFields):
     title = models.CharField(max_length=200)
     content = models.TextField()
     is_active = models.BooleanField(default=1)
+    categories = models.ManyToManyField(BlogCategory,related_name='blog_categories',
+                                      blank=True)
 
 
     def __str__(self):
         return self.title
+    
+
+    class Meta:
+        verbose_name = 'Blogs'
+        verbose_name_plural = 'Blogs'

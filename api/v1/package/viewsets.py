@@ -604,23 +604,15 @@ class PackageHomePageView(ListAPIView):
         price_range_min = self.request.query_params.get('price_range_min','0')
         price_range_max = self.request.query_params.get('price_range_max','0')
 
-        print(price_range_min)
-        print(price_range_max)
-        print(type(price_range_min))
-        print(type(price_range_max))
-
          # Check if both values are 0
         if price_range_min == '0' and price_range_max == '0':
-            print("hii")
             return queryset  # Skip the filters
         
-        print("hi23")
         queryset = queryset.filter(
             Q(pricing_package__adults_rate__gte=price_range_min) &
             Q(pricing_package__adults_rate__lte=price_range_max)
         ).distinct()
         
-        print("hi44")
         return queryset
         
         
@@ -744,6 +736,18 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if activities:
             activity_filter &= Q(activities=activities)
             package_filter &= Q(activities=activities)
+
+            # activities_ids = ast.literal_eval(activities)
+            # # activity_filter = Q()
+            # # package_filter = Q()
+            
+            # # Construct filter conditions for each activities ID
+            # for id in activities_ids:
+            #     # Filter activities by activities
+            #     activity_filter |= Q(activities__id=id)
+            #     # Filter packages by activities
+            #     package_filter |= Q(activities__id=id)
+
         if suitable_for:
             activity_filter &= Q(suitable_for=suitable_for)
             package_filter &= Q(suitable_for=suitable_for)
@@ -820,7 +824,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             return Response([])
 
         serializer = self.serializer_class(filtered_queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
 
 

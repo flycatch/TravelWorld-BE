@@ -344,7 +344,8 @@ class PricingDateFilter(admin.SimpleListFilter):
     
     def queryset(self, request, queryset):
         if self.value() in [str(i) for i in range(1, 13)]:
-            return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
+            return queryset.filter(tour_date__month=int(self.value()))
+            # return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
         
 
 class BookingAdmin(CustomModelAdmin):
@@ -941,8 +942,7 @@ class UserReviewAdmin(CustomModelAdmin):
     search_fields = ( "package__name", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
-    # readonly_fields = ("user", "package", "activity", "rating", "review",
-    #                    "booking", "agent", "agent_comment")
+    readonly_fields = ("activity_uid", "package_uid","activity_name","package_name")
     fieldsets = (
         (None, {
             'fields': ("user", "package", "activity", "rating", "review",
@@ -1000,7 +1000,7 @@ class UserReviewAdmin(CustomModelAdmin):
         return True
 
     def has_change_permission(self, request, obj=None):
-        return False
+        return True
 
     def has_delete_permission(self, request, obj=None):
         return True
@@ -1257,6 +1257,12 @@ class SuitableForAdmin(CustomModelAdmin):
     list_display = ("name",)
 
 
+
+class BlogsAdmin(admin.ModelAdmin):
+    ...
+    inlines = [BlogImageInline]
+
+
 # Unregister model
 admin.site.unregister(Group)
 admin.site.unregister(TokenProxy)
@@ -1282,11 +1288,17 @@ admin.site.register(CancellationPolicy)
 admin.site.register(PackageCancellationCategory)
 admin.site.register(ActivityCancellationCategory)
 admin.site.register(ActivityCancellationPolicy)
-# admin.site.register(Pricing)
+admin.site.register(Pricing)
 admin.site.register(CoverPageInput, CoverPageInputAdmin)
 admin.site.register(Itinerary)
 admin.site.register(SuitableFor, SuitableForAdmin)
 admin.site.register(SendEnquiry,SendEnquiryAdmin)
+admin.site.register(BlogCategory)
+admin.site.register(BlogImage)
+
+admin.site.register(Blogs,BlogsAdmin)
+
+
 
 
 

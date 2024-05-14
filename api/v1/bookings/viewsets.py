@@ -622,9 +622,15 @@ class BookingCalculationsView(APIView):
 
             # Calculate full_amount_payment if rates are available
             if adult_per_rate is not None:
-                full_amount_payment += adult_per_rate * adult_count
+                # Calculate discounted rates if discount exists for full_amount_payment calculation
+                discounted_adult_per_rate = adult_per_rate
+                if pricing.discount:
+                    discounted_adult_per_rate -= adult_per_rate * pricing.discount / 100
+                full_amount_payment += discounted_adult_per_rate * adult_count
+
             if child_per_rate is not None:
                 full_amount_payment += child_per_rate * child_count
+
             if infant_per_rate is not None:
                 full_amount_payment += infant_per_rate * infant_count
 
@@ -639,7 +645,9 @@ class BookingCalculationsView(APIView):
                             "infant_count":infant_count,
                             "full_amount_payment":full_amount_payment,
                             "partial_payment_percentage":partial_payment_percentage,
-                            "partial_payment_amount":partial_payment_amount
+                            "partial_payment_amount":partial_payment_amount,
+                            "discounted_adult_per_rate":discounted_adult_per_rate,
+                            "discount":pricing.discount
 
                         }
 

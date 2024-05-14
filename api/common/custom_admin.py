@@ -13,7 +13,7 @@ from api.models import (Itinerary, Pricing, UserReviewImage,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
                         CancellationPolicy, ActivityCancellationPolicy,
                         PackageImage, ActivityImage, AttractionImage,
-                        PackageInformations,ActivityItinerary, ActivityInformations)
+                        PackageInformations,ActivityItinerary, ActivityInformations,BlogImage)
 
 
 admin.site.site_header = 'Explore World'
@@ -327,6 +327,18 @@ class UserReviewImageInline(admin.TabularInline):
 
     def has_add_permission(self, request, obj=None):
         return False
+
+    verbose_name = 'Images'
+    verbose_name_plural = 'Images'
+
+
+class BlogImageInline(admin.TabularInline):
+    model = BlogImage
+    can_delete = False
+    extra = 1
+
+    def has_add_permission(self, request, obj=None):
+        return True
 
     verbose_name = 'Images'
     verbose_name_plural = 'Images'

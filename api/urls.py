@@ -23,6 +23,8 @@ from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginVie
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
 from api.v1.social_logins.viewsets import *
+from api.v1.dashboard.viewsets import *
+from api.v1.blogs.viewsets import *
 
 
 router = DefaultRouter()
@@ -192,6 +194,13 @@ urlpatterns = [
 
     #send enquiry
     path('v1/send-enquiry/', SendEnquiryView.as_view(), name='send-enquiry'),
+
+    #dashboard
+    path('v1/<int:agent_id>/dashboard-count/',DashboardCount.as_view(), name='dashboard-count'),
+
+    path('v1/blog-list/', BlogListView.as_view(), name='blog-list'),
+
+
 
 
 

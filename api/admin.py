@@ -801,8 +801,14 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def pricing_section(self, obj):
         pricing_obj = obj.booking.pricing
         if pricing_obj:
-            pricing_dict = {'Tour Date': pricing_obj.start_date, 'Adults Rate': obj.adults_rate,
-                            'Child Rate': obj.child_rate,'Infant Rate': obj.infant_rate,
+            print("enter 1")
+            print(pricing_obj)
+            print(obj.booking.adults_rate)
+            pricing_dict = {'Tour Date': obj.booking.tour_date, 'Adults Rate': obj.booking.adults_rate,
+                            'Child Rate': obj.booking.child_rate,'Infant Rate': obj.booking.infant_rate,
+                            'Adults Commission': obj.booking.adults_commission,
+                            'Child Commission': obj.booking.child_commission, 
+                            'Infant Commission': obj.booking.infant_commission,
                             }
 
             # Render the HTML template with pricing_list

@@ -429,20 +429,26 @@ class CustomerBookingUpdateView(APIView):
 
                         package_image = instance.package.package_image.first()
 
+                        # data = {
+                        #     'instace':instance,
+                        #     'booking_id':instance.booking_id,
+                        #     'title': instance.package.title,
+                        #     'tour_class': instance.package.tour_class,
+                        #     'tour_date': instance.tour_date,
+                        #     'adult':instance.adult,
+                        #     'child': instance.child,
+                        #     'infant':instance.infant,
+                        #     'locations':location_list,
+                        #     'image':package_image.image.url
+                        #     }
+
                         data = {
-                            'instace':instance,
-                            'booking_id':instance.booking_id,
-                            'title': instance.package.title,
-                            'tour_class': instance.package.tour_class,
-                            'tour_date': instance.tour_date,
-                            'adult':instance.adult,
-                            'child': instance.child,
-                            'infant':instance.infant,
+                            'booking_object_id':instance.object_id,
                             'locations':location_list,
                             'image':package_image.image.url
                             }
                         
-                        send_enquiry_email.delay(
+                        send_booking_email.delay(
                         "Explore World | Booking Confirmation",
                         'email/booking_confirmation.html',
                         instance.user.email,

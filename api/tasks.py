@@ -2,7 +2,7 @@ from celery import shared_task
 from django.core.mail import send_mail
 from TravelWorld.settings import *
 from django.template.loader import render_to_string
-
+from api.models import *
 
 @shared_task
 def send_email(subject,message,email):
@@ -24,6 +24,32 @@ def send_enquiry_email(subject, template_name, recipient_email, context):
         '',
         EMAIL_HOST_USER,
         [recipient_email],
+        html_message=html_content,
+        fail_silently=False
+    )
+
+
+@shared_task
+def send_booking_email(subject, template_name, recipient_email, context):
+    print("Inside Celery task for sending email")
+
+    instance = Booking.objects.get(object_id=context['booking_object_id'])
+    context.update({
+        'booking_id':instance.booking_id,
+        'title': instance.package.title,
+        'tour_class': instance.package.tour_class,
+        'tour_date': instance.tour_date,
+        'adult':instance.adult,
+        'child': instance.child,
+        'infant':instance.infant,
+    })
+
+    html_content = render_to_string(template_name, context)
+    send_mail(
+        subject,
+        '',
+        EMAIL_HOST_USER,
+        ['lenate.j@flycatchtech.com'],
         html_message=html_content,
         fail_silently=False
     )

@@ -429,30 +429,17 @@ class CustomerBookingUpdateView(APIView):
 
                         package_image = instance.package.package_image.first()
 
-                        # data = {
-                        #     'instace':instance,
-                        #     'booking_id':instance.booking_id,
-                        #     'title': instance.package.title,
-                        #     'tour_class': instance.package.tour_class,
-                        #     'tour_date': instance.tour_date,
-                        #     'adult':instance.adult,
-                        #     'child': instance.child,
-                        #     'infant':instance.infant,
-                        #     'locations':location_list,
-                        #     'image':package_image.image.url
-                        #     }
-
-                        data = {
+                        context = {
                             'booking_object_id':instance.object_id,
                             'locations':location_list,
-                            'image':package_image.image.url
+                            'image': package_image.image.url
                             }
                         
                         send_booking_email.delay(
                         "Explore World | Booking Confirmation",
                         'email/booking_confirmation.html',
                         instance.user.email,
-                        {'data': data},
+                        context,
                     )
                     else:
                         AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
@@ -477,26 +464,17 @@ class CustomerBookingUpdateView(APIView):
                         activity_image = instance.package.activity_image.first()
 
                         
-                        data ={'booking_id':instance.booking_id,
-                                'title': instance.activity.title,
-                                'tour_class': instance.activity.tour_class,
-                                'tour_date': instance.tour_date,
-                                'adult':instance.adult,
-                                'child': instance.child,
-                                'infant':instance.infant,
+                        context ={'booking_id':instance.object_id,
                                 'locations':location_list,
                                 'image':activity_image.image.url
                             }
                         
-                        send_enquiry_email.delay(
+                        send_booking_email.delay(
                             "Explore World | Booking Confirmation",
                             'email/booking_confirmation.html',
                             instance.user.email,
-                            {'data': data}
+                            context
                         )
-
-                print(data)
-
                
                 return Response({"message": "Booking Updated Successfully",
                                  "status": "success",

@@ -407,6 +407,7 @@ class CustomerBookingUpdateView(APIView):
                         AgentTransactionSettlement.objects.create(package_id=instance.package_id,
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
+                        # Prepare location details
                         data = {
                             'title': instance.package.title,
                             'tour_class': instance.package.tour_class,
@@ -414,7 +415,7 @@ class CustomerBookingUpdateView(APIView):
                             'adult':instance.adult,
                             'child': instance.child,
                             'infant':instance.infant,
-                            'locations':instance.package.locations.all()
+                            'locations':[{'name': loc.name, 'address': loc.address} for loc in instance.package.locations.all()]
                             
                            
                             }
@@ -436,7 +437,7 @@ class CustomerBookingUpdateView(APIView):
                                 'adult':instance.adult,
                                 'child': instance.child,
                                 'infant':instance.infant,
-                                'locations':instance.activity.locations.all()
+                                'locations':[{'name': loc.name, 'address': loc.address} for loc in instance.activity.locations.all()]
                             }
                         send_enquiry_email.delay(
                             "Explore World | Booking Confirmation",

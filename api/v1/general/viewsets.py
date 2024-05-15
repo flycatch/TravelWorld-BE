@@ -1,12 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets,status
 
-from api.models import Country, State, City, CoverPageInput,Attraction, Location,Package,Activity
+from api.models import (Country, State, City, CoverPageInput,Attraction, Location,Package,
+                        Activity, Currency)
 from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer, 
                                         AttractionSerializer,CoverPageInputSerializer,
-                                        HomePageDestinationSerializer, HomePageStateSerializer, LocationSerializer,
-                                        SendEnquirySerializer)
-from api.filters.general_filters import CityFilter
+                                        HomePageDestinationSerializer, HomePageStateSerializer,
+                                        LocationSerializer, SendEnquirySerializer, CurrencySerializer)
+from api.filters.general_filters import CityFilter, CurrencyFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
@@ -163,3 +164,21 @@ class SendEnquiryView(APIView):
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CurrencyViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint for retrieving and filtering currency data.
+
+    Provides read-only access to a list of currencies, allowing for filtering
+    by specific criteria defined in the `CurrencyFilter` class. Supports
+    custom pagination through the `CustomPagination` class.
+
+    Relationships:
+        - Related to the `Currency` model and `CurrencySerializer`.
+    """
+    queryset = Currency.objects.all()
+    serializer_class = CurrencySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CurrencyFilter
+    pagination_class = CustomPagination

@@ -1,28 +1,26 @@
-from decimal import Decimal
-from django.http import JsonResponse
+import calendar
+from datetime import datetime
+from datetime import date
 
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.admin import AdminSite
 from django.contrib.admin.sites import site
-from django.template.defaultfilters import truncatewords
-from django.utils.html import format_html
 from django.template.defaultfilters import truncatechars
+from django.contrib import messages
+from django.shortcuts import render
+from django.db.models import Count
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
+from django.template.loader import render_to_string
 
 from rest_framework.authtoken.models import TokenProxy
 
 from api.common.custom_admin import *
 from api.models import *
 from api.tasks import *
-from api.utils.admin import stage_colour, status_colour, booking_status_colour, refund_status_colour
-from django.shortcuts import render
-from datetime import datetime
-from django.db.models import Case, CharField, Count, F, Subquery, Value, When
-import calendar
-from django.utils.safestring import mark_safe
-from django.utils.translation import gettext_lazy as _
-from datetime import date
-from django.template.loader import render_to_string
+from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
+                             refund_status_colour, account_verification_status_colour)
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -782,12 +780,17 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             )
         
     list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "activity_uid", "agent_uid",
-                    "payment_settlement_date", "payment_settlement_status_colour",)
+                    "payment_settlement_date", "payment_settlement_status_colour", 'account_verification_status')
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "package__title", "package__package_uid", 
                      "agent__agent_uid", "agent__username")
     exclude = ('status',)
+
+    def account_verification_status(self, obj):
+        return account_verification_status_colour(obj.agent.account_verification_status if obj.agent else None)
+    account_verification_status.short_description = "Account Status"
+    account_verification_status.admin_order_field = "Account Status"
 
     def cancellation_policies(self, obj):
         cancellation_categories = []
@@ -844,7 +847,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def agent(self, obj):
         return obj.package.agent.username if obj.package else None
     
-    
     def agent_uid(self, obj):
         return obj.package.agent.agent_uid if obj.package else None
 
@@ -877,11 +879,31 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     display_created_on.short_description = "Transaction date"
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        self.readonly_fields += ('transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                 'display_created_on', 'package_name','booking_amount', 'booking_type',
-                                 'cancellation_policies', 'activity_uid', 'activity_name')
+        """
+        Overriding default change view to make readonly fields and
+        check agent bank approved status and show message if not approved
+        and restrict editing fields.
+        """
+        # Get the object based on the object_id
+        obj = self.get_object(request, object_id)
+        
+        # Define the initial set of read-only fields
+        self.readonly_fields = ['transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+                                'display_created_on', 'package_name','booking_amount', 'booking_type',
+                                'cancellation_policies', 'activity_uid', 'activity_name']
+
+        # Check if the object exists and if the agent's account verification status is not approved
+        if obj and obj.agent and obj.agent.account_verification_status != 'approved':
+            # Add additional read-only fields if the condition is met
+            self.readonly_fields += ['payment_settlement_status',
+                                     'payment_settlement_amount',
+                                     'payment_settlement_date']
+            # Display error message when agent bank account is not approved
+            messages.error(request, "Bank Account Not verified.")
+
+        # Call the parent class's change_view method
         return super().change_view(request, object_id, form_url, extra_context)
-    
+
     def save_model(self, request, obj, form, change):
 
         # Get the original object before saving changes

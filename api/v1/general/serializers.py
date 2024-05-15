@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from api.models import (Country, City, State, Location, CoverPageInput, Attraction,
-                        Pricing, SendEnquiry, PackageCategory, SuitableFor)
+                        Pricing, SendEnquiry, PackageCategory, SuitableFor, Currency)
 from django.db.models import Max
 
 
@@ -89,3 +89,17 @@ class SendEnquirySerializer(serializers.ModelSerializer):
     class Meta:
         model = SendEnquiry
         fields = '__all__'
+
+
+class CurrencySerializer(serializers.ModelSerializer):
+    """
+    Serializer for the `Currency` model.
+
+    This serializer handles serialization and deserialization of `Currency` objects,
+    including validation. By default, it includes the `name` and `country` fields
+    of the model.Can customize the included fields using the `fields` option
+    in the `Meta` class.
+    """
+    class Meta:
+        model = Currency
+        fields = ['name','country']

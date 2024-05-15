@@ -4,8 +4,8 @@ from itertools import chain
 from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
-                        Package, PackageCategory, SuitableFor,
-                        PackageFaqQuestionAnswer, PackageImage,
+                        Package, PackageCategory, SuitableFor, FavoriteProducts,
+                        PackageFaqQuestionAnswer, PackageImage, User,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
@@ -18,7 +18,7 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         PackageInformationsSerializer,
                                         PackageSerializer,
                                         SuitableForSerializer,
-                                        PackageGetSerializer,
+                                        FavoriteProductSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,
                                         HomePageCategorySerializer)
@@ -604,23 +604,15 @@ class PackageHomePageView(ListAPIView):
         price_range_min = self.request.query_params.get('price_range_min','0')
         price_range_max = self.request.query_params.get('price_range_max','0')
 
-        print(price_range_min)
-        print(price_range_max)
-        print(type(price_range_min))
-        print(type(price_range_max))
-
          # Check if both values are 0
         if price_range_min == '0' and price_range_max == '0':
-            print("hii")
             return queryset  # Skip the filters
         
-        print("hi23")
         queryset = queryset.filter(
             Q(pricing_package__adults_rate__gte=price_range_min) &
             Q(pricing_package__adults_rate__lte=price_range_max)
         ).distinct()
         
-        print("hi44")
         return queryset
         
         
@@ -742,8 +734,11 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity_filter &= Q(locations__destinations=city)
             package_filter &= Q(locations__destinations=city)
         if activities:
-            activity_filter &= Q(activities=activities)
-            package_filter &= Q(activities=activities)
+            activities_ids = ast.literal_eval(activities)
+            # Filter activities by activities
+            activity_filter &= Q(activities__id__in=activities_ids)
+            # Filter packages by activities
+            package_filter &= Q(activities__id__in=activities_ids)
         if suitable_for:
             activity_filter &= Q(suitable_for=suitable_for)
             package_filter &= Q(suitable_for=suitable_for)
@@ -759,8 +754,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if deal_type:
             activity_filter &= Q(deal_type=deal_type)
             package_filter &= Q(deal_type=deal_type)
-
-        
 
         if duration_filter:
             if duration_filter == 'full_day':
@@ -783,7 +776,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
             & Q(pricing_package__adults_rate__lte=price_range_max)
-
+        
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)
         packages = self.queryset_packages.filter(package_filter)
@@ -820,7 +813,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             return Response([])
 
         serializer = self.serializer_class(filtered_queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
 
 
@@ -846,3 +838,60 @@ class HomePageCategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PackageCategory.objects.all()
     serializer_class = HomePageCategorySerializer
     pagination_class = CustomPagination
+
+
+class FavoriteProductViewSet(viewsets.ModelViewSet):
+    queryset = FavoriteProducts.objects.all()
+    serializer_class = FavoriteProductSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        return FavoriteProducts.objects.filter(user=user)
+
+    def create(self, request):
+        try:
+            user = request.user
+            package_id = request.data.get('package')
+            activity_id = request.data.get('activity')
+
+            if not package_id and not activity_id:
+                return Response({"status": "error", "message": "Provide either package id or activity id"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            existing_favorite = FavoriteProducts.objects.filter(user=user)
+            if package_id:
+                existing_favorite = existing_favorite.filter(package=package_id)
+                item = get_object_or_404(Package, pk=package_id)
+            elif activity_id:
+                existing_favorite = existing_favorite.filter(activity=activity_id)
+                item = get_object_or_404(Activity, pk=activity_id)
+
+            if existing_favorite.exists():
+                return Response({"status": "error", "message": "Already Added to Favorites"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            favorite_product = FavoriteProducts.objects.create(user=user, package=item) if package_id else \
+                            FavoriteProducts.objects.create(user=user, activity=item)
+
+            serializer = FavoriteProductSerializer(favorite_product)
+
+            return Response({'status': 'success', 'message': 'Favorite product created successfully',
+                            'data': serializer.data, 'statusCode': status.HTTP_201_CREATED},
+                            status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'status': 'error', 'message': 'An error occurred while creating favorite product',
+                            'error': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response({'status': 'success', 'message': 'Favorite product deleted successfully',
+                             'statusCode': status.HTTP_204_NO_CONTENT},
+                            status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response({'status': 'error', 'message': 'An error occurred while deleting favorite product',
+                             'error': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)

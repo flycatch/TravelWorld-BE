@@ -804,12 +804,17 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             print("enter 1")
             print(pricing_obj)
             print(obj.booking.adults_rate)
-            pricing_dict = {'Tour Date': obj.booking.tour_date, 'Adults Rate': obj.booking.adults_rate,
-                            'Child Rate': obj.booking.child_rate,'Infant Rate': obj.booking.infant_rate,
-                            'Adults Commission': obj.booking.adults_commission,
-                            'Child Commission': obj.booking.child_commission, 
-                            'Infant Commission': obj.booking.infant_commission,
-                            }
+            if obj.booking.adults_rate:
+                pricing_dict = {'Tour Date': obj.booking.tour_date, 'Adults Rate': obj.booking.adults_rate,
+                                'Child Rate': obj.booking.child_rate,'Infant Rate': obj.booking.infant_rate,
+                                'Adults Commission': obj.booking.adults_commission,
+                                'Child Commission': obj.booking.child_commission, 
+                                'Infant Commission': obj.booking.infant_commission,
+                                'Adult Count':obj.booking.adult,
+                                'Child Count':obj.booking.child,
+                                'Infant Count':obj.booking.infant
+                                }
+            
 
             # Render the HTML template with pricing_list
             pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})

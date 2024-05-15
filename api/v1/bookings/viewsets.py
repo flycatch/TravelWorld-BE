@@ -414,14 +414,16 @@ class CustomerBookingUpdateView(APIView):
                             'adult':instance.adult,
                             'child': instance.child,
                             'infant':instance.infant,
+                            'locations':instance.package.locations
+                            
                            
                             }
-                    #     send_enquiry_email.delay(
-                    #     "Explore World | Booking Confirmation",
-                    #     'email/booking_confirmation.html',
-                    #     instance.user.email,
-                    #     {'data': data},
-                    # )
+                        send_enquiry_email.delay(
+                        "Explore World | Booking Confirmation",
+                        'email/booking_confirmation.html',
+                        instance.user.email,
+                        {'data': data},
+                    )
                     else:
                         AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
                                                     booking=instance,
@@ -434,15 +436,20 @@ class CustomerBookingUpdateView(APIView):
                                 'adult':instance.adult,
                                 'child': instance.child,
                                 'infant':instance.infant,
+                                'locations':instance.activity.locations
                             }
-                        # send_enquiry_email.delay(
-                        #     "Explore World | Booking Confirmation",
-                        #     'email/booking_confirmation.html',
-                        #     instance.user.email,
-                        #     {'data': data}
-                        # )
+                        send_enquiry_email.delay(
+                            "Explore World | Booking Confirmation",
+                            'email/booking_confirmation.html',
+                            instance.user.email,
+                            {'data': data}
+                        )
 
                 print(data)
+                package_image = instance.package.package_image.first()
+
+                print(package_image)
+                print(package_image.image.url)
 
                 return Response({"message": "Booking Updated Successfully",
                                  "status": "success",

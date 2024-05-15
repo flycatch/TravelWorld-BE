@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 100px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #4caf50;
+        }
+        .content {
+            margin-bottom: 20px;
+        }
+        .content h2 {
+            margin: 0;
+            color: #333;
+        }
+        .content p {
+            color: #666;
+            line-height: 1.5;
+        }
+        .booking-details {
+            border-top: 1px solid #e4e4e4;
+            padding-top: 20px;
+        }
+        .booking-details img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+        .booking-details h3 {
+            margin: 10px 0 5px;
+            color: #333;
+        }
+        .booking-details .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            color: #666;
+        }
+        .booking-details .info div {
+            display: flex;
+            align-items: center;
+        }
+        .booking-details .info div img {
+            max-width: 20px;
+            margin-right: 10px;
+        }
+        .booking-details .info div span {
+            margin-right: 20px;
+        }
+        .booking-details .info .date {
+            color: #333;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-top: 1px solid #e4e4e4;
+            color: #666;
+        }
+        .rate {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- <img src="https://qa-explore.flycatchtech.in/images/logo-black.svg" alt="Explore World"> -->
+            <h1>Booking Confirmed</h1>
+        </div>
+        <div class="content">
+            <p>Booking Reference No: {{ booking_id }}</p>
+            <p>Booked On: {{ booking_date }}</p>
+            <p>Thank you for choosing Explore World for your travel needs. We are thrilled to confirm your recent booking with us. Below are the details of your reservation: One of our customer care agents will connect with you shortly.</p>
+        </div>
+        <div class="booking-details">
+            <!-- <img src="{{ image }}" alt="Package Image"> -->
+            <h3>{{ title }}</h3>
+
+            <div class="info date">
+                <span>Starts From: {{ tour_date }}</span>
+            </div>
+            <div class="info date">
+                <span>{{ locations }}</span>
+            </div>
+            <div class="info">
+                <span style="padding-right: 10px;">Adult: {{ adult }}</span>
+                <span style="padding-right: 10px;">Child: {{ child }}</span>
+                <span style="padding-right: 10px;">Infant: {{ infant }}</span>
+            </div>
+        </div>
+        <div class="footer">
+            <a href="{{base_url}}/booking/booking-details?object_id={{object_id}}">View Details ->| </a>
+        </div>
+    </div>
+</body>
+</html>

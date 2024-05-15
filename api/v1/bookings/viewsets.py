@@ -422,7 +422,9 @@ class CustomerBookingUpdateView(APIView):
                                 'country': country_name,
                                 'destinations': destination_names
                             })
-                        # Prepare location details
+
+                        package_image = instance.package.package_image.first()
+
                         data = {
                             'title': instance.package.title,
                             'tour_class': instance.package.tour_class,
@@ -430,7 +432,9 @@ class CustomerBookingUpdateView(APIView):
                             'adult':instance.adult,
                             'child': instance.child,
                             'infant':instance.infant,
-                            'locations':location_list
+                            'locations':location_list,
+                            'image':package_image.image.url
+
                             
                            
                             }
@@ -459,6 +463,9 @@ class CustomerBookingUpdateView(APIView):
                                 'country': country_name,
                                 'destinations': destination_names
                             })
+
+                        activity_image = instance.package.activity_image.first()
+
                         
                         data ={
                                 'title': instance.activity.title,
@@ -467,7 +474,8 @@ class CustomerBookingUpdateView(APIView):
                                 'adult':instance.adult,
                                 'child': instance.child,
                                 'infant':instance.infant,
-                                'locations':location_list
+                                'locations':location_list,
+                                'image':activity_image.image.url
                             }
                         send_enquiry_email.delay(
                             "Explore World | Booking Confirmation",
@@ -477,11 +485,8 @@ class CustomerBookingUpdateView(APIView):
                         )
 
                 print(data)
-                package_image = instance.package.package_image.first()
 
-                print(package_image.image)
-                print(package_image.image.url)
-
+               
                 return Response({"message": "Booking Updated Successfully",
                                  "status": "success",
                                  "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)

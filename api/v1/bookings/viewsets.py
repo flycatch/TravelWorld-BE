@@ -432,6 +432,7 @@ class CustomerBookingUpdateView(APIView):
                         context = {
                             'booking_object_id':instance.object_id,
                             'locations':location_list,
+                            'deal_type':"PACKAGE",
                             'image': package_image.image.url
                             }
                         
@@ -465,6 +466,7 @@ class CustomerBookingUpdateView(APIView):
 
                         
                         context ={'booking_id':instance.object_id,
+                                  'deal_type':"ACTIVITY",
                                 'locations':location_list,
                                 'image':activity_image.image.url
                             }

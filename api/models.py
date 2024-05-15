@@ -568,7 +568,7 @@ class Pricing(BaseModel):
     # group_agent_amount = models.DecimalField(
     #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     
-
+    
     #field for per-person pricing
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='pricing_package', null=True, blank=True)
@@ -762,6 +762,8 @@ class Booking(BaseModel):
                                         blank=True,null=True)
     booking_type  =  models.CharField(choices = BOOKING_TYPE,max_length=50,blank=True,null=True)
     is_trip_completed = models.BooleanField(default=0)
+
+    # save pricing details here
     pricing = models.ForeignKey(
         Pricing, on_delete=models.CASCADE, null=True, blank=True,related_name='booking_pricing')
     adults_rate = models.DecimalField(
@@ -772,6 +774,15 @@ class Booking(BaseModel):
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     discount = models.DecimalField(
         default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    adults_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Adults Commission (%)', null=True, blank=True,)
+    infant_commission = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2,
+        verbose_name='Infant Commission (%)', null=True, blank=True)
+    child_commission = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2,
+        verbose_name='Child Commission (%)', null=True, blank=True)
 
 
     def __str__(self):

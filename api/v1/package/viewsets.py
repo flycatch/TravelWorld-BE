@@ -734,20 +734,11 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             activity_filter &= Q(locations__destinations=city)
             package_filter &= Q(locations__destinations=city)
         if activities:
-            activity_filter &= Q(activities=activities)
-            package_filter &= Q(activities=activities)
-
-            # activities_ids = ast.literal_eval(activities)
-            # # activity_filter = Q()
-            # # package_filter = Q()
-            
-            # # Construct filter conditions for each activities ID
-            # for id in activities_ids:
-            #     # Filter activities by activities
-            #     activity_filter |= Q(activities__id=id)
-            #     # Filter packages by activities
-            #     package_filter |= Q(activities__id=id)
-
+            activities_ids = ast.literal_eval(activities)
+            # Filter activities by activities
+            activity_filter &= Q(activities__id__in=activities_ids)
+            # Filter packages by activities
+            package_filter &= Q(activities__id__in=activities_ids)
         if suitable_for:
             activity_filter &= Q(suitable_for=suitable_for)
             package_filter &= Q(suitable_for=suitable_for)
@@ -763,8 +754,6 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if deal_type:
             activity_filter &= Q(deal_type=deal_type)
             package_filter &= Q(deal_type=deal_type)
-
-        
 
         if duration_filter:
             if duration_filter == 'full_day':
@@ -787,7 +776,7 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
             & Q(pricing_activity__adults_rate__lte=price_range_max)
             package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
             & Q(pricing_package__adults_rate__lte=price_range_max)
-
+        
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter)
         packages = self.queryset_packages.filter(package_filter)

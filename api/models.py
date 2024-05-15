@@ -520,8 +520,16 @@ class PackageInformations(BaseModel):
 
 
 class Currency(BaseModel):
+    """
+    Model representing a currency.
+    
+    Attributes:
+        name (str): The name of the currency.
+        country (Country): The country associated with the currency.
+    """
     name = models.CharField(max_length=255, unique=True)
-
+    country = models.OneToOneField(
+        Country, on_delete=models.CASCADE,null=True, blank=True, related_name='currency_country')
     class Meta:
         verbose_name = 'Currency'
         verbose_name_plural = 'Currency'
@@ -529,8 +537,10 @@ class Currency(BaseModel):
     def __str__(self):
         return self.name
 
+
 def default_blackout_dates():
     return {'weeks': [], 'custom_date': [], 'excluded_blackout_dates':[]}
+
 
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [

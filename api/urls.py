@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
-                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView)
+                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet)
 from api.v1.agent.viewsets import (AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,
                                    CustomPasswordResetConfirmView,AgentBankDetailsAPIView)
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
@@ -36,6 +36,7 @@ router.register(r'countries', CountryViewSet, basename='country')
 router.register(r'locations', LocationViewSet, basename='locations'),
 router.register(r'suitablefor', SuitableForViewSet, basename='suitablefor'),
 router.register(r'activities', PackageCategoryViewSet, basename='activities'),
+router.register(r'currency', CurrencyViewSet, basename='currency')
 
 # Agent
 router.register(r'agents', AgentViewSet, basename='agent')

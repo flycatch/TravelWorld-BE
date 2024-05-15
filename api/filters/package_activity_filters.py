@@ -11,8 +11,8 @@ class FilterMixin:
         Filters a queryset based on provided activities IDs.
 
         This method expects a list of activities IDs (integers) as the `value` parameter.
-        It iteratively filters the queryset to include only objects where the `activities`
-        field's ID is present in the provided list.
+        It returns a filtered queryset containing only objects where the `activities` field
+        (assumed to be a ManyToManyField) is related to at least one of the provided IDs.
 
         Args:
             queryset: The base queryset to be filtered.
@@ -20,18 +20,21 @@ class FilterMixin:
             value: A list of activities IDs (integers).
 
         Returns:
-            The filtered queryset containing objects where all provided IDs are present
-            in the `activities` field. Any duplicates are removed using `distinct()`.
+            The filtered queryset containing objects related to any of the provided activities IDs.
+            Duplicates are removed using `distinct()`.
 
         Raises:
             ValueError: If the `value` cannot be evaluated as a list.
         """
-        # Convert str to list
-        activities_ids = ast.literal_eval(value)
+        try:
+            # Convert str to list
+            activities_ids = ast.literal_eval(value)
+            if not isinstance(activities_ids, list):
+                raise ValueError("activities value must be a list of integers")
+        except (SyntaxError, ValueError):
+            return queryset.none()  # Return empty queryset on parsing errors
 
-        for id in activities_ids:
-            filtered_queryset = queryset.filter(activities__id=id)
-        # Return queryset by removing duplicates
+        filtered_queryset = queryset.filter(activities__id__in=activities_ids)
         return filtered_queryset.distinct()
 
     def filter_by_duration(self, queryset, name, value):
@@ -55,7 +58,6 @@ class FilterMixin:
         Returns:
             The filtered queryset of activities/packages.
         """
-        print(value)
         if value == 'full_day':
             return queryset.filter(Q(duration='day', duration_day=1, duration_night=1)| Q(duration='hour', duration_hour__gt=12))
         elif value == 'multi_day':

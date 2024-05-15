@@ -445,6 +445,21 @@ class CustomerBookingUpdateView(APIView):
                                                     booking=instance,
                                                     agent_id=instance.activity.agent_id)
                         
+                        # Get all locations
+                        locations = instance.activity.locations.all()
+                        
+                        # Prepare location details
+                        location_list = []
+                        for location in locations:
+                            state_name = location.state.name if location.state else 'Unknown State'
+                            country_name = location.country.name if location.country else 'Unknown Country'
+                            destination_names = ', '.join(str(dest) for dest in location.destinations.all())
+                            location_list.append({
+                                'state': state_name,
+                                'country': country_name,
+                                'destinations': destination_names
+                            })
+                        
                         data ={
                                 'title': instance.activity.title,
                                 'tour_class': instance.activity.tour_class,
@@ -452,7 +467,7 @@ class CustomerBookingUpdateView(APIView):
                                 'adult':instance.adult,
                                 'child': instance.child,
                                 'infant':instance.infant,
-                                'locations':[{'name': loc.name, 'address': loc.address} for loc in instance.activity.locations.all()]
+                                'locations':location_list
                             }
                         send_enquiry_email.delay(
                             "Explore World | Booking Confirmation",
@@ -464,7 +479,7 @@ class CustomerBookingUpdateView(APIView):
                 print(data)
                 package_image = instance.package.package_image.first()
 
-                print(package_image)
+                print(package_image.image)
                 print(package_image.image.url)
 
                 return Response({"message": "Booking Updated Successfully",

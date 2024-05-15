@@ -414,7 +414,7 @@ class CustomerBookingUpdateView(APIView):
                             'adult':instance.adult,
                             'child': instance.child,
                             'infant':instance.infant,
-                            'locations':instance.package.locations
+                            'locations':instance.package.locations.all()
                             
                            
                             }
@@ -436,7 +436,7 @@ class CustomerBookingUpdateView(APIView):
                                 'adult':instance.adult,
                                 'child': instance.child,
                                 'infant':instance.infant,
-                                'locations':instance.activity.locations
+                                'locations':instance.activity.locations.all()
                             }
                         send_enquiry_email.delay(
                             "Explore World | Booking Confirmation",

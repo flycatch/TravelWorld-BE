@@ -49,7 +49,7 @@ def send_booking_email(subject, template_name, recipient_email, context):
         subject,
         '',
         EMAIL_HOST_USER,
-        ['lenate.j@flycatchtech.com'],
+        [recipient_email],
         html_message=html_content,
         fail_silently=False
     )

@@ -7,6 +7,8 @@ from django.core.exceptions import ValidationError
 from django_ckeditor_5.fields import CKEditor5Field
 from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
+from simple_history.models import HistoricalRecords
+
 
 class User(BaseUser):
     user_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='User UID')
@@ -542,6 +544,16 @@ def default_blackout_dates():
     return {'weeks': [], 'custom_date': [], 'excluded_blackout_dates':[]}
 
 
+
+class PricingHistoryTracking(models.Model):
+
+    changed_fields = models.JSONField(default = dict)
+    is_changed = models.BooleanField(default=False,null=True, blank=True)
+    infant_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    class Meta:
+        abstract = True
+
 class Pricing(BaseModel):
     PRICING_GROUP_CHOICE = [
         ('per_person', 'Per Person'),
@@ -555,6 +567,7 @@ class Pricing(BaseModel):
     #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
     # group_agent_amount = models.DecimalField(
     #     default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    
 
     #field for per-person pricing
     package = models.ForeignKey(
@@ -594,6 +607,8 @@ class Pricing(BaseModel):
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     blackout_dates = models.JSONField(default=default_blackout_dates, null=True, blank=True)
+    history = HistoricalRecords(
+        history_id_field=models.UUIDField(default=uuid.uuid4),bases=(PricingHistoryTracking,))
 
 
     class Meta:
@@ -749,6 +764,14 @@ class Booking(BaseModel):
     is_trip_completed = models.BooleanField(default=0)
     pricing = models.ForeignKey(
         Pricing, on_delete=models.CASCADE, null=True, blank=True,related_name='booking_pricing')
+    adults_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    child_rate = models.DecimalField(
+        default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    infant_rate = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
+    discount = models.DecimalField(
+        default=0,  max_digits=10, decimal_places=2, null=True, blank=True)
 
 
     def __str__(self):

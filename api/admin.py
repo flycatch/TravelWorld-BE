@@ -396,9 +396,9 @@ class BookingAdmin(CustomModelAdmin):
     def pricing_section(self, obj):
         pricing_obj = obj.pricing
         if pricing_obj:
-            pricing_dict = {'Tour Date': pricing_obj.start_date, 'Adults Rate': pricing_obj.adults_rate, 'Adults Commission': pricing_obj.adults_commission,
-                            'Child Rate': pricing_obj.child_rate, 'Child Commission': pricing_obj.child_commission, 'Infant Rate': pricing_obj.infant_rate,
-                            'Infant Commission': pricing_obj.infant_commission, }
+            pricing_dict = {'Tour Date': pricing_obj.start_date, 'Adults Rate': obj.adults_rate,
+                            'Child Rate': obj.child_rate,'Infant Rate': obj.infant_rate,
+                            }
 
             # Render the HTML template with pricing_list
             pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})

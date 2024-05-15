@@ -284,6 +284,15 @@ class CustomerBookingDetailsView(APIView):
                 serializer.is_valid(raise_exception=True)
                 instance = serializer.save()
 
+                pricing = Pricing.objects.get(id=request.data['pricing'])
+                
+                # Update instance fields with pricing rates and save the instance
+                Booking.objects.filter(id=instance.id).update(
+                    adult_rate=pricing.adult_rate,
+                    child_rate=pricing.child_rate,
+                    infant_rate=pricing.infant_rate,
+                    discount = pricing.discount if pricing.discount else None
+                )
                 # if serializer.is_valid():
                 #     instance = serializer.save()
                 

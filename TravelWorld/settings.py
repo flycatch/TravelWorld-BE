@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'api',
+    'simple_history',
 ]
 
 REST_FRAMEWORK = {
@@ -68,8 +69,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'admin_reorder.middleware.ModelAdminReorder',
-    'api.middleware.ModelAdminReorderWithNav'
+    'api.middleware.ModelAdminReorderWithNav',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
+SIMPLE_HISTORY_HISTORY_ID_USE_UUID = True
 
 
 ROOT_URLCONF = 'TravelWorld.urls'

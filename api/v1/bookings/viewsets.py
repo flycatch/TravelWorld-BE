@@ -407,13 +407,43 @@ class CustomerBookingUpdateView(APIView):
                         AgentTransactionSettlement.objects.create(package_id=instance.package_id,
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
+                        data = {
+                            'title': instance.package.title,
+                            'tour_class': instance.package.tour_class,
+                            'tour_date': instance.tour_date,
+                            'adult':instance.adult,
+                            'child': instance.child,
+                            'infant':instance.infant,
+                           
+                            }
+                        send_enquiry_email.delay(
+                        "Explore World | Booking Confirmation",
+                        'email/booking_confirmation.html',
+                        instance.user.email,
+                        {'data': data},
+                    )
                     else:
                         AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
                                                     booking=instance,
                                                     agent_id=instance.activity.agent_id)
+                        
+                        data ={
+                                'title': instance.activity.title,
+                                'tour_class': instance.activity.tour_class,
+                                'tour_date': instance.tour_date,
+                                'adult':instance.adult,
+                                'child': instance.child,
+                                'infant':instance.infant,
+                            }
+                        send_enquiry_email.delay(
+                            "Explore World | Booking Confirmation",
+                            'email/booking_confirmation.html',
+                            instance.user.email,
+                            {'data': data}
+                        )
 
+                print(data)
 
-            
                 return Response({"message": "Booking Updated Successfully",
                                  "status": "success",
                                  "statusCode": status.HTTP_200_OK}, status=status.HTTP_200_OK)

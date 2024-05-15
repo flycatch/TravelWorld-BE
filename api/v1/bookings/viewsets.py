@@ -430,6 +430,8 @@ class CustomerBookingUpdateView(APIView):
                         package_image = instance.package.package_image.first()
 
                         data = {
+                            'instace':instance,
+                            'booking_id':instance.booking_id,
                             'title': instance.package.title,
                             'tour_class': instance.package.tour_class,
                             'tour_date': instance.tour_date,
@@ -438,10 +440,8 @@ class CustomerBookingUpdateView(APIView):
                             'infant':instance.infant,
                             'locations':location_list,
                             'image':package_image.image.url
-
-                            
-                           
                             }
+                        
                         send_enquiry_email.delay(
                         "Explore World | Booking Confirmation",
                         'email/booking_confirmation.html',
@@ -471,7 +471,7 @@ class CustomerBookingUpdateView(APIView):
                         activity_image = instance.package.activity_image.first()
 
                         
-                        data ={
+                        data ={'booking_id':instance.booking_id,
                                 'title': instance.activity.title,
                                 'tour_class': instance.activity.tour_class,
                                 'tour_date': instance.tour_date,
@@ -481,6 +481,7 @@ class CustomerBookingUpdateView(APIView):
                                 'locations':location_list,
                                 'image':activity_image.image.url
                             }
+                        
                         send_enquiry_email.delay(
                             "Explore World | Booking Confirmation",
                             'email/booking_confirmation.html',

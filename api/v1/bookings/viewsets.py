@@ -288,7 +288,7 @@ class CustomerBookingDetailsView(APIView):
                 
                 # Update instance fields with pricing rates and save the instance
                 Booking.objects.filter(id=instance.id).update(
-                    adult_rate=pricing.adult_rate,
+                    adults_rate=pricing.adults_rate,
                     child_rate=pricing.child_rate,
                     infant_rate=pricing.infant_rate,
                     discount = pricing.discount if pricing.discount else None
@@ -416,12 +416,12 @@ class CustomerBookingUpdateView(APIView):
                             'infant':instance.infant,
                            
                             }
-                        send_enquiry_email.delay(
-                        "Explore World | Booking Confirmation",
-                        'email/booking_confirmation.html',
-                        instance.user.email,
-                        {'data': data},
-                    )
+                    #     send_enquiry_email.delay(
+                    #     "Explore World | Booking Confirmation",
+                    #     'email/booking_confirmation.html',
+                    #     instance.user.email,
+                    #     {'data': data},
+                    # )
                     else:
                         AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
                                                     booking=instance,
@@ -435,12 +435,12 @@ class CustomerBookingUpdateView(APIView):
                                 'child': instance.child,
                                 'infant':instance.infant,
                             }
-                        send_enquiry_email.delay(
-                            "Explore World | Booking Confirmation",
-                            'email/booking_confirmation.html',
-                            instance.user.email,
-                            {'data': data}
-                        )
+                        # send_enquiry_email.delay(
+                        #     "Explore World | Booking Confirmation",
+                        #     'email/booking_confirmation.html',
+                        #     instance.user.email,
+                        #     {'data': data}
+                        # )
 
                 print(data)
 

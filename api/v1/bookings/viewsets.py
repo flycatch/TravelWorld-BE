@@ -430,6 +430,7 @@ class CustomerBookingUpdateView(APIView):
                         package_image = instance.package.package_image.first()
 
                         data = {
+                            'instace':instance,
                             'booking_id':instance.booking_id,
                             'title': instance.package.title,
                             'tour_class': instance.package.tour_class,

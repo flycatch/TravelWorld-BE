@@ -119,5 +119,21 @@
             {% endfor %}
         }
     </script>
+    <script>
+        // Hide success message if error message while changing data
+        function hideSuccessMessageIfErrorPresent() {
+            const errorMessage = document.querySelector('.alert-danger'); // Selects error message
+            const successMessage = document.querySelector('.alert-success'); // Selects success message
+
+            if (errorMessage && successMessage) {
+                successMessage.style.display = 'none'; // Hides success message if error message is present
+                }
+            }
+
+            // Call the function when the document is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                hideSuccessMessageIfErrorPresent();
+        });
+    </script>
     <script type="text/javascript" src="{% static 'jazzmin/js/change_list.js' %}"></script>
 {% endblock %}

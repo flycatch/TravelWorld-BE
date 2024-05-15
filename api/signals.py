@@ -132,3 +132,34 @@ def agent_code_created(sender, instance, created, **kwargs):
         instance.agent_uid = agent_uid
         instance.unique_username = f'{instance.username}_{instance.id}'
         instance.save()
+
+
+@receiver(post_save, sender=Pricing)
+def customer_unique_id(sender, instance, created, **kwargs):
+    print('Signal triggered:', instance.id, created)
+
+    if not created:
+        print("hi")
+        # Try to get the new record
+        new_record = instance.history.first()
+
+        if new_record:
+
+            # Try to get the previous record
+            old_record = new_record.prev_record
+
+            # Check if there is a previous record
+            if old_record:
+                record_diff = new_record.diff_against(old_record)
+                print(record_diff)
+                changed_fields = record_diff.changed_fields
+
+                new_record.changed_fields = {'changed_fields': changed_fields}
+
+                print(new_record)
+                new_record.save()
+
+            else:
+                print('No previous record. This is the first version.')
+        else:
+            print('No historical record found.')

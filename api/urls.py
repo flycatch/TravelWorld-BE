@@ -3,7 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
-                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView)
+                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet)
 from api.v1.agent.viewsets import (AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,
                                    CustomPasswordResetConfirmView,AgentBankDetailsAPIView)
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
@@ -11,7 +11,8 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      PackageCancellationPolicyViewSet, PackageFaqQuestionAnswerViewSet,
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
-                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet
+                                     HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet,
+                                     FavoriteProductViewSet
                                      )
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
@@ -22,6 +23,8 @@ from api.v1.user.viewsets import (UserViewSet, UserRegisterViewSet, UserLoginVie
 from api.v1.bookings.viewsets import *
 from api.v1.reviews.viewsets import *
 from api.v1.social_logins.viewsets import *
+from api.v1.dashboard.viewsets import *
+from api.v1.blogs.viewsets import *
 
 
 router = DefaultRouter()
@@ -33,6 +36,7 @@ router.register(r'countries', CountryViewSet, basename='country')
 router.register(r'locations', LocationViewSet, basename='locations'),
 router.register(r'suitablefor', SuitableForViewSet, basename='suitablefor'),
 router.register(r'activities', PackageCategoryViewSet, basename='activities'),
+router.register(r'currency', CurrencyViewSet, basename='currency')
 
 # Agent
 router.register(r'agents', AgentViewSet, basename='agent')
@@ -52,6 +56,7 @@ router.register(r'package/create', PackageViewSet, basename='package') #package 
 router.register(r'packages/delete-draft', PackageDeleteDraft, basename='delete_draft_package'),
 router.register(r'packages/activities', PackageCategoryViewSet, basename='category'),
 router.register(r'package/list', PackageGetViewSet, basename='package-list') #package crud operations
+router.register(r'favorite-products', FavoriteProductViewSet, basename='favorite-products')
 
 # user home page
 router.register(r'home/products', HomePageProductsViewSet, basename='HomePage-products'),
@@ -190,6 +195,13 @@ urlpatterns = [
 
     #send enquiry
     path('v1/send-enquiry/', SendEnquiryView.as_view(), name='send-enquiry'),
+
+    #dashboard
+    path('v1/<int:agent_id>/dashboard-count/',DashboardCount.as_view(), name='dashboard-count'),
+
+    path('v1/blog-list/', BlogListView.as_view(), name='blog-list'),
+
+
 
 
 

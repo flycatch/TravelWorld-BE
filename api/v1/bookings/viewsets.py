@@ -407,6 +407,21 @@ class CustomerBookingUpdateView(APIView):
                         AgentTransactionSettlement.objects.create(package_id=instance.package_id,
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
+                        
+                        # Get all locations
+                        locations = instance.package.locations.all()
+                        
+                        # Prepare location details
+                        location_list = []
+                        for location in locations:
+                            state_name = location.state.name if location.state else 'Unknown State'
+                            country_name = location.country.name if location.country else 'Unknown Country'
+                            destination_names = ', '.join(str(dest) for dest in location.destinations.all())
+                            location_list.append({
+                                'state': state_name,
+                                'country': country_name,
+                                'destinations': destination_names
+                            })
                         # Prepare location details
                         data = {
                             'title': instance.package.title,
@@ -415,7 +430,7 @@ class CustomerBookingUpdateView(APIView):
                             'adult':instance.adult,
                             'child': instance.child,
                             'infant':instance.infant,
-                            'locations':[{'name': loc.name, 'address': loc.address} for loc in instance.package.locations.all()]
+                            'locations':location_list
                             
                            
                             }

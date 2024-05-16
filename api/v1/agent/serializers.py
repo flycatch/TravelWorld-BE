@@ -150,7 +150,7 @@ class AgentBankDetailsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = AgentBankDetails
-        fields = ['id', 'agent', 'account_holder_name',
+        fields = ['id', 'agent', 'account_holder_name', 'bank_name',
                   'account_number', 'ifsc_code', 'cancelled_cheque']
         read_only_fields = ['agent']  # Mark 'agent' field as read-only
 

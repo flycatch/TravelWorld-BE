@@ -85,6 +85,8 @@ class AgentBankDetails(BaseModel):
     agent = models.OneToOneField(
         Agent, on_delete=models.CASCADE, related_name='bank_details')
     account_holder_name = models.CharField(max_length=255)
+    bank_name = models.CharField(max_length=255, verbose_name='Bank Name',
+                                 null=True, blank=True)
     account_number = models.CharField(max_length=255, verbose_name='Account Number')
     ifsc_code = models.CharField(max_length=255, verbose_name='IFSC Code')
     cancelled_cheque = models.ImageField(

@@ -130,7 +130,34 @@ class BookingAgentSerializer(serializers.ModelSerializer):
 
 
 class AgentBankDetailsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Agent Bank Details model.
+
+    This serializer defines the fields that can be included when serializing or 
+    deserializing AgentBankDetails objects.
+    The `agent` field is marked as read-only as it's automatically set based 
+    on the authenticated user.
+
+    **Fields:**
+
+    * id (ReadOnly): The unique identifier of the AgentBankDetails object.
+    * agent (ReadOnly): The Agent associated with the bank details.
+        agent will automatically fetched from token.
+    * account_holder_name: The name of the account holder.
+    * account_number: The account number of the bank account.
+    * ifsc_code: The IFSC code of the bank branch.
+    * cancelled_cheque: The uploaded cancelled cheque image (optional).
+    """
     class Meta:
         model = AgentBankDetails
         fields = ['id', 'agent', 'account_holder_name',
                   'account_number', 'ifsc_code', 'cancelled_cheque']
+        read_only_fields = ['agent']  # Mark 'agent' field as read-only
+
+    def create(self, validated_data):
+        # Get the current logged-in user from the context
+        user = self.context['request'].user
+        # Set the 'agent' field to the current user's agent
+        validated_data['agent'] = user.agent
+        # Create and return the AgentBankDetails instance
+        return AgentBankDetails.objects.create(**validated_data)

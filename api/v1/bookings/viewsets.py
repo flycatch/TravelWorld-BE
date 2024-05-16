@@ -464,7 +464,7 @@ class CustomerBookingUpdateView(APIView):
                         activity_image = instance.activity.activity_image.first()
                         activity_image = request.build_absolute_uri(activity_image.image.url)
 
-                        context ={'booking_id':instance.object_id,
+                        context ={'booking_object_id':instance.object_id,
                                   'deal_type':"ACTIVITY",
                                   'image':activity_image,
                                   'base_url': DEFAULT_BASE_URL_USER_FRONTEND

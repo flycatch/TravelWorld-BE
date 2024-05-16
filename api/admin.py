@@ -388,7 +388,7 @@ class BookingAdmin(CustomModelAdmin):
                     'fields': ('user', 'package', 'activity', 
                                'adult', 'child', 'infant', 'booking_amount', 
                                'order_id', 'payment_id', 'booking_status','tour_date', 'end_date',
-                               'refund_amount', 'pricing')
+                               'refund_amount', 'pricing','is_trip_completed')
                 }),
             )
 

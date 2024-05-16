@@ -106,7 +106,10 @@
                 <span>Starts From: {{ tour_date }}</span>
             </div>
             <div class="info date">
-                <span>{{ locations }}</span>
+                
+                {% for location in locations %}
+                <span>{{ locations.state }}, {{locations.destinations}}</span>
+                {% endfor %}
             </div>
             <div class="info">
                 <span style="padding-right: 10px;">Adult: {{ adult }}</span>

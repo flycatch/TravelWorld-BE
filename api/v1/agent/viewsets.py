@@ -21,6 +21,31 @@ from api.v1.agent.serializers import (AgentLoginSerializer, AgentSerializer,
 
 
 class AgentViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for CRUD operation on agent's profile.
+
+    This viewset provides methods to:
+
+    * **GET /agents/**: Retrieve the profile of the currently authenticated agent.
+    * **POST /agents/**: Create new agent.
+    * **PUT /agents/**: Update the profile of the currently authenticated agent.
+    * **DELETE /agents/**: delete agent profile.
+
+    Authentication is required for all operations. Only PUT requests are allowed for updating the agent profile.
+
+    **Permissions:**
+
+    * IsAuthenticated: Only authenticated users can access this viewset.
+
+    **Authentication:**
+
+    * TokenAuthentication: Authentication is done using token-based authentication.
+
+    **Returns:**
+
+    * A JSON response with status information, message, and data on success.
+    * A JSON response with error messages and status code on failure.
+    """
     queryset = Agent.objects.all()
     serializer_class = AgentSerializer
     permission_classes = [IsAuthenticated]
@@ -28,9 +53,17 @@ class AgentViewSet(viewsets.ModelViewSet):
     http_method_names = ['get','put']
 
     def get_queryset(self):
+        """
+        Filters the queryset to only include the currently authenticated agent.
+        """
         return self.queryset.filter(pk=self.request.user.pk)
 
     def update(self, request, *args, **kwargs):
+        """
+        Updates the profile of the currently authenticated agent.
+
+        Handles validation errors and other exceptions.
+        """
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance, data=request.data)
@@ -40,7 +73,6 @@ class AgentViewSet(viewsets.ModelViewSet):
                              'data': serializer.data, 'StatusCode': status.HTTP_200_OK},
                              status=status.HTTP_200_OK)
         except serializers.ValidationError as e:
-            print('hi')
             # Extract error messages from the serializer's errors attribute
             error_messages = ", ".join([", ".join(errors) for field, errors in serializer.errors.items()])
             return Response({'status': 'error', 'message': error_messages,

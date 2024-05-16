@@ -162,7 +162,7 @@ class ActivityAdmin(CustomModelAdmin):
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
                        'drop_point', 'drop_time_string', 'locations',
-                       'activities', 'suitable_for', 'is_popular', 'is_recommended')
+                       'activities', 'suitable_for', 'is_popular')
         }),
     )
 
@@ -178,7 +178,7 @@ class ActivityAdmin(CustomModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular', 'is_recommended']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
                     ] + ['pickup_time_string', 'drop_time_string', 'locations', 'activities', 'suitable_for']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
@@ -268,7 +268,7 @@ class PackageAdmin(CustomModelAdmin):
                        'duration', 'duration_day', 'duration_night', 'duration_hour',
                        'min_members', 'max_members', 'pickup_point', 'pickup_time_string', 
                        'drop_point', 'drop_time_string', "locations",
-                       'activities', 'suitable_for', 'is_popular', 'is_recommended')
+                       'activities', 'suitable_for', 'is_popular')
         }),
     )
     
@@ -290,7 +290,7 @@ class PackageAdmin(CustomModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:  # obj is not None, so this is an edit
             return [field.name for field in self.model._meta.fields
-                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular', 'is_recommended']
+                    if field.name not in ['is_submitted', 'stage', 'id', 'updated_on', 'created_on', 'is_popular']
                     ] + ['pickup_time_string', 'drop_time_string', 'locations', 'suitable_for', 'activities']
         else:  # This is an addition
             return [field.name for field in self.model._meta.fields
@@ -460,7 +460,7 @@ class BookingAdmin(CustomModelAdmin):
         return False
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return True
@@ -1028,10 +1028,10 @@ class UserReviewAdmin(CustomModelAdmin):
 
 
     def has_add_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return True
@@ -1287,6 +1287,9 @@ class SendEnquiryAdmin(CustomModelAdmin):
 class SuitableForAdmin(CustomModelAdmin):
     list_display = ("name",)
 
+class CurrencyAdmin(CustomModelAdmin):
+    list_display = ("name",)
+
 
 
 class BlogsAdmin(admin.ModelAdmin):
@@ -1312,7 +1315,7 @@ admin.site.register(Booking,BookingAdmin)
 # admin.site.register(Transaction,TransactionAdmin)
 
 admin.site.register(PackageCategory,PackageCategoryAdmin)
-admin.site.register(Currency)
+admin.site.register(Currency,CurrencyAdmin)
 admin.site.register(UserReview,UserReviewAdmin)
 
 admin.site.register(CancellationPolicy)

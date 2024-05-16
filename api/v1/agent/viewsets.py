@@ -176,6 +176,29 @@ class CustomPasswordResetConfirmView(APIView):
 
 
 class AgentBankDetailsAPIView(viewsets.ModelViewSet):
+    """
+    API endpoint for CRUD operations on Agent Bank Details.
+
+    This viewset provides methods to list, create, update, and retrieve agent bank details.
+    Authentication is required for all operations.
+
+    **Permissions:**
+
+    * List: Only authenticated agents can access their own bank details.
+    * Create: Only authenticated agents can create their own bank details.
+    * Update: Only authenticated agents can update their own bank details.
+
+    **Methods:**
+
+    * **GET /agent-bank-details/**: Retrieves a list of the current agent's bank details.
+    * **POST /agent-bank-details/**: Creates new bank details for the current agent.
+    * **PUT /agent-bank-details/<pk>/**: Updates an existing bank detail object.
+
+    **Returns:**
+
+    * A JSON response with status information and data on success.
+    * A JSON response with error messages on failure.
+    """
     queryset = AgentBankDetails.objects.all()
     serializer_class = AgentBankDetailsSerializer
 
@@ -189,11 +212,7 @@ class AgentBankDetailsAPIView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            request.data['agent'] = request.user.agent.id
-            request.user.agent.account_verification_status = 'pending'
-            request.user.agent.save()
-
-            serializer = self.get_serializer(data=request.data)
+            serializer = self.get_serializer(data=request.data, context={'request': request})
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
             headers = self.get_success_headers(serializer.data)
@@ -211,9 +230,9 @@ class AgentBankDetailsAPIView(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
-            request.data['agent'] = request.user.agent.id
-            request.user.agent.account_verification_status = 'pending'
-            request.user.agent.save()
+            #make account_verification_status to pending
+            instance.agent.account_verification_status = 'pending'
+            instance.agent.save()
             
             serializer = self.get_serializer(instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)

@@ -434,9 +434,6 @@ class CustomerBookingUpdateView(APIView):
                 
                 #check booking status
                 if booking_obj.booking_status == 'SUCCESSFUL':
-                    absolute_uri = request.build_absolute_uri()
-                    parsed_uri = urlparse(absolute_uri)
-                    base_url = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
 
                     if 'package' in request.data:
                         AgentTransactionSettlement.objects.create(package_id=instance.package_id,
@@ -450,7 +447,7 @@ class CustomerBookingUpdateView(APIView):
                             'booking_object_id':instance.object_id,
                             'deal_type':"PACKAGE",
                             'image': package_image,
-                            'base_url': base_url
+                            'base_url': DEFAULT_BASE_URL_USER_FRONTEND
                             }
                         #call celery task with context data
                         send_booking_email.delay(
@@ -464,12 +461,13 @@ class CustomerBookingUpdateView(APIView):
                                                     booking=instance,
                                                     agent_id=instance.activity.agent_id)
 
-                        activity_image = instance.package.activity_image.first()
-                        
+                        activity_image = instance.activity.activity_image.first()
+                        activity_image = request.build_absolute_uri(activity_image.image.url)
+
                         context ={'booking_id':instance.object_id,
                                   'deal_type':"ACTIVITY",
-                                  'image':activity_image.image.url,
-                                  'base_url': base_url
+                                  'image':activity_image,
+                                  'base_url': DEFAULT_BASE_URL_USER_FRONTEND
                             }
                         #call celery task with context data
                         send_booking_email.delay(

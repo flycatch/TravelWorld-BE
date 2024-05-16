@@ -457,7 +457,7 @@ class BookingAdmin(CustomModelAdmin):
     activity_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
 
     def has_change_permission(self, request, obj=None):
-        return False
+        return True
 
     def has_add_permission(self, request, obj=None):
         return True

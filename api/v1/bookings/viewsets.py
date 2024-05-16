@@ -1,14 +1,13 @@
-from datetime import datetime
-
 import razorpay
-from api.filters.booking_filters import *
-from api.models import *
-from api.tasks import *
-from api.utils.paginator import CustomPagination
-from api.v1.bookings.serializers import *
+from decimal import Decimal
+
+from datetime import datetime
+from urllib.parse import urlparse
+
 from django.db import transaction
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import status, viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action, api_view
@@ -18,8 +17,13 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from api.filters.booking_filters import *
+from api.models import *
+from api.tasks import *
+from api.utils.paginator import CustomPagination
+from api.v1.bookings.serializers import *
 from TravelWorld.settings import *
-from decimal import Decimal
 
 
 @api_view(['POST'])
@@ -34,27 +38,18 @@ def start_payment(request):
         # setup razorpay client this is the client to whome user is paying money that's you
         client = razorpay.Client(auth=(RAZOR_PUBLIC_KEY,RAZOR_SECRET_KEY))
 
-        # print(client)
-
         # create razorpay order
     
         payment = client.order.create({"amount": int(booking_amount) * 100, 
                                     "currency": "INR", 
                                     "payment_capture": "1"})
 
-        # print(payment)
-
         serializer = BookingCreateSerializer(data=request.data)
 
         if serializer.is_valid():
-            print("hi1")
             instance = serializer.save()
-            print(instance)
         else:
             print("Serializer errors:", serializer.errors)
-
-
-        print("hi2")
 
         contact_serializer = ContactPersonSerializer(data=contact_persons_data,many=True)
         if contact_serializer.is_valid():
@@ -341,10 +336,43 @@ class CustomerBookingDetailsView(APIView):
             response_data = {"message": f"Something went wrong : {error_message}",
                             "status": "error",
                             "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR}  
-            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+            return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+
 
 class CustomerBookingUpdateView(APIView):
+    """
+    API endpoint for updating customer bookings.
+
+    Allows authenticated users to update their existing bookings (PUT request).
+    This view performs the following actions:
+
+    - Validates the update request data using `BookingCreateSerializer`.
+    - Checks for mandatory fields like 'adult', 'child', 'infant' and either
+      'package' or 'activity'.
+    - Validates the total number of members against the minimum and maximum
+      limits of the selected package or activity.
+    - Updates the booking instance and saves the changes.
+    - Optionally updates associated contact person information if provided.
+    - Sends a booking confirmation email upon successful booking update
+      (assuming `send_booking_email` is a configured celery task).
+
+    Permissions:
+        - Requires user authentication (`IsAuthenticated` permission).
+
+    Authentication:
+        - Uses token-based authentication (`TokenAuthentication`).
+
+    Raises:
+        - HTTP 404 Not Found: If the booking object is not found.
+        - HTTP 400 Bad Request: If request data is invalid, member count
+          violates limits, or serialization fails.
+        - HTTP 500 Internal Server Error: On unexpected exceptions.
+
+    Returns:
+        - HTTP 200 OK: On successful booking update.
+        - HTTP 400 Bad Request: On validation errors.
+        - HTTP 500 Internal Server Error: On internal server errors.
+    """
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
     serializer_class = BookingCreateSerializer
@@ -377,11 +405,9 @@ class CustomerBookingUpdateView(APIView):
 
                 min_members = item['min_members']
                 max_members = item['max_members']
-
                 adult_count = request.data.get('adult', 0)
                 child_count = request.data.get('child', 0)
                 infant_count = request.data.get('infant', 0)
-
                 total_members = adult_count + child_count + infant_count
 
                 if max_members is not None and total_members > max_members:
@@ -405,36 +431,28 @@ class CustomerBookingUpdateView(APIView):
                     contact_serializer = ContactPersonSerializer(data=contact_persons_data, many=True)
                     contact_serializer.is_valid(raise_exception=True)
                     contact_serializer.save(booking_id=instance.id)
-
+                
+                #check booking status
                 if booking_obj.booking_status == 'SUCCESSFUL':
+                    absolute_uri = request.build_absolute_uri()
+                    parsed_uri = urlparse(absolute_uri)
+                    base_url = f"{parsed_uri.scheme}://{parsed_uri.netloc}"
+
                     if 'package' in request.data:
                         AgentTransactionSettlement.objects.create(package_id=instance.package_id,
                                                     booking=instance,
                                                     agent_id=instance.package.agent_id)
                         
-                        # Get all locations
-                        locations = instance.package.locations.all()
-                        
-                        # Prepare location details
-                        location_list = []
-                        for location in locations:
-                            state_name = location.state.name if location.state else 'Unknown State'
-                            country_name = location.country.name if location.country else 'Unknown Country'
-                            destination_names = ', '.join(str(dest) for dest in location.destinations.all())
-                            location_list.append({
-                                'state': state_name,
-                                'country': country_name,
-                                'destinations': destination_names
-                            })
-
                         package_image = instance.package.package_image.first()
+                        package_image = request.build_absolute_uri(package_image.image.url)
 
                         context = {
                             'booking_object_id':instance.object_id,
-                            'locations':location_list,
-                            'image': package_image.image.url
+                            'deal_type':"PACKAGE",
+                            'image': package_image,
+                            'base_url': base_url
                             }
-                        
+                        #call celery task with context data
                         send_booking_email.delay(
                         "Explore World | Booking Confirmation",
                         'email/booking_confirmation.html',
@@ -445,30 +463,15 @@ class CustomerBookingUpdateView(APIView):
                         AgentTransactionSettlement.objects.create(activity_id=instance.activity_id,
                                                     booking=instance,
                                                     agent_id=instance.activity.agent_id)
-                        
-                        # Get all locations
-                        locations = instance.activity.locations.all()
-                        
-                        # Prepare location details
-                        location_list = []
-                        for location in locations:
-                            state_name = location.state.name if location.state else 'Unknown State'
-                            country_name = location.country.name if location.country else 'Unknown Country'
-                            destination_names = ', '.join(str(dest) for dest in location.destinations.all())
-                            location_list.append({
-                                'state': state_name,
-                                'country': country_name,
-                                'destinations': destination_names
-                            })
 
                         activity_image = instance.package.activity_image.first()
-
                         
                         context ={'booking_id':instance.object_id,
-                                'locations':location_list,
-                                'image':activity_image.image.url
+                                  'deal_type':"ACTIVITY",
+                                  'image':activity_image.image.url,
+                                  'base_url': base_url
                             }
-                        
+                        #call celery task with context data
                         send_booking_email.delay(
                             "Explore World | Booking Confirmation",
                             'email/booking_confirmation.html',
@@ -662,9 +665,7 @@ class WelcomeView(APIView):
     def get(self, request, *args, **kwargs):
         subject = "Request for Cancellation"
         message = f'Cancellation Received for booking abc'
-        print("z1")
         send_email.delay(subject,message,'lenate.j@flycatchtech.com')
-        print("z2")
         return Response("checking celery")
     
 

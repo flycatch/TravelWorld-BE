@@ -756,6 +756,9 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                                 "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
                                 'payment_settlement_amount','payment_settlement_date',)
                     }),
+                    ('Pricing', {
+                        'fields': ('pricing_section',),
+                    }),
                     ('Cancellation Policy', {
                         'fields': ('cancellation_policies',),
                     }),
@@ -766,6 +769,9 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                         'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
                                 "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
                                 'payment_settlement_amount','payment_settlement_date',)
+                    }),
+                    ('Pricing', {
+                        'fields': ('pricing_section',),
                     }),
                     ('Cancellation Policy', {
                         'fields': ('cancellation_policies',)
@@ -791,6 +797,31 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return account_verification_status_colour(obj.agent.account_verification_status if obj.agent else None)
     account_verification_status.short_description = "Account Status"
     account_verification_status.admin_order_field = "Account Status"
+
+    def pricing_section(self, obj):
+        pricing_obj = obj.booking.pricing
+        if pricing_obj:
+            if obj.booking.adults_rate:
+                pricing_dict = {'Tour Date': obj.booking.tour_date, 
+                                'Adult Count':obj.booking.adult,
+                                'Adult Rate': obj.booking.adults_rate,
+                                'Adult Commission': obj.booking.adults_commission,
+                                'Child Count':obj.booking.child,
+                                'Child Rate': obj.booking.child_rate,
+                                'Child Commission': obj.booking.child_commission, 
+                                'Infant Count':obj.booking.infant,
+                                'Infant Rate': obj.booking.infant_rate,
+                                'Infant Commission': obj.booking.infant_commission,
+                                }
+            
+
+            # Render the HTML template with pricing_list
+            pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
+            return mark_safe(pricing_info)  # Mark the string as safe HTML
+        else:
+            return "No pricing information available."
+
+    pricing_section.short_description = ""
 
     def cancellation_policies(self, obj):
         cancellation_categories = []
@@ -890,7 +921,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         # Define the initial set of read-only fields
         self.readonly_fields = ['transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
                                 'display_created_on', 'package_name','booking_amount', 'booking_type',
-                                'cancellation_policies', 'activity_uid', 'activity_name']
+                                'cancellation_policies','pricing_section', 'activity_uid', 'activity_name']
 
         # Check if the object exists and if the agent's account verification status is not approved
         if obj and obj.agent and obj.agent.account_verification_status != 'approved':

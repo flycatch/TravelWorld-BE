@@ -53,9 +53,14 @@ class UserReviewView(viewsets.GenericViewSet):
                 serializer.is_valid(raise_exception=True)
 
                 if serializer.is_valid():
-                    serializer.save(is_active=True)
-                    message = 'Created successfully'
-                    return Response({"message": message,
+                    instance = serializer.save(is_active=True)
+
+                    subject = "Explore World | User Review"
+                    agent_email = instance.booking.package.agent.email if instance.booking.package else instance.booking.activity.agent.email
+                    message = f"Dear {instance.booking.package.agent.agent_uid}\n\n {instance.user.user_uid} has added a comment for booking {instance.booking.booking_id}."
+                    send_email.delay(subject,message,agent_email)
+
+                    return Response({"message": 'Created successfully',
                                   "status": "success",
                                 "statusCode": status.HTTP_201_CREATED
                                   }, status=status.HTTP_201_CREATED)
@@ -183,6 +188,10 @@ class UserReviewActionView(viewsets.GenericViewSet):
             
             if serializer.is_valid():
                 serializer.save(agent_reply_date=timezone.now())
+
+                subject = "Explore World | Agent Reply"
+                message = f"Dear {instance.user.user_uid},\n\n{instance.booking.package.agent.agent_uid} has replied for your booking {instance.booking.booking_id}."
+                send_email.delay(subject,message,instance.user.email)
 
             else:
                 return Response({ "results": serializer.errors,

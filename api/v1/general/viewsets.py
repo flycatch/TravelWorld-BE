@@ -7,7 +7,7 @@ from api.v1.general.serializers import (CountrySerializer, StateSerializer, City
                                         AttractionSerializer,CoverPageInputSerializer,
                                         HomePageDestinationSerializer, HomePageStateSerializer,
                                         LocationSerializer, SendEnquirySerializer, CurrencySerializer)
-from api.filters.general_filters import CityFilter, CurrencyFilter
+from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
@@ -17,16 +17,39 @@ from api.tasks import *
 
 
 class CountryViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for CRUD operations on Country objects.
+
+    This viewset provides methods to list, create, retrieve, 
+    update, and delete countries.
+    """
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
 
 
 class StateViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for CRUD operations on State objects.
+
+    This viewset provides methods to list, create, retrieve,
+    update, and delete states.
+    It also allows filtering states based on their associated
+    country using the `StateFilter`.
+    """
     queryset = State.objects.all()
     serializer_class = StateSerializer
+    filterset_class = StateFilter
 
 
 class CityViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for CRUD operations on City objects.
+
+    This viewset provides methods to list, create, retrieve,
+    update, and delete cities.
+    It also allows filtering cities based on their associated
+    state using the `CityFilter`.
+    """
     queryset = City.objects.all()
     serializer_class = CitySerializer
     filter_backends = [DjangoFilterBackend]

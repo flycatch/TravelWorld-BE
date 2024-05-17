@@ -27,6 +27,11 @@ def compress_image(uploaded_image, quality=20):
     for very large images. Consider alternative approaches for handling large files.
     """
     image = Image.open(uploaded_image)
+    
+    # Convert image to RGB mode if it has an alpha channel
+    if image.mode == 'RGBA':
+        image = image.convert('RGB')
+    
     output = BytesIO()
     image.save(output, format='JPEG', quality=quality)
     output.seek(0)

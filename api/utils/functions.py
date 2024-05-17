@@ -3,7 +3,7 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
-def compress_image(uploaded_image, quality=85):
+def compress_image(uploaded_image, quality=20):
     """
     Compresses an uploaded image file in JPEG format.
 

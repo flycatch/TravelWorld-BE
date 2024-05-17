@@ -16,7 +16,6 @@ class User(BaseUser):
     username = models.CharField(max_length=256, null=True, blank=True, unique=True)
     email = models.EmailField(unique=True,null=True, blank=True)
     mobile = models.CharField(unique=True,max_length=15, blank=True, null=True)
-    
 
     class Meta:
         verbose_name = 'User'
@@ -24,6 +23,11 @@ class User(BaseUser):
 
     def __str__(self):
         return self.user_uid if self.user_uid else self.username
+
+    def save(self, *args, **kwargs):
+        if self.profile_image:
+            self.profile_image = compress_image(self.profile_image)
+        super(User, self).save(*args, **kwargs)
 
 
 class Agent(BaseUser):
@@ -101,18 +105,10 @@ class Agent(BaseUser):
     def __str__(self):
         return self.agent_uid
 
-    #Generate unique agent id
-    # def save(self, *args, **kwargs):
-    #     if not self.agent_uid:
-    #         last_agent = Agent.objects.order_by('-agent_uid').first()
-    #         last_id = last_agent.agent_uid[4:] if last_agent else '0'
-    #         new_id = str(int(last_id) + 1)
-    #         self.agent_uid = f'EWAG{new_id}'
-
-    #     if not self.unique_username:
-    #         self.unique_username = f'{self.username}_{new_id}'
-
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self.profile_image:
+            self.profile_image = compress_image(self.profile_image)
+        super(Agent, self).save(*args, **kwargs)
 
 
 class AgentBankDetails(BaseModel):
@@ -153,6 +149,11 @@ class Country(BaseModel):
         if not all(char.isalpha() or char == '&' or char.isspace() for char in self.name):
             raise ValidationError(
                 {'name': _('State name should contain only alphabetic characters and "&".')})
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = compress_image(self.image)
+        super(Country, self).save(*args, **kwargs)
 
 
 class State(BaseModel):
@@ -223,6 +224,13 @@ class City(BaseModel):
             raise ValidationError(
                 {'name': _('State name should contain only alphabetic characters and "&".')})
 
+    def save(self, *args, **kwargs):
+        if self.thumb_image:
+            self.thumb_image = compress_image(self.thumb_image)
+        if self.cover_img:
+            self.cover_img = compress_image(self.cover_img)
+        super(City, self).save(*args, **kwargs)
+
 
 class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
@@ -241,6 +249,12 @@ class PackageCategory(BaseModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if self.thumb_img:
+            self.thumb_img = compress_image(self.thumb_img)
+        if self.cover_img:
+            self.cover_img = compress_image(self.cover_img)
+        super(PackageCategory, self).save(*args, **kwargs)
 
 
 class ActivityCategory(BaseModel):
@@ -258,6 +272,13 @@ class ActivityCategory(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.thumb_img:
+            self.thumb_img = compress_image(self.thumb_img)
+        if self.cover_img:
+            self.cover_img = compress_image(self.cover_img)
+        super(ActivityCategory, self).save(*args, **kwargs)
 
 
 class SuitableFor(models.Model):
@@ -443,6 +464,11 @@ class PackageImage(BaseModel):
 
     def __str__(self):
         return f"Image for {self.package.title}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = compress_image(self.image)
+        super(PackageImage, self).save(*args, **kwargs)
 
 
 class Inclusions(BaseModel):
@@ -1001,10 +1027,12 @@ class Attraction(BaseModel):
     def __str__(self):
         return self.title
 
-    # def clean(self):
-    #     # Check if the title contains only alphabetic characters
-    #     if not self.title.replace(' ', '').isalpha():
-    #         raise ValidationError({'title': _('Title should contain only alphabetic characters.')})
+    def save(self, *args, **kwargs):
+        if self.thumb_image:
+            self.thumb_image = compress_image(self.thumb_image)
+        if self.cover_img:
+            self.cover_img = compress_image(self.cover_img)
+        super(Attraction, self).save(*args, **kwargs)
 
 
 class AttractionImage(models.Model):
@@ -1015,6 +1043,10 @@ class AttractionImage(models.Model):
     def __str__(self):
         return f"Image for {self.attraction.title}"
 
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = compress_image(self.image)
+        super(AttractionImage, self).save(*args, **kwargs)
 
 
 
@@ -1051,6 +1083,12 @@ class UserReviewImage(models.Model):
     images = models.ImageField(upload_to='user_review_images/',null=True, default=None, blank=True)
     review = models.ForeignKey(UserReview, on_delete=models.CASCADE, related_name='review_images',null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if self.images:
+            self.images = compress_image(self.images)
+        super(UserReviewImage, self).save(*args, **kwargs)
+
+
 class ContactPerson(AuditFields):
     object_id = models.UUIDField(
         unique=True,null=True, editable=False, default=uuid.uuid4, verbose_name='Public identifier')
@@ -1076,76 +1114,10 @@ class ActivityImage(BaseModel):
     def __str__(self):
         return f"Image for {self.activity.title}"
 
-
-# class ActivityInclusions(BaseModel):
-#     # STAGES_CHOICES = [
-#     #     ('pending', _('Pending')),
-#     #     ('approved', _('Approved')),
-#     #     ('rejected', _('Rejected')),
-#     # ]
-
-#     name = models.CharField(max_length=255, unique=True)
-#     # stage = models.CharField(
-#     #     max_length=20,
-#     #     choices=STAGES_CHOICES,
-#     #     default='pending',
-#     #     verbose_name='Stage'
-#     # )
-#     activity = models.ForeignKey(
-#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='inclusion_activity')
-
-#     class Meta:
-#         verbose_name = 'Activity Inclusions'
-#         verbose_name_plural = 'Activity Inclusions'
-
-#     def __str__(self):
-#         return self.name
-
-#     def clean(self):
-#         # Check for uniqueness of country name (case-insensitive)
-#         inclusion = ActivityInclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-#         if inclusion.exists():
-#             raise ValidationError({'name': f'{self.name} already exists.'})
-
-#         # Check if the name contains only alphabetic characters
-#         if not self.name.replace(' ', '').isalpha():
-#             raise ValidationError(
-#                 {'name': _('Inclusions name should contain only alphabetic characters.')})
-
-
-# class ActivityExclusions(BaseModel):
-#     # STAGES_CHOICES = [
-#     #     ('pending', _('Pending')),
-#     #     ('approved', _('Approved')),
-#     #     ('rejected', _('Rejected')),
-#     # ]
-#     name = models.CharField(max_length=255, unique=True)
-#     # stage = models.CharField(
-#     #     max_length=20,
-#     #     choices=STAGES_CHOICES,
-#     #     default='pending',
-#     #     verbose_name='Stage'
-#     # )
-#     activity = models.ForeignKey(
-#         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
-    
-
-#     class Meta:
-#         verbose_name = 'Activity Exclusions'
-#         verbose_name_plural = 'Activity Exclusions'
-
-#     def __str__(self):
-#         return self.name
-
-#     def clean(self):
-#         # Check for uniqueness of country name (case-insensitive)
-#         exclusion = ActivityExclusions.objects.filter(name__iexact=self.name).exclude(pk=self.pk)
-#         if exclusion.exists():
-#             raise ValidationError({'name': f'{self.name} already exists.'})
-
-#         # Check if the name contains only alphabetic characters
-#         if not self.name.replace(' ', '').isalpha():
-#             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = compress_image(self.image)
+        super(ActivityImage, self).save(*args, **kwargs)
 
 
 class ActivityItinerary(BaseModel):
@@ -1371,9 +1343,19 @@ class CoverPageInput(AuditFields):
     price_min = models.IntegerField(null=True, blank=True,default=0)
     price_max = models.IntegerField(null=True, blank=True)
     
-
     def __str__(self):
         return f"Experience {self.experience} - Clients{self.clients} - Satisfaction{self.satisfaction} "
+
+    def save(self, *args, **kwargs):
+        if self.activity_image:
+            self.activity_image = compress_image(self.activity_image)
+        if self.package_image:
+            self.package_image = compress_image(self.package_image)
+        if self.attraction_image:
+            self.attraction_image = compress_image(self.attraction_image)
+        if self.product_image:
+            self.product_image = compress_image(self.product_image)
+        super(CoverPageInput, self).save(*args, **kwargs)
 
 
 class FavoriteProducts(BaseModel):
@@ -1401,6 +1383,12 @@ class BlogImage(models.Model):
 
     def __str__(self):
         return self.image.name
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            self.image = compress_image(self.image)
+        super(BlogImage, self).save(*args, **kwargs)
+
 
 class Blogs(AuditFields):
     title = models.CharField(max_length=200)

@@ -14,6 +14,43 @@ from django.core.validators import FileExtensionValidator, RegexValidator
 
 
 class AgentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for Agent model.
+
+    This serializer handles serialization and deserialization of Agent objects.
+    It includes validation rules for various fields like first name, last name, email, phone, and password.
+
+    **Fields:**
+
+    * id (ReadOnly): The unique identifier of the Agent object.
+    * first_name: The first name of the agent.
+    * username: The username of the agent for login (required).
+    * last_name: The last name of the agent.
+    * email: The email address of the agent (required).
+    * phone: The phone number of the agent.
+    * password (WriteOnly): The password of the agent (write-only field, not returned in responses).
+    * profile_image: The profile image of the agent (optional).
+    * agent_uid: Unique agent identifier (optional).
+    * agent_name: Agent's full name (optional).
+    * company_id: ID of the company the agent belongs to (optional).
+    * company_name: Name of the company the agent belongs to (optional).
+    * company_site: Company website (optional).
+    * message: Message from the agent (optional).
+    * account_verification_status: Account verification status of the agent (optional, read-only).
+
+    **Validation:**
+
+    * First name: Must be at least 3 characters, contain only letters, and no spaces.
+    * Last name: Must contain only alphabets and spaces.
+    * Email: Must be in a valid email format.
+    * Phone number: Must be less than 13 characters and contain only digits.
+    * Password: Must be at least 8 characters, include one capital letter, and symbols.
+
+    **Methods:**
+
+    * **create:** Creates a new Agent object, hashing the password before saving.
+    * **update:** Updates an existing Agent object, hashing the password if it's provided in the update data.
+    """
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},required=False)
     account_verification_status = serializers.CharField(required=False)
 
@@ -150,7 +187,7 @@ class AgentBankDetailsSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = AgentBankDetails
-        fields = ['id', 'agent', 'account_holder_name',
+        fields = ['id', 'agent', 'account_holder_name', 'bank_name',
                   'account_number', 'ifsc_code', 'cancelled_cheque']
         read_only_fields = ['agent']  # Mark 'agent' field as read-only
 

@@ -90,15 +90,15 @@ class CountryAdmin(CustomModelAdmin):
     exclude = ("status", "image",)
 
     def has_add_permission(self, request):
-        return False
+        return True
 
 class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
-    formfield_overrides = {
-        models.ImageField: {'validators': [validate_file_size]},
-    }
+    # formfield_overrides = {
+    #     models.ImageField: {'validators': [validate_file_size]},
+    # }
 
 class CityAdmin(CustomModelAdmin):
     list_display = ("name", "state",)

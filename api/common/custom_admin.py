@@ -24,9 +24,9 @@ def validate_file_size(file):
     Custom validator to check if the file size is less than 3MB.
     """
     file_size = file.size
-    max_size = 3 * 1024 * 1024  # 3MB in bytes
+    max_size = 15 * 1024 * 1024  # 3MB in bytes
     if file_size > max_size:
-        raise ValidationError('Image should be less than 3MB.',
+        raise ValidationError('Image should be less than 15MB.',
                               params={'file_name': file.name, 'max_size': max_size / (1024 * 1024)})
 
 

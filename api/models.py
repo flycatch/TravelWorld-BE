@@ -8,7 +8,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
 from simple_history.models import HistoricalRecords
-
+from api.utils.functions import compress_image
 
 class User(BaseUser):
     user_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='User UID')
@@ -139,6 +139,13 @@ class State(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self.thumb_image:
+            self.thumb_image = compress_image(self.thumb_image)
+        if self.cover_img:
+            self.cover_img = compress_image(self.cover_img)
+        super(State, self).save(*args, **kwargs)
 
     def clean(self):
         # Check for uniqueness of country name (case-insensitive)

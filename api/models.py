@@ -27,6 +27,40 @@ class User(BaseUser):
 
 
 class Agent(BaseUser):
+    """
+    Model representing an Agent user in the system.
+
+    This model extends the BaseUser model and adds additional fields specific to agents.
+    Agents can be in different stages ('pending', 'approved', 'rejected') 
+    based on their application process. They can also have their bank account 
+    verification status set ('pending', 'approved', 'rejected').
+
+    **Fields:**
+
+    * agent_uid (CharField): Unique identifier for the agent (automatically generated
+        and non-editable).
+    * profile_image (ImageField, optional): Image representing the agent's profile.
+    * username (CharField, unique): Username for agent login (can be blank).
+    * email (EmailField, unique): Email address of the agent (can be blank).
+    * agent_name (CharField): Full name of the agent.
+    * company_id (CharField, optional): Registration number of the agent's company (if any).
+    * company_name (CharField, optional): Name of the agent's company (if any).
+    * company_site (CharField, optional): Website of the agent's company (if any).
+    * message (TextField, optional): Message from the agent.
+    * stage (CharField, choices=STAGES_CHOICES, default='pending'): Current stage of the agent's 
+        application process.
+    * account_verification_status (CharField, choices=ACCOUNT_VERIFICATION_CHOICES, default='pending')
+        Verification status of the agent's bank account.
+
+    **Meta:**
+
+    * verbose_name: 'Agent' (singular)
+    * verbose_name_plural: 'Agents' (plural)
+
+    **Methods:**
+
+    * __str__(): Returns the agent's unique identifier (agent_uid).
+    """
     STAGES_CHOICES = [
         ('pending', _('Pending')),
         ('approved', _('Approved')),
@@ -45,7 +79,7 @@ class Agent(BaseUser):
     agent_name = models.CharField(_("Agent Name"), max_length=150, blank=True, null=True)
     company_id = models.CharField(_("Company Registration Number"), max_length=150, blank=True, null=True)
     company_name = models.CharField(_("Company Name"), max_length=150, blank=True, null=True)
-    company_site = models.CharField(_("Company Site"), max_length=150, blank=True, null=True)
+    company_site = models.CharField(_("Company Website"), max_length=150, blank=True, null=True)
     message = models.TextField(_("Message"), blank=True, null=True)
     stage = models.CharField(
         max_length=20,

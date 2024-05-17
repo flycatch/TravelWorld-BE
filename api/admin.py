@@ -25,7 +25,8 @@ from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('agent_uid', 
-         'company_name', 'agent_name', 'phone', 'email', 'profile_image')}),
+         'agent_name', 'phone', 'email', 'company_id', 'company_name', 
+         'company_site', 'message', 'profile_image')}),
         ('Permissions', {'fields': ('status', 'stage', 'account_verification_status')}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
@@ -34,7 +35,8 @@ class AgentAdmin(CustomModelAdmin):
                     "status_colour", "stage_colour", "account_verification_status_colour")
     list_filter = ("status", "stage", "account_verification_status")
     search_fields = ("agent_uid", "company_name", "agent_name", "email", "phone")
-    readonly_fields = ("agent_uid","company_name", "agent_name", "email", "phone", "profile_image",)
+    readonly_fields = ("agent_uid", "company_id", "company_name", "company_site",
+                       "message", "agent_name", "email", "phone", "profile_image")
 
     inlines = [AgentBankDetailsInline]
 

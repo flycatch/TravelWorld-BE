@@ -98,17 +98,11 @@ class StateAdmin(CustomModelAdmin):
     list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
-    # formfield_overrides = {
-    #     models.ImageField: {'validators': [validate_file_size]},
-    # }
 
 class CityAdmin(CustomModelAdmin):
     list_display = ("name", "state",)
     search_fields = ("name", "state__name")
     exclude = ("status",)
-    formfield_overrides = {
-        models.ImageField: {'validators': [validate_file_size]},
-    }
 
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
@@ -232,9 +226,6 @@ class AttractionAdmin(CustomModelAdmin):
     list_display = ("truncated_title", "status_colour",)
     list_filter = ("status",)
     search_fields = ("title",)
-    formfield_overrides = {
-        models.ImageField: {'validators': [validate_file_size]},
-    }
     inlines = [AttractionImageInline]
 
     def status_colour(self, obj):
@@ -1046,9 +1037,6 @@ class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
-    formfield_overrides = {
-        models.ImageField: {'validators': [validate_file_size]},
-    }
 
 
 def dashboard_page(request):
@@ -1253,8 +1241,8 @@ class CoverPageInputAdmin(CustomModelAdmin):
         # }),
     )
 
-    # def has_add_permission(self, request):
-    #     return True
+    def has_add_permission(self, request):
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return True

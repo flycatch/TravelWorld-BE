@@ -9,7 +9,7 @@ These filters allow for searching and filtering objects based on related models 
 - **CurrencyFilter:** Filters currencies based on the ID of their associated country.
 """
 import django_filters
-from api.models import City, State, Currency
+from api.models import City, State, Currency, Attraction
 
 
 class CityFilter(django_filters.FilterSet):
@@ -54,3 +54,18 @@ class CurrencyFilter(django_filters.FilterSet):
     class Meta:
         model = Currency
         fields = ['country']
+
+
+class AttractionFilter(django_filters.FilterSet):
+    """
+    Filter for Attraction objects based on their state.
+    This filter allows filtering Attraction based on the ID of their associated state.
+
+    **Fields:**
+    * state (CharFilter): Filters cities by the ID of their state.
+    """
+    state = django_filters.CharFilter(field_name='state__id')
+
+    class Meta:
+        model = Attraction
+        fields = ['state']

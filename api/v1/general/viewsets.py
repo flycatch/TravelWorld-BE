@@ -7,7 +7,7 @@ from api.v1.general.serializers import (CountrySerializer, StateSerializer, City
                                         AttractionSerializer,CoverPageInputSerializer,
                                         HomePageDestinationSerializer, HomePageStateSerializer,
                                         LocationSerializer, SendEnquirySerializer, CurrencySerializer)
-from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter
+from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter, AttractionFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
@@ -99,7 +99,8 @@ class CoverPageView(APIView):
 class AttractionView(ListAPIView):
     serializer_class = AttractionSerializer
     pagination_class = CustomPagination
-    
+    filterset_class = AttractionFilter
+
     def get_queryset(self):
         queryset = Attraction.objects.order_by("-id")
         return queryset

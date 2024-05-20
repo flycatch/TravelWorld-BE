@@ -375,7 +375,7 @@ class Activity(BaseModel):
             self.min_price = min_adults_rate
         else:
             self.min_price = 0
-        self.save()
+        Activity.objects.filter(pk=self.pk).update(min_price=self.min_price)
 
 
 
@@ -479,7 +479,7 @@ class Package(BaseModel):
             self.min_price = min_adults_rate
         else:
             self.min_price = 0
-        self.save()
+        Package.objects.filter(pk=self.pk).update(min_price=self.min_price)
 
 
 

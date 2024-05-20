@@ -861,13 +861,37 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SearchSuggestionAPIView(APIView):
+    """
+    This view provides a list of suggestions for search queries based
+    on approved Packages and Activities.
+
+    **GET request:**
+
+    - Returns a JSON response with a list of suggestions.
+
+    **Logic:**
+
+    1. Retrieves distinct values for title, state names, and destination names
+        from approved Packages and Activities.
+    2. Combines all distinct values into a single set and excludes `None` values.
+    3. Sorts the combined set by length (shorter suggestions appear first).
+    4. Returns the sorted list of suggestions in the response.
+
+    **Notes:**
+
+    * This view retrieves suggestions from approved Packages and Activities only.
+    * It doesn't perform any filtering based on the actual search query.
+    """
     def get(self, request):
         # Get distinct values for title, destinations, and state for both Package and Activity
-        package_values = set(Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
-        activity_values = set(Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
+        package_values = set(Package.objects.filter(stage='approved').values_list(
+            'title', 'locations__state__name', 'locations__destinations__name').distinct())
+        activity_values = set(Activity.objects.filter(stage='approved').values_list(
+            'title', 'locations__state__name', 'locations__destinations__name').distinct())
 
         # Combine all the distinct values into a single set and exclude None values
-        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(None, chain.from_iterable(activity_values)))
+        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(
+            None, chain.from_iterable(activity_values)))
 
         # Sort the combined set by length
         sorted_values = sorted(all_values, key=len)

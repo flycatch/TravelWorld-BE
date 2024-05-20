@@ -12,7 +12,7 @@ from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, Itinerar
                                      PackageDeleteDraft, PackageTourCategoryViewSet,PackageHomePageView,
                                      InclusionsViewSet, ExclusionsViewSet,PricingNewView, PackageImageUploadView,
                                      HomePageProductsViewSet, SearchSuggestionAPIView, HomePageCategoryViewSet,
-                                     FavoriteProductViewSet
+                                     FavoriteProductViewSet, ItineraryDayDeleteView
                                      )
 from api.v1.activity.viewsets import (ActivityViewSet, ActivityItineraryViewSet,
                                      ActivityInformationsViewSet, ActivityPricingViewSet, ActivityCategoryViewSet,
@@ -200,6 +200,7 @@ urlpatterns = [
     path('v1/<int:agent_id>/dashboard-count/',DashboardCount.as_view(), name='dashboard-count'),
 
     path('v1/blog-list/', BlogListView.as_view(), name='blog-list'),
+    path('v1/package/itinerary-day/<int:pk>/', ItineraryDayDeleteView.as_view(), name='itinerary-day-delete'),
 
 
 

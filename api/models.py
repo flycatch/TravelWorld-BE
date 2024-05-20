@@ -550,6 +550,15 @@ class Exclusions(BaseModel):
             raise ValidationError({'name': _('Exclusions name should contain only alphabetic characters.')})
 
 
+class ItineraryDay(BaseModel):
+    day = models.CharField(max_length=255, default="")
+    place = models.CharField(max_length=255, default="", blank=True, null=True)
+    description = models.TextField(default="", blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Itinerary Day'
+        verbose_name_plural = 'Itinerary Day'
+
 class Itinerary(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='itinerary_package')
@@ -558,10 +567,9 @@ class Itinerary(BaseModel):
                                          verbose_name="important Message")
     things_to_carry = models.TextField(blank=True, default="",
                                          verbose_name="Things to carry")
-    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
-    
     inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
     exclusions = models.ManyToManyField(Exclusions, related_name='itinerary_exclusions', blank=True)
+    itinerary_day = models.ManyToManyField(ItineraryDay, related_name='itinerary_day', blank=True)
 
     class Meta:
         verbose_name = 'Itinerary'

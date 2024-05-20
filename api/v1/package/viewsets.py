@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         Package, PackageCategory, SuitableFor, FavoriteProducts,
-                        PackageFaqQuestionAnswer, PackageImage, User,
+                        PackageFaqQuestionAnswer, PackageImage, ItineraryDay,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
@@ -255,6 +255,47 @@ class ItineraryViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
+
+
+class ItineraryDayDeleteView(APIView):
+    """
+    This view allows authenticated users to delete an ItineraryDay instance.
+
+    **Permissions:**
+    * Requires IsAuthenticated permission class. Only authenticated users
+      can access this view.
+
+    **Arguments:**
+    * request (HttpRequest): The incoming HTTP request object.
+    * pk (int): Primary key of the ItineraryDay object to be deleted.
+
+    **Returns:**
+    * Response object with status code and message:
+        * On success (HTTP_204_NO_CONTENT): 
+            - status: "success"
+            - message: "Itinerary Day Deleted Successfully."
+        * On failure (HTTP_404_NOT_FOUND): 
+            - status: "error"
+            - message: "Itinerary Day not found."
+
+    **Raises:**
+    * ValidationError: If there are errors during data processing.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk, format=None):
+        try:
+            itinerary_day = ItineraryDay.objects.get(pk=pk)
+        except ItineraryDay.DoesNotExist:
+            return Response({"status": "error",
+                             "message": "Itinerary Day not found.",
+                             "statusCode": status.HTTP_404_NOT_FOUND}, 
+                             status=status.HTTP_404_NOT_FOUND)
+        itinerary_day.delete()
+        return Response({"status": "success",
+                         "message":"Itinerary Day Deleted Successfully.",
+                         "statusCode": status.HTTP_204_NO_CONTENT},
+                         status=status.HTTP_204_NO_CONTENT)
 
 
 class InclusionsViewSet(viewsets.ModelViewSet):

@@ -1,7 +1,7 @@
 from api.models import *
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save,post_delete
 from django.dispatch import receiver
 
 
@@ -163,3 +163,15 @@ def customer_unique_id(sender, instance, created, **kwargs):
                 print('No previous record. This is the first version.')
         else:
             print('No historical record found.')
+
+
+
+@receiver(post_save, sender=Pricing)
+def update_package_min_price_on_save(sender, instance, **kwargs):
+    if instance.package:
+        instance.package.update_min_price()
+
+@receiver(post_delete, sender=Pricing)
+def update_package_min_price_on_delete(sender, instance, **kwargs):
+    if instance.package:
+        instance.package.update_min_price()

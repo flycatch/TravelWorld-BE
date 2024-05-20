@@ -448,13 +448,26 @@ class Package(BaseModel):
             default='PACKAGE',
             verbose_name='Deal Type'
         )
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
 
+    
     class Meta:
         verbose_name = 'Package'
         verbose_name_plural = 'Packages'
 
     def __str__(self):
         return self.package_uid if self.package_uid else self.title
+    
+
+    def update_min_price(self):
+        pricing_packages = self.pricing_package.all()
+        if pricing_packages.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
+            self.min_price = min_adults_rate
+        else:
+            self.min_price = 0
+        self.save()
+
 
 
 class PackageImage(BaseModel):

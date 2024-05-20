@@ -467,7 +467,8 @@ class ActivityHomePageView(generics.ListAPIView):
     serializer_class = HomePageActivitySerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['user__username','booking_id'] 
+    search_fields = ['user__username','booking_id', 'title',
+                     'locations__state__name', 'locations__destinations__name'] 
     filterset_class = ActivityFilter
     
     

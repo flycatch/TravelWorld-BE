@@ -633,7 +633,8 @@ class PackageHomePageView(ListAPIView):
     serializer_class = HomePagePackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['user__username','booking_id'] 
+    search_fields = ['user__username','booking_id', 'title',
+                     'locations__state__name', 'locations__destinations__name'] 
     filterset_class = PackageFilter
     
     def get_queryset(self):

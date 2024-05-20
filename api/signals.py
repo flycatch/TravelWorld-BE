@@ -170,8 +170,13 @@ def customer_unique_id(sender, instance, created, **kwargs):
 def update_package_min_price_on_save(sender, instance, **kwargs):
     if instance.package:
         instance.package.update_min_price()
+    if instance.activity:
+        instance.activity.update_min_price()
 
 @receiver(post_delete, sender=Pricing)
 def update_package_min_price_on_delete(sender, instance, **kwargs):
     if instance.package:
         instance.package.update_min_price()
+    if instance.activity:
+        instance.activity.update_min_price()
+

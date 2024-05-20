@@ -52,6 +52,7 @@ class AgentSerializer(serializers.ModelSerializer):
     * **update:** Updates an existing Agent object, hashing the password if it's provided in the update data.
     """
     password = serializers.CharField(write_only=True, style={'input_type': 'password'},required=False)
+    confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'}, required=True)
     account_verification_status = serializers.CharField(required=False)
 
     class Meta:
@@ -59,7 +60,7 @@ class AgentSerializer(serializers.ModelSerializer):
 
         model = Agent
         fields = [ "id", "first_name", "username", "last_name", "email",
-                  "phone", "password", "profile_image","agent_uid","agent_name",
+                  "phone", "password", "confirm_password","profile_image","agent_uid","agent_name",
                   "company_id", "company_name", "company_site", "message",
                   "account_verification_status"]
 
@@ -96,13 +97,22 @@ class AgentSerializer(serializers.ModelSerializer):
                 "Password should be at least 8 characters and contain one capital letter and symbols.")
         return value
     
+    def validate(self, data):
+        # Ensure password and confirm_password match
+        if data.get('password') != data.get('confirm_password'):
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+
+    
     def create(self, validated_data):
+        validated_data.pop('confirm_password')
         validated_data['password'] = make_password(validated_data.get('password'))
         return super(AgentSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
         # Hash the password during the update
         if 'password' in validated_data:
+            validated_data.pop('confirm_password')
             validated_data['password'] = make_password(validated_data['password'])
 
         return super(AgentSerializer, self).update(instance, validated_data)

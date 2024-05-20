@@ -11,7 +11,6 @@ def send_email_on_stage_update(sender, instance, created, **kwargs):
         subject = ''
         message = ''
         if instance.stage == 'approved':
-            print(instance.stage)
             subject = 'Welcome To TravelWorld'
             message = f'Hi {instance.username}, Your application to TravelWorld is approved. You can login using our portal. Thank You'
         elif instance.stage == 'rejected':
@@ -31,7 +30,6 @@ def send_email_on_stage_update_package(sender, instance, created, **kwargs):
         subject = ''
         message = ''
         if instance.stage == 'approved':
-            print(instance.stage)
             subject = 'Explore World - Package Approved'
             message = f'Hi {instance.agent.username}, Your Package "{instance.package_uid} - {instance.title}" is approved by admin. Thank You'
         elif instance.stage == 'rejected':
@@ -51,7 +49,6 @@ def send_email_on_stage_update_activity(sender, instance, created, **kwargs):
         subject = ''
         message = ''
         if instance.stage == 'approved':
-            print(instance.stage)
             subject = 'Explore World - Activity Approved'
             message = f'Hi {instance.agent.username}, Your Activity "{instance.activity_uid} - {instance.title}" is approved by admin. Thank You'
         elif instance.stage == 'rejected':
@@ -136,10 +133,8 @@ def agent_code_created(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Pricing)
 def customer_unique_id(sender, instance, created, **kwargs):
-    print('Signal triggered:', instance.id, created)
 
     if not created:
-        print("hi")
         # Try to get the new record
         new_record = instance.history.first()
 
@@ -151,12 +146,10 @@ def customer_unique_id(sender, instance, created, **kwargs):
             # Check if there is a previous record
             if old_record:
                 record_diff = new_record.diff_against(old_record)
-                print(record_diff)
                 changed_fields = record_diff.changed_fields
 
                 new_record.changed_fields = {'changed_fields': changed_fields}
 
-                print(new_record)
                 new_record.save()
 
             else:

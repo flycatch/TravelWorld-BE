@@ -217,9 +217,7 @@ class ItinerarySerializer(serializers.ModelSerializer):
 
         #update itinerary_day object if data has id esle create.
         for itinerary_day in itinerary_day_data:
-            print(itinerary_day)
             itinerary_day_id = itinerary_day.get('id')
-            print(itinerary_day_id)
             if itinerary_day_id:
                 try:
                     itinerary_day_obj = ItineraryDay.objects.get(pk=itinerary_day_id)
@@ -425,7 +423,6 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             package_faq_data = PackageFaqQuestionAnswer.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 faq_category_data = PackageFaqCategory.objects.create(**data)
                 package_faq_data.category.add(faq_category_data)
         except Exception as error:

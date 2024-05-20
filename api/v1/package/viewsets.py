@@ -776,8 +776,8 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
         if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
             activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
             & Q(pricing_activity__adults_rate__lte=price_range_max)
-            package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
-            & Q(pricing_package__adults_rate__lte=price_range_max)
+            package_filter &= Q(min_price__gte=price_range_min) \
+            & Q(min_price__lte=price_range_max)
 
         
         # Apply the combined filter conditions

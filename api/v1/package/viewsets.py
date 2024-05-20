@@ -722,12 +722,20 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
                                Q(locations__state__name__icontains=search_query) |
                                Q(locations__destinations__name__icontains=search_query))
 
+        # if package_id:
+        #     packages = self.queryset_packages.filter(pk=package_id)
+        #     return packages
+        # if activity_id:
+        #     activity = self.queryset_activities.filter(pk=activity_id)
+        #     return activity
+
         if package_id:
-            packages = self.queryset_packages.filter(pk=package_id)
+            packages = Package.objects.filter(pk=package_id).annotate(min_price=Min('pricing_package__adults_rate'))
             return packages
         if activity_id:
-            activity = self.queryset_activities.filter(pk=activity_id)
-            return activity
+            activities = Activity.objects.filter(pk=activity_id).annotate(min_price=Min('pricing_activity__adults_rate'))
+            return activities
+        
         if state:
             activity_filter &= Q(locations__state=state)
             package_filter &= Q(locations__state=state)
@@ -771,18 +779,18 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
                 activity_filter &= Q(duration='hour',duration_hour__lte=12)
                 package_filter &= Q(duration='hour',duration_hour__lte=12)
     
-        # # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
-        # if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
-        #     activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
-        #     & Q(pricing_activity__adults_rate__lte=price_range_max)
-        #     package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
-        #     & Q(pricing_package__adults_rate__lte=price_range_max)
+        # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
+        if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
+            activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
+            & Q(pricing_activity__adults_rate__lte=price_range_max)
+            package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
+            & Q(pricing_package__adults_rate__lte=price_range_max)
 
 
-        # Apply price range filter using min_price
-        if (price_range_min != '0' and price_range_max != '0') or (price_range_min == '0' and price_range_max != '0'):
-            activity_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
-            package_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
+        # # Apply price range filter using min_price
+        # if (price_range_min != '0' and price_range_max != '0') or (price_range_min == '0' and price_range_max != '0'):
+        #     activity_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
+        #     package_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
         
         # Apply the combined filter conditions
         activities = self.queryset_activities.filter(activity_filter).annotate(min_price=Min('pricing_activity__adults_rate'))

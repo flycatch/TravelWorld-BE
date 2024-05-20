@@ -358,12 +358,25 @@ class Activity(BaseModel):
             default='ACTIVITY',
             verbose_name='Deal Type'
         )
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
+
     class Meta:
         verbose_name = 'Activity'
         verbose_name_plural = 'Activity'
 
     def __str__(self):
         return self.activity_uid if self.activity_uid else self.title
+    
+
+    def update_min_price(self):
+        pricing_activity = self.pricing_activity.all()
+        if pricing_activity.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_activity)
+            self.min_price = min_adults_rate
+        else:
+            self.min_price = 0
+        Activity.objects.filter(pk=self.pk).update(min_price=self.min_price)
+
 
 
 class Location(models.Model):
@@ -448,13 +461,26 @@ class Package(BaseModel):
             default='PACKAGE',
             verbose_name='Deal Type'
         )
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
 
+    
     class Meta:
         verbose_name = 'Package'
         verbose_name_plural = 'Packages'
 
     def __str__(self):
         return self.package_uid if self.package_uid else self.title
+    
+
+    def update_min_price(self):
+        pricing_packages = self.pricing_package.all()
+        if pricing_packages.exists():
+            min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
+            self.min_price = min_adults_rate
+        else:
+            self.min_price = 0
+        Package.objects.filter(pk=self.pk).update(min_price=self.min_price)
+
 
 
 class PackageImage(BaseModel):

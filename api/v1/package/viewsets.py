@@ -680,6 +680,7 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         return Response({'status': 'success', 'message': 'Image deleted successfully'},
                         status=status.HTTP_204_NO_CONTENT)
 
+from django.db.models import Min, Q, F
 
 class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = None  # Will be determined dynamically

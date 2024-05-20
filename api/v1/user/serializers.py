@@ -93,7 +93,6 @@ class UserLoginSerializer(serializers.Serializer):
             password = validated_data.get('password')
 
             # Authenticate user using either email or username
-            print("h1")
             user = authenticate(username=None, email=mobile_or_email, password=password, model=User,mobile=mobile_or_email)
          
             if not user:

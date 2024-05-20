@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         Package, PackageCategory, SuitableFor, FavoriteProducts,
-                        PackageFaqQuestionAnswer, PackageImage, User,
+                        PackageFaqQuestionAnswer, PackageImage, ItineraryDay,
                         PackageInformations, Pricing, TourCategory)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
@@ -255,6 +255,47 @@ class ItineraryViewSet(viewsets.ModelViewSet):
             'id': serializer.data['id'],
             'statusCode': status.HTTP_200_OK
         }, status=status.HTTP_200_OK)
+
+
+class ItineraryDayDeleteView(APIView):
+    """
+    This view allows authenticated users to delete an ItineraryDay instance.
+
+    **Permissions:**
+    * Requires IsAuthenticated permission class. Only authenticated users
+      can access this view.
+
+    **Arguments:**
+    * request (HttpRequest): The incoming HTTP request object.
+    * pk (int): Primary key of the ItineraryDay object to be deleted.
+
+    **Returns:**
+    * Response object with status code and message:
+        * On success (HTTP_204_NO_CONTENT): 
+            - status: "success"
+            - message: "Itinerary Day Deleted Successfully."
+        * On failure (HTTP_404_NOT_FOUND): 
+            - status: "error"
+            - message: "Itinerary Day not found."
+
+    **Raises:**
+    * ValidationError: If there are errors during data processing.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk, format=None):
+        try:
+            itinerary_day = ItineraryDay.objects.get(pk=pk)
+        except ItineraryDay.DoesNotExist:
+            return Response({"status": "error",
+                             "message": "Itinerary Day not found.",
+                             "statusCode": status.HTTP_404_NOT_FOUND}, 
+                             status=status.HTTP_404_NOT_FOUND)
+        itinerary_day.delete()
+        return Response({"status": "success",
+                         "message":"Itinerary Day Deleted Successfully.",
+                         "statusCode": status.HTTP_204_NO_CONTENT},
+                         status=status.HTTP_204_NO_CONTENT)
 
 
 class InclusionsViewSet(viewsets.ModelViewSet):
@@ -592,7 +633,8 @@ class PackageHomePageView(ListAPIView):
     serializer_class = HomePagePackageSerializer
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['user__username','booking_id'] 
+    search_fields = ['user__username','booking_id', 'title',
+                     'locations__state__name', 'locations__destinations__name'] 
     filterset_class = PackageFilter
     
     def get_queryset(self):
@@ -820,13 +862,37 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class SearchSuggestionAPIView(APIView):
+    """
+    This view provides a list of suggestions for search queries based
+    on approved Packages and Activities.
+
+    **GET request:**
+
+    - Returns a JSON response with a list of suggestions.
+
+    **Logic:**
+
+    1. Retrieves distinct values for title, state names, and destination names
+        from approved Packages and Activities.
+    2. Combines all distinct values into a single set and excludes `None` values.
+    3. Sorts the combined set by length (shorter suggestions appear first).
+    4. Returns the sorted list of suggestions in the response.
+
+    **Notes:**
+
+    * This view retrieves suggestions from approved Packages and Activities only.
+    * It doesn't perform any filtering based on the actual search query.
+    """
     def get(self, request):
         # Get distinct values for title, destinations, and state for both Package and Activity
-        package_values = set(Package.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
-        activity_values = set(Activity.objects.values_list('title', 'locations__state__name', 'locations__destinations__name').distinct())
+        package_values = set(Package.objects.filter(stage='approved').values_list(
+            'title', 'locations__state__name', 'locations__destinations__name').distinct())
+        activity_values = set(Activity.objects.filter(stage='approved').values_list(
+            'title', 'locations__state__name', 'locations__destinations__name').distinct())
 
         # Combine all the distinct values into a single set and exclude None values
-        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(None, chain.from_iterable(activity_values)))
+        all_values = set(filter(None, chain.from_iterable(package_values))) | set(filter(
+            None, chain.from_iterable(activity_values)))
 
         # Sort the combined set by length
         sorted_values = sorted(all_values, key=len)

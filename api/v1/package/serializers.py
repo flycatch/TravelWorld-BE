@@ -10,7 +10,7 @@ from api.models import (Package, Itinerary, PackageInformations, Pricing, Suitab
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions, Location,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory,
-                        FavoriteProducts)
+                        FavoriteProducts, ItineraryDay)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.general.serializers import LocationSerializer
@@ -112,8 +112,60 @@ class ExclusionsSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'package']
 
 
+class ItineraryDaySerializer(serializers.ModelSerializer):
+    """
+    This serializer is used for creating, updating, and retrieving ItineraryDay data.
+
+    **Fields:**
+    * id (IntegerField, optional): Primary key of the ItineraryDay object (read-only during creation).
+    * day (CharField): Day of the itinerary (e.g., "Day 1", "Day 2").
+    * place (CharField, optional): Place to be visited on this day.
+    * description (TextField, optional): Description of the activities or events planned for this day.
+
+    **Meta:**
+    * model: ItineraryDay
+    * fields: '__all__'  # Include all fields from the model
+    """
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = ItineraryDay
+        fields = ['id', 'day', 'place', 'description']
+
+
 class ItinerarySerializer(serializers.ModelSerializer):
+    """
+    This serializer is used for creating, updating, and retrieving Itinerary data,
+    including nested ItineraryDay objects.
+
+    **Fields:**
+    * overview (CKEditor5Field): Overview of the itinerary (uses CKEditor 5 config named 'extends').
+    * important_message (TextField, optional): Important message for travelers regarding the itinerary.
+    * things_to_carry (TextField, optional): List of things travelers should carry on the trip.
+    * inclusions (ManytoManyRelationshipSerializer, optional): Related Inclusions objects
+        (many-to-many relationship).
+    * exclusions (ManytoManyRelationshipSerializer, optional): Related Exclusions objects
+        (many-to-many relationship).
+    * itinerary_day (ItineraryDaySerializer, many=True, required=False): Nested ItineraryDay
+        serializers for itinerary days.
+
+    **Meta:**
+    * model: Itinerary
+    * exclude: ['status', 'created_on', 'updated_on']  # Exclude these fields during serialization
+
+    **SerializerMethodFields:**
+    * exclusions_details (SerializerMethodField): Provides details of related Exclusions objects.
+
+    **Methods:**
+    * get_exclusions_details(self, obj): Returns a list of serialized Exclusions data.
+    * create(self, validated_data): Creates a new Itinerary object and related entities.
+    * update(self, instance, validated_data): Updates an existing Itinerary object and related entities.
+
+    **Raises:**
+    * ValidationError: If errors occur during data processing.
+    """
     exclusions_details = serializers.SerializerMethodField(required=False)
+    itinerary_day = ItineraryDaySerializer(many=True, required=False)
 
     class Meta:
         model = Itinerary
@@ -127,11 +179,19 @@ class ItinerarySerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         inclusions_data = validated_data.pop('inclusions', [])
         exclusions_data = validated_data.pop('exclusions', [])
+        itinerary_day_data = validated_data.pop('itinerary_day', [])
 
         try:
+            #create itinerary instance
             itinerary = Itinerary.objects.create(**validated_data)
             itinerary.inclusions.set(inclusions_data)
             itinerary.exclusions.set(exclusions_data)
+
+            #create itinerary_day object and map into itinerary
+            for day_data in itinerary_day_data:
+                itinerary_day_obj = ItineraryDay.objects.create(**day_data)
+                itinerary.itinerary_day.add(itinerary_day_obj)
+
         except Exception as error:
             raise ValidationError(f"Error creating Itinerary: {error}")
 
@@ -140,6 +200,7 @@ class ItinerarySerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         inclusions_data = validated_data.pop('inclusions', None)
         exclusions_data = validated_data.pop('exclusions', None)
+        itinerary_day_data = validated_data.pop('itinerary_day', None)
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
@@ -153,6 +214,19 @@ class ItinerarySerializer(serializers.ModelSerializer):
         # Update exclusions if data provided
         if exclusions_data is not None:
             instance.exclusions.set(exclusions_data)
+
+        #update itinerary_day object if data has id esle create.
+        for itinerary_day in itinerary_day_data:
+            itinerary_day_id = itinerary_day.get('id')
+            if itinerary_day_id:
+                try:
+                    itinerary_day_obj = ItineraryDay.objects.get(pk=itinerary_day_id)
+                    ItineraryDaySerializer().update(instance=itinerary_day_obj, validated_data=itinerary_day)
+                except ItineraryDay.DoesNotExist:
+                    raise serializers.ValidationError(f"Itinerary Day with id {itinerary_day_id} does not exist.")
+            else:
+                itinerary_day_obj = ItineraryDay.objects.create(**itinerary_day)
+                instance.itinerary_day.add(itinerary_day_obj)
 
         instance.save()
         return instance
@@ -349,7 +423,6 @@ class PackageFaqQuestionAnswerSerializer(serializers.ModelSerializer):
             package_faq_data = PackageFaqQuestionAnswer.objects.create(**validated_data)
 
             for data in category_data:
-                print(data)
                 faq_category_data = PackageFaqCategory.objects.create(**data)
                 package_faq_data.category.add(faq_category_data)
         except Exception as error:

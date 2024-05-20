@@ -706,8 +706,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
         # Get the original object before saving changes
         original_obj = self.model.objects.get(pk=obj.pk) if change else None
-        
-        print(original_obj)
         # Save the changes
         super().save_model(request, obj, form, change)
 
@@ -932,14 +930,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
         # Get the original object before saving changes
         original_obj = self.model.objects.get(pk=obj.pk) if change else None
-        
-        print(original_obj)
         # Save the changes
         super().save_model(request, obj, form, change)
 
         if change and obj.payment_settlement_status in ['SUCCESSFUL'] and obj.payment_settlement_status != original_obj.payment_settlement_status:
-            print("hi2")
-
             obj.transaction_id = f"EWTRAN-{obj.id}"
             obj.save()
 
@@ -1219,10 +1213,6 @@ def dashboard_page(request):
 
     # Update the context with the modified context data
     context.update(**context_data)
-
-    print({
-        'cards':cards,
-        'barchart_booking':barchart_booking,})
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 

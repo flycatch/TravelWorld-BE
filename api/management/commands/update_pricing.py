@@ -13,4 +13,4 @@ class Command(BaseCommand):
         activitys = Activity.objects.all()
         for activity in activitys:
             activity.update_min_price()
-            self.stdout.write(self.style.SUCCESS(f'Successfully updated min_price for package: {activity.id}'))
+            self.stdout.write(self.style.SUCCESS(f'Successfully updated min_price for activity: {activity.id}'))

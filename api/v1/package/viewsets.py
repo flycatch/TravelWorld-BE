@@ -770,16 +770,22 @@ class HomePageProductsViewSet(viewsets.ReadOnlyModelViewSet):
                 activity_filter &= Q(duration='hour',duration_hour__lte=12)
                 package_filter &= Q(duration='hour',duration_hour__lte=12)
     
-        # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
-        if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
-            activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
-            & Q(pricing_activity__adults_rate__lte=price_range_max)
-            package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
-            & Q(pricing_package__adults_rate__lte=price_range_max)
+        # # when initially explore more is clicked min and max price is 0 then no pricing filter is applied
+        # if (price_range_min !='0' and price_range_max !='0') or (price_range_min =='0' and price_range_max !='0') :
+        #     activity_filter &= Q(pricing_activity__adults_rate__gte=price_range_min) \
+        #     & Q(pricing_activity__adults_rate__lte=price_range_max)
+        #     package_filter &= Q(pricing_package__adults_rate__gte=price_range_min) \
+        #     & Q(pricing_package__adults_rate__lte=price_range_max)
+
+
+        # Apply price range filter using min_price
+        if (price_range_min != '0' and price_range_max != '0') or (price_range_min == '0' and price_range_max != '0'):
+            activity_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
+            package_filter &= Q(min_price__gte=price_range_min) & Q(min_price__lte=price_range_max)
         
         # Apply the combined filter conditions
-        activities = self.queryset_activities.filter(activity_filter)
-        packages = self.queryset_packages.filter(package_filter)
+        activities = self.queryset_activities.filter(activity_filter).annotate(min_price=Min('pricing_activity__adults_rate'))
+        packages = self.queryset_packages.filter(package_filter).annotate(min_price=Min('pricing_package__adults_rate'))
 
         # Combine the filtered querysets
         queryset = itertools.chain(activities,packages)

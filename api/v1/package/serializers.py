@@ -526,7 +526,7 @@ class PackageImageListSerializer(serializers.Serializer):
 
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
-    package = BookingPackageSerializer(required=False)
+    package = HomePagePackageSerializer(required=False)
 
     class Meta:
         model = FavoriteProducts

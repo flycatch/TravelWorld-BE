@@ -526,6 +526,8 @@ class PackageImageListSerializer(serializers.Serializer):
 
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
+    package = BookingPackageSerializer(required=False)
+
     class Meta:
         model = FavoriteProducts
-        fields = ['id', 'user', 'package', 'activity']
+        fields = ['id', 'user', 'package']

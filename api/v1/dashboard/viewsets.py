@@ -54,6 +54,17 @@ class DashboardCount(APIView):
                     package__isnull=False
                 ).count()
 
+                cancelled_bookings_count = Booking.objects.filter(
+                    booking_status='REFUNDED',
+                    package__agent=request.user,
+                    package__isnull=False
+                ).count()
+
+                total_bookings_count = Booking.objects.filter(
+                    package__agent=request.user,
+                    package__isnull=False
+                ).count()
+
             elif deal_type == 'ACTIVITY':
 
                 # Retrieve successful bookings count for past, ongoing, and future bookings
@@ -81,7 +92,9 @@ class DashboardCount(APIView):
             results ={
                 "past_successful_bookings_count" :past_successful_bookings_count,
                 "ongoing_successful_bookings_count":ongoing_successful_bookings_count,
-                "future_successful_bookings_count":future_successful_bookings_count
+                "future_successful_bookings_count":future_successful_bookings_count,
+                "total_bookings_count":total_bookings_count,
+                "cancelled_bookings_count":cancelled_bookings_count
             }
 
             return Response({

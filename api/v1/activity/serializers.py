@@ -451,7 +451,7 @@ class HomePageActivitySerializer(serializers.ModelSerializer):
         fields = ["id","activity_uid","title","tour_class", "locations","agent",
                   "activity_image","min_price", "activities", "suitable_for", "total_reviews",
                   "average_review_rating","duration","duration_day", "duration_night",
-                  "duration_hour", "min_members", "max_members", "deal_type"]
+                  "duration_hour", "min_members", "max_members", "deal_type","is_recommended"]
 
     def get_min_price(self, obj):
         pricing_activity = obj.pricing_activity.all()

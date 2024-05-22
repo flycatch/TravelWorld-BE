@@ -167,6 +167,7 @@ class State(BaseModel):
         upload_to='state/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
     is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    order = models.IntegerField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'State'
@@ -409,6 +410,13 @@ class Package(BaseModel):
         ('hour', _('Hours'))
     ]
 
+    PACKAGE_CLASS = [
+        ('Budget', _('Budget')),
+        ('Mid Range', _('Mid Range')),
+        ('Luxury', _('Luxury')),
+        ('Luxury Plus', _('Luxury Plus'))
+    ]
+
     package_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='Package UID')
     agent = models.ForeignKey(
         Agent, on_delete=models.CASCADE, related_name='package_agent')
@@ -419,7 +427,12 @@ class Package(BaseModel):
         default='private',
         verbose_name='Tour Class'
     )
-
+    package_class = models.CharField(
+        max_length=20,
+        choices=PACKAGE_CLASS,
+        default='Budget',
+        verbose_name='Package Class'
+    )
     locations = models.ManyToManyField(
         Location, related_name='package_location', blank=True, verbose_name='Destinations')
     activities = models.ManyToManyField(

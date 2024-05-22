@@ -937,6 +937,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             obj.transaction_id = f"EWTRAN-{obj.id}"
             obj.save()
 
+        subject = f"EXPLORE WORLD | TRANSACTION"
+        message = f"Dear {obj.agent.agent_uid},\n\nYour transaction settlement has been {obj.payment_settlement_status}."
+        send_email.delay(subject,message,obj.agent.email)
+
     def payment_settlement_status_colour(self, obj):
         return refund_status_colour(obj.payment_settlement_status)
 

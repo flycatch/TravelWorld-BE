@@ -10,7 +10,7 @@ from api.models import (Package, Itinerary, PackageInformations, Pricing, Suitab
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
                         PackageImage, PackageCategory, Inclusions, Exclusions, Location,
                         InclusionInformation, ExclusionInformation, PackageCancellationCategory,
-                        FavoriteProducts, ItineraryDay)
+                        FavoriteProducts, ItineraryDay, InclusionExclusion, Informations, StayDetails)
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.general.serializers import LocationSerializer
@@ -82,28 +82,35 @@ class PackageSerializer(serializers.ModelSerializer):
                 instance.locations.add(locations_obj)
 
         return super().update(instance, validated_data)
-    
-
-class PackageGetSerializer(serializers.ModelSerializer):
-    agent_name = serializers.CharField(source='agent.agent_uid', read_only=True)
-    category_name = serializers.CharField(source='category.name', read_only=True)
-    locations = LocationGetSerializer(many=True, required=False)
-
-    class Meta:
-        model = Package
-        exclude = ['status', 'is_submitted']
 
 
 class PackageImageSerializer(serializers.ModelSerializer):
+    """
+    Serializer for retrieving and creating PackageImage instances.
+
+    Meta:
+        model (PackageImage): The model that this serializer is for.
+        exclude (list): Fields to exclude from the serialization.
+    """
     class Meta:
         model = PackageImage
         exclude = ['status', 'created_on', 'updated_on',]
 
 
-class InclusionsSerializer(serializers.ModelSerializer):
+class InclusionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for serializing Inclusions model objects.
+
+    **Fields:**
+
+    * id (IntegerField): Primary key of the Inclusion object.
+    * name (CharField): Name of the inclusion.
+    * package (PrimaryKeyRelatedField): Reference to the Package 
+        the inclusion belongs to.
+    """
     class Meta:
         model = Inclusions
-        fields = ['id', 'name','package']
+        fields = ['id', 'name']
 
 
 class ExclusionsSerializer(serializers.ModelSerializer):
@@ -120,7 +127,7 @@ class ItineraryDaySerializer(serializers.ModelSerializer):
     * id (IntegerField, optional): Primary key of the ItineraryDay object (read-only during creation).
     * day (CharField): Day of the itinerary (e.g., "Day 1", "Day 2").
     * place (CharField, optional): Place to be visited on this day.
-    * description (TextField, optional): Description of the activities or events planned for this day.
+    * description (CKEditor5Field, optional): Description of the activities or events planned for this day.
 
     **Meta:**
     * model: ItineraryDay
@@ -139,22 +146,14 @@ class ItinerarySerializer(serializers.ModelSerializer):
     including nested ItineraryDay objects.
 
     **Fields:**
+    * package (Foreignkey): Package model object.
     * overview (CKEditor5Field): Overview of the itinerary (uses CKEditor 5 config named 'extends').
-    * important_message (TextField, optional): Important message for travelers regarding the itinerary.
-    * things_to_carry (TextField, optional): List of things travelers should carry on the trip.
-    * inclusions (ManytoManyRelationshipSerializer, optional): Related Inclusions objects
-        (many-to-many relationship).
-    * exclusions (ManytoManyRelationshipSerializer, optional): Related Exclusions objects
-        (many-to-many relationship).
     * itinerary_day (ItineraryDaySerializer, many=True, required=False): Nested ItineraryDay
         serializers for itinerary days.
 
     **Meta:**
     * model: Itinerary
     * exclude: ['status', 'created_on', 'updated_on']  # Exclude these fields during serialization
-
-    **SerializerMethodFields:**
-    * exclusions_details (SerializerMethodField): Provides details of related Exclusions objects.
 
     **Methods:**
     * get_exclusions_details(self, obj): Returns a list of serialized Exclusions data.
@@ -164,28 +163,31 @@ class ItinerarySerializer(serializers.ModelSerializer):
     **Raises:**
     * ValidationError: If errors occur during data processing.
     """
-    exclusions_details = serializers.SerializerMethodField(required=False)
     itinerary_day = ItineraryDaySerializer(many=True, required=False)
 
     class Meta:
         model = Itinerary
         exclude = ['status', 'created_on', 'updated_on']
 
-    def get_exclusions_details(self, obj):
-        exclusions = obj.exclusions.all()
-        serializer = ExclusionsSerializer(exclusions, many=True)
-        return serializer.data
-
     def create(self, validated_data):
-        inclusions_data = validated_data.pop('inclusions', [])
-        exclusions_data = validated_data.pop('exclusions', [])
+        """
+        Creates a new Itinerary instance along with related inclusions, exclusions,
+        and itinerary day entities.
+
+        Args:
+            validated_data (dict): Validated data for creating the Itinerary instance.
+
+        Returns:
+            Itinerary: The newly created Itinerary instance.
+
+        Raises:
+            ValidationError: If an error occurs during the creation process.
+        """
         itinerary_day_data = validated_data.pop('itinerary_day', [])
 
         try:
             #create itinerary instance
             itinerary = Itinerary.objects.create(**validated_data)
-            itinerary.inclusions.set(inclusions_data)
-            itinerary.exclusions.set(exclusions_data)
 
             #create itinerary_day object and map into itinerary
             for day_data in itinerary_day_data:
@@ -198,22 +200,24 @@ class ItinerarySerializer(serializers.ModelSerializer):
         return itinerary
 
     def update(self, instance, validated_data):
-        inclusions_data = validated_data.pop('inclusions', None)
-        exclusions_data = validated_data.pop('exclusions', None)
+        """
+        Updates an existing Itinerary instance along with related inclusions, exclusions,
+        and itinerary day entities.
+
+        Args:
+            instance (Itinerary): The existing Itinerary instance to be updated.
+            validated_data (dict): Validated data for updating the Itinerary instance.
+
+        Returns:
+            Itinerary: The updated Itinerary instance.
+
+        Raises:
+            ValidationError: If an error occurs during the update process.
+        """
         itinerary_day_data = validated_data.pop('itinerary_day', None)
 
         # Update the main Itinerary instance
         instance.overview = validated_data.get('overview', instance.overview)
-        instance.important_message = validated_data.get('important_message', instance.important_message)
-        instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
-
-        # Update inclusions if data provided
-        if inclusions_data is not None:
-            instance.inclusions.set(inclusions_data)
-
-        # Update exclusions if data provided
-        if exclusions_data is not None:
-            instance.exclusions.set(exclusions_data)
 
         #update itinerary_day object if data has id esle create.
         for itinerary_day in itinerary_day_data:
@@ -227,6 +231,201 @@ class ItinerarySerializer(serializers.ModelSerializer):
             else:
                 itinerary_day_obj = ItineraryDay.objects.create(**itinerary_day)
                 instance.itinerary_day.add(itinerary_day_obj)
+
+        instance.save()
+        return instance
+
+
+class InclusionExclusionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating, updating, and retrieving InclusionExclusion instances,
+    with nested inclusion data.
+
+    Attributes:
+        inclusions_data (InclusionSerializer): Serialized data for the inclusions related to the 
+        InclusionExclusion instance.
+
+    Meta:
+        model (InclusionExclusion): The model that this serializer is for.
+        fields (list): Fields to include in the serialization.
+    """
+    inclusions_data = InclusionSerializer(many=True, read_only=True,source='inclusions')
+
+    class Meta:
+        model = InclusionExclusion
+        fields = ['id', 'package', 'inclusions_data', 'inclusion_details',
+                  'exclusion_details', 'inclusions']
+
+    def create(self, validated_data):
+        """
+        Creates a new InclusionExclusion instance and sets the related inclusions.
+
+        Args:
+            validated_data (dict): The validated data for creating the InclusionExclusion instance.
+
+        Returns:
+            InclusionExclusion: The created InclusionExclusion instance.
+
+        Raises:
+            ValidationError: If an error occurs while creating the instance.
+        """
+        inclusions_data = validated_data.pop('inclusions', [])
+
+        try:
+            #create inclusions and exclusions instance
+            inclusion_exclusion = InclusionExclusion.objects.create(**validated_data)
+            inclusion_exclusion.inclusions.set(inclusions_data)
+
+        except Exception as error:
+            raise ValidationError(f"Error Creating Inclusions and Exclusions Data: {error}")
+
+        return inclusion_exclusion
+
+    def update(self, instance, validated_data):
+        """
+        Updates an existing InclusionExclusion instance and its related inclusions.
+
+        Args:
+            instance (InclusionExclusion): The existing instance to update.
+            validated_data (dict): The validated data for updating the InclusionExclusion instance.
+
+        Returns:
+            InclusionExclusion: The updated InclusionExclusion instance.
+
+        Raises:
+            ValidationError: If an error occurs while updating the instance.
+        """
+        inclusions_data = validated_data.pop('inclusions', None)
+
+        # Update the main inclusions and exclusions instance
+        instance.inclusion_details = validated_data.get('inclusion_details', instance.inclusion_details)
+        instance.exclusion_details = validated_data.get('exclusion_details', instance.exclusion_details)
+
+        # Update inclusions if data provided
+        if inclusions_data is not None:
+            instance.inclusions.set(inclusions_data)
+
+        instance.save()
+        return instance
+
+
+class StayDetailsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for serializing StayDetails model objects.
+    This serializer is used for serializing StayDetails objects during API requests.
+
+    **Fields:**
+
+    * `id` (IntegerField, required=False): Primary key of the StayDetails object 
+        (can be omitted during creation).
+    * `place` (CharField): Name of the place where the stay will happen.
+    * `hotel_name` (CharField): Name of the hotel or accommodation for the stay.
+
+    **Meta:**
+
+    * `model`: StayDetails
+    * `fields`: ['id', 'place', 'hotel_name']
+
+    **Note:**
+
+    * The `id` field is not required during object creation, as it will be generated automatically.
+    """
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = StayDetails
+        fields = ['id', 'place', 'hotel_name']
+
+
+class InformationSerializer(serializers.ModelSerializer):
+    """
+    Serializer for serializing Informations model objects.
+    This serializer is used for creating and updating Informations objects related to Packages,
+    including nested StayDetails data.
+
+    **Fields:**
+
+    * `id` (IntegerField, read-only): Primary key of the Information object.
+    * `package` (ForeignKey to Package model): Reference to the Package this information belongs to.
+    * `things_to_carry` (CKEditor5Field): Textual information about things to carry for the trip.
+    * `stay_details` (StayDetailsSerializer, many=True): Nested serializer for managing StayDetails
+        objects associated with the information.
+
+    **Methods:**
+
+    * `create(self, validated_data)`: Creates a new Information object and associated StayDetails
+        objects from the provided data.
+    * `update(self, instance, validated_data)`: Updates an existing Information object and associated
+        StayDetails objects based on the provided data.
+    """
+    stay_details = StayDetailsSerializer(many=True)
+
+    class Meta:
+        model = Informations
+        fields = ['id', 'package', 'things_to_carry', 'stay_details']
+
+    def create(self, validated_data):
+        """
+        Create a new Informations instance along with nested StayDetails instances.
+
+        Args:
+            validated_data (dict): The validated data containing information for creating
+            Informations and nested StayDetails instances.
+
+        Returns:
+            Informations: The newly created Informations instance.
+
+        Raises:
+            ValidationError: If an error occurs during the creation process.
+        """
+        stay_details_data = validated_data.pop('stay_details', [])
+
+        try:
+            # Create informations instance
+            informations = Informations.objects.create(**validated_data)
+
+            # Create stay_data objects and map into informations
+            for stay_data in stay_details_data:
+                stay_details_obj = StayDetails.objects.create(**stay_data)
+                informations.stay_details.add(stay_details_obj)
+
+        except Exception as error:
+            raise ValidationError(f"Error Creating Informations Data: {error}")
+
+        return informations
+
+    def update(self, instance, validated_data):
+        """
+        Update an existing Informations instance along with nested StayDetails instances.
+
+        Args:
+            instance (Informations): The existing Informations instance to update.
+            validated_data (dict): The validated data containing updated information for Informations 
+            and nested StayDetails instances.
+
+        Returns:
+            Informations: The updated Informations instance.
+
+        Raises:
+            ValidationError: If a StayDetails instance with the given ID does not exist.
+        """
+        stay_details_data = validated_data.pop('stay_details', [])
+
+        # Update the main informations instance
+        instance.things_to_carry = validated_data.get('things_to_carry', instance.things_to_carry)
+
+        #update stay_data object if data has id esle create.
+        for stay_data in stay_details_data:
+            stay_data_id = stay_data.get('id')
+            if stay_data_id:
+                try:
+                    stay_data_obj = StayDetails.objects.get(pk=stay_data_id)
+                    StayDetailsSerializer().update(instance=stay_data_obj, validated_data=stay_data)
+                except StayDetails.DoesNotExist:
+                    raise serializers.ValidationError(f"Stay Details with id {stay_data_id} does not exist.")
+            else:
+                stay_details_obj = StayDetails.objects.create(**stay_data)
+                instance.stay_details.add(stay_details_obj)
 
         instance.save()
         return instance
@@ -266,11 +465,6 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
                 for inclusion_data in inclusion_details_data:
                     inclusion_details_obj = InclusionInformation.objects.create(**inclusion_data)
                     package_informations.inclusiondetails.add(inclusion_details_obj)
-
-            # if exclusion_details_data:
-            #     for exclusion_data in exclusion_details_data:
-            #         exclusion_details_obj = ExclusionInformation.objects.create(**exclusion_data)
-            #         package_informations.exclusiondetails.add(exclusion_details_obj)
 
             package_informations.save()
 
@@ -319,14 +513,13 @@ class PackageInformationsSerializer(serializers.ModelSerializer):
         return instance
 
 
-
-
 class PricingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pricing
         exclude = ['status', 'created_on', 'updated_on',]
 
 
+#Renamed as activities
 class PackageCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageCategory
@@ -478,7 +671,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
         fields = ["id","package_uid","title","tour_class", "agent","package_image","min_price",
                   "price", "activities", "suitable_for", "total_reviews","average_review_rating",
                   "duration","duration_day", "duration_night","duration_hour","locations", 
-                  "min_members", "max_members", "deal_type","is_recommended", "is_popular"]
+                  "min_members", "max_members", "deal_type"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()
@@ -526,8 +719,6 @@ class PackageImageListSerializer(serializers.Serializer):
 
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
-    package = HomePagePackageSerializer(required=False)
-
     class Meta:
         model = FavoriteProducts
-        fields = ['id', 'user', 'package']
+        fields = ['id', 'user', 'package', 'activity']

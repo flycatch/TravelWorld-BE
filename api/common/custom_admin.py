@@ -110,7 +110,7 @@ class ItineraryInline(CustomStackedInline):
         return strip_tags(instance.description)
     description_display.short_description = 'Description'
 
-    readonly_fields = ('overview_display', 'description_display', 'important_message')
+    readonly_fields = ('overview_display', 'description_display')
 
 
 class PackageInformationsInline(CustomStackedInline):

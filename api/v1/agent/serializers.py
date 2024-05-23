@@ -64,6 +64,20 @@ class AgentSerializer(serializers.ModelSerializer):
                   "company_id", "company_name", "company_site", "message",
                   "account_verification_status"]
 
+    def __init__(self, *args, **kwargs):
+        """
+        method checks if the serializer instance is for an update operation 
+        (i.e., self.instance is not None). If it's an update, the password and 
+        confirm_password fields are marked as not required.
+        """
+        super(AgentSerializer, self).__init__(*args, **kwargs)
+        if self.instance:  # Update operation
+            self.fields['password'].required = False
+            self.fields['confirm_password'].required = False
+        else:  # Create operation
+            self.fields['password'].required = True
+            self.fields['confirm_password'].required = True
+
     def validate_first_name(self, value):
         # Validate that the first name contains only alphabets and is not less than 3 characters
         if not (value.isalpha() and len(value) >= 3):

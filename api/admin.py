@@ -1032,6 +1032,15 @@ class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
     list_display = ("id","percentage")
     search_fields = ( "id", "percentage")
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return True
+
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
@@ -1239,7 +1248,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return True
+        return False
     
     def has_change_permission(self, request, obj=None):
         return True

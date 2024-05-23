@@ -6,10 +6,11 @@ from api.filters.package_activity_filters import *
 from api.models import (CancellationPolicy, Exclusions, Inclusions, Itinerary,
                         Package, PackageCategory, SuitableFor, FavoriteProducts,
                         PackageFaqQuestionAnswer, PackageImage, ItineraryDay,
-                        PackageInformations, Pricing, TourCategory)
+                        PackageInformations, Pricing, TourCategory, InclusionExclusion,
+                        Informations, StayDetails)
 from api.utils.paginator import CustomPagination
 from api.v1.package.serializers import (ExclusionsSerializer,
-                                        InclusionsSerializer,
+                                        InclusionSerializer,
                                         ItinerarySerializer,
                                         PackageCancellationPolicySerializer,
                                         PackageCategorySerializer,
@@ -21,7 +22,10 @@ from api.v1.package.serializers import (ExclusionsSerializer,
                                         FavoriteProductSerializer,
                                         PackageTourCategorySerializer,
                                         PricingSerializer,HomePagePackageSerializer,
-                                        HomePageCategorySerializer)
+                                        HomePageCategorySerializer,
+                                        InclusionExclusionSerializer,
+                                        InformationSerializer,
+                                        StayDetailsSerializer)
 from api.v1.activity.serializers import ActivitySerializer, HomePageActivitySerializer
 from django.db.models import Q
 from django.db import transaction
@@ -298,8 +302,178 @@ class ItineraryDayDeleteView(APIView):
                          status=status.HTTP_204_NO_CONTENT)
 
 
+class InclusionExclusionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing inclusion and exclusion data.
+
+    Attributes:
+        serializer_class (Serializer): Serializer class for serializing/deserializing data.
+        permission_classes (list): List of permission classes required for endpoint access.
+        authentication_classes (list): List of authentication classes required for endpoint
+            access.
+
+    Methods:
+        get_permissions(): Returns the appropriate permissions based on the action.
+        get_queryset(): Returns the queryset for the viewset.
+        create(request, *args, **kwargs): Handles POST requests to create new inclusion and
+            exclusion data.
+        update(request, *args, **kwargs): Handles PUT requests to update existing inclusion
+            and exclusion data.
+    """
+    serializer_class = InclusionExclusionSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        """
+        Returns the appropriate permissions based on the action.
+
+        Returns:
+            list: List of permission classes required for the action.
+        """
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
+    def get_queryset(self, **kwargs):
+        """
+        Returns the queryset for the viewset.
+
+        Returns:
+            queryset: Queryset of inclusion and exclusion objects.
+        """
+        package = self.request.GET.get("package",None)
+
+        queryset = InclusionExclusion.objects.all()
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create new inclusion and exclusion data.
+
+        Returns:
+            Response: Response containing status and message.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Data Saved Successfully',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        """
+        Handles PUT requests to update existing inclusion and exclusion data.
+
+        Returns:
+            Response: Response containing status and message.
+        """
+        print(request.data)
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Data Updated Successfully',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+
+class InformationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Package information data.
+
+    Attributes:
+        serializer_class (Serializer): Serializer class for serializing/deserializing data.
+        permission_classes (list): List of permission classes required for endpoint access.
+        authentication_classes (list): List of authentication classes required for endpoint access.
+
+    Methods:
+        get_permissions(): Returns the appropriate permissions based on the action.
+        get_queryset(): Returns the queryset for the viewset.
+        create(request, *args, **kwargs): Handles POST requests to create new information data.
+        update(request, *args, **kwargs): Handles PUT requests to update existing information data.
+    """
+    serializer_class = InformationSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get_permissions(self):
+        """
+        Returns the appropriate permissions based on the action.
+
+        Returns:
+            list: List of permission classes required for the action.
+        """
+        if self.action in ['list', 'retrieve']:
+            return []
+        else:
+            return super().get_permissions()
+
+    def get_queryset(self, **kwargs):
+        """
+        Returns the queryset for the viewset.
+
+        Returns:
+            queryset: Queryset of information objects.
+        """
+        package = self.request.GET.get("package",None)
+
+        queryset = Informations.objects.all()
+        if package:
+            queryset = queryset.filter(package=package)
+        
+        return queryset
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        """
+        Handles POST requests to create new information data.
+
+        Returns:
+            Response: Response containing status and message.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Data Saved Successfully',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_201_CREATED}, status=status.HTTP_201_CREATED)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        """
+        Handles PUT requests to update existing information data.
+
+        Returns:
+            Response: Response containing status and message.
+        """
+        instance = self.get_object()
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response({
+            'status': 'success',
+            'message': 'Data Updated Successfully',
+            'id': serializer.data['id'],
+            'statusCode': status.HTTP_200_OK
+        }, status=status.HTTP_200_OK)
+
+
 class InclusionsViewSet(viewsets.ModelViewSet):
-    serializer_class = InclusionsSerializer
+    serializer_class = InclusionSerializer
     permission_classes = [IsAuthenticated]
 
 
@@ -313,8 +487,24 @@ class InclusionsViewSet(viewsets.ModelViewSet):
         else:
             queryset = queryset.filter(package__isnull=True)
         return queryset
-    
-    
+
+
+class StayDetailsViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing stay details data.
+
+    Attributes:
+        queryset (Queryset): Queryset containing all stay details objects.
+        serializer_class (Serializer): Serializer class for serializing/deserializing data.
+        permission_classes (list): List of permission classes required for endpoint access.
+        pagination_class (Pagination): Pagination class for paginating the queryset.
+    """
+    queryset = StayDetails.objects.all()
+    serializer_class = StayDetailsSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
+
+
 class ExclusionsViewSet(viewsets.ModelViewSet):
     serializer_class = ExclusionsSerializer
 

@@ -705,6 +705,7 @@ class StayDetails(BaseModel):
     class Meta:
         verbose_name = 'Stay Details'
         verbose_name_plural = 'Stay Details'
+        
 
 
 class Informations(BaseModel):

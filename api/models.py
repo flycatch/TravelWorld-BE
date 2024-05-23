@@ -727,6 +727,7 @@ class Pricing(BaseModel):
         history_id_field=models.UUIDField(default=uuid.uuid4),bases=(PricingHistoryTracking,))
 
 
+
     class Meta:
         verbose_name = 'Pricing'
         verbose_name_plural = 'Pricing'

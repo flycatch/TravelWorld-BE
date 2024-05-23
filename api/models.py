@@ -720,6 +720,7 @@ class StayDetails(BaseModel):
         verbose_name_plural = 'Stay Details'
 
 
+
 class Informations(BaseModel):
     """
     Model representing information associated with a package, including things to

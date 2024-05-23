@@ -744,6 +744,7 @@ class Informations(BaseModel):
         verbose_name_plural = 'Stay Details'
 
 
+
 class InclusionInformation(BaseModel):
     inclusion = models.ForeignKey(
         Inclusions, on_delete=models.CASCADE, 

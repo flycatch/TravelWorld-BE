@@ -380,6 +380,18 @@ class Activity(BaseModel):
 
 
 class Location(models.Model):
+    """
+    Model representing a location, typically associated with a country, state, and cities.
+
+    Attributes:
+        country (ForeignKey): The country associated with the location.
+        state (ForeignKey): The state associated with the location.
+        destinations (ManyToManyField): Cities or destinations associated with the location.
+
+    Methods:
+        __str__(): Returns a string representation of the location.
+
+    """
     country = models.ForeignKey(Country, on_delete=models.CASCADE,
                                 related_name='location_country',blank=True, null=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE,
@@ -387,6 +399,9 @@ class Location(models.Model):
     destinations = models.ManyToManyField(City, related_name='location_destinations', blank=True)
 
     def __str__(self):
+        """
+        Returns a string representation of the location.
+        """
         destination_names = ', '.join(str(dest) for dest in self.destinations.all())
         state_name = self.state.name if self.state else 'Unknown State'
         country_name = self.country.name if self.country else 'Unknown Country'
@@ -394,6 +409,41 @@ class Location(models.Model):
 
 
 class Package(BaseModel):
+    """
+    Model representing a travel package.
+
+    Attributes:
+        STAGES_CHOICES (list of tuple): Choices for the stage of the package.
+        TOUR_CLASS_CHOICE (list of tuple): Choices for the tour class.
+        DURATION_CHOICE (list of tuple): Choices for the duration type.
+        
+        package_uid (str): Unique identifier for the package.
+        agent (ForeignKey): Reference to the agent managing the package.
+        title (str): Title of the package.
+        tour_class (str): Class of the tour (private or conducting).
+        locations (ManyToManyField): Destinations included in the package.
+        activities (ManyToManyField): Activities included in the package.
+        suitable_for (ManyToManyField): Suitable groups for the package.
+        min_members (int): Minimum number of members for the package.
+        max_members (int): Maximum number of members for the package.
+        duration (str): Type of duration (day or hour).
+        duration_day (int): Duration in days.
+        duration_night (int): Duration in nights.
+        duration_hour (int): Duration in hours.
+        pickup_point (str): Pickup point for the package.
+        pickup_time (TimeField): Pickup time for the package.
+        drop_point (str): Drop point for the package.
+        drop_time (TimeField): Drop time for the package.
+        stage (str): Current stage of the package.
+        is_submitted (bool): Whether the package is submitted.
+        is_popular (bool): Whether the package is popular.
+        is_recommended (bool): Whether the package is recommended.
+        deal_type (str): Type of deal (e.g., PACKAGE).
+        min_price (DecimalField): Minimum price of the package.
+
+    Methods:
+        update_min_price: Updates the minimum price of the package based on pricing packages.
+    """
     STAGES_CHOICES = [
         ('pending', _('Pending')),
         ('approved', _('Approved')),
@@ -463,16 +513,20 @@ class Package(BaseModel):
         )
     min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
 
-    
     class Meta:
         verbose_name = 'Package'
         verbose_name_plural = 'Packages'
 
     def __str__(self):
+        """
+        Return the package UID if available, otherwise the title.
+        """
         return self.package_uid if self.package_uid else self.title
-    
 
     def update_min_price(self):
+        """
+        Update the minimum price of the package based on the associated pricing packages.
+        """
         pricing_packages = self.pricing_package.all()
         if pricing_packages.exists():
             min_adults_rate = min(pricing.adults_rate for pricing in pricing_packages)
@@ -484,6 +538,20 @@ class Package(BaseModel):
 
 
 class PackageImage(BaseModel):
+    """
+    Model representing an image associated with a package.
+
+    Attributes:
+        package (ForeignKey): The package this image belongs to.
+        image (ImageField): The image file uploaded for the package.
+
+    Methods:
+        __str__(): Returns a string representation of the package image.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='package_image')
     image = models.ImageField(upload_to='package_images/', null=True, default=None, blank=True)
@@ -531,7 +599,6 @@ class Exclusions(BaseModel):
     activity = models.ForeignKey(
         Activity, on_delete=models.CASCADE, blank=True, null=True, related_name='exclusion_activity')
     
-
     class Meta:
         verbose_name = 'Exclusions'
         verbose_name_plural = 'Exclusions'
@@ -551,29 +618,117 @@ class Exclusions(BaseModel):
 
 
 class ItineraryDay(BaseModel):
+    """
+    Model representing a day in an itinerary.
+
+    Attributes:
+        day (CharField): The day number or name.
+        place (CharField): The place associated with the day.
+        description (CKEditor5Field): Description of activities for the day.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
     day = models.CharField(max_length=255, default="")
     place = models.CharField(max_length=255, default="", blank=True, null=True)
-    description = models.TextField(default="", blank=True, null=True)
+    description = CKEditor5Field('Description', config_name='extends', null=True, blank=True,)
 
     class Meta:
         verbose_name = 'Itinerary Day'
         verbose_name_plural = 'Itinerary Day'
 
+
 class Itinerary(BaseModel):
+    """
+    Model representing an itinerary for a package.
+
+    Attributes:
+        package (ForeignKey): The package this itinerary belongs to.
+        overview (CKEditor5Field): Overview of the itinerary.
+        itinerary_day (ManyToManyField): Days included in the itinerary.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='itinerary_package')
     overview = CKEditor5Field('Overview', config_name='extends', null=True, blank=True,)
-    important_message = models.TextField(blank=True, default="",
-                                         verbose_name="important Message")
-    things_to_carry = models.TextField(blank=True, default="",
-                                         verbose_name="Things to carry")
-    inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
-    exclusions = models.ManyToManyField(Exclusions, related_name='itinerary_exclusions', blank=True)
     itinerary_day = models.ManyToManyField(ItineraryDay, related_name='itinerary_day', blank=True)
 
     class Meta:
         verbose_name = 'Itinerary'
         verbose_name_plural = 'Itinerary'
+
+
+class InclusionExclusion(BaseModel):
+    """
+    Model representing the inclusions and exclusions associated with a package.
+
+    Attributes:
+        package (ForeignKey): The package this inclusion and exclusion data belongs to.
+        inclusions (ManyToManyField): The inclusions associated with this package.
+        inclusion_details (CKEditor5Field): Details about the inclusions.
+        exclusion_details (CKEditor5Field): Details about the exclusions.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='inclusion_exclusion_package')
+    inclusions = models.ManyToManyField(Inclusions, related_name='itinerary_inclusions', blank=True)
+    inclusion_details = CKEditor5Field('Inclusion Details', config_name='extends', null=True, blank=True,)
+    exclusion_details = CKEditor5Field('Exclusion Details', config_name='extends', null=True, blank=True,)
+
+    class Meta:
+        verbose_name = 'Inclusions And Exclusions'
+        verbose_name_plural = 'Inclusions And Exclusions'
+
+
+class StayDetails(BaseModel):
+    """
+    Model representing the details of a stay, such as place and hotel name.
+
+    Attributes:
+        place (CharField): The place of the stay.
+        hotel_name (CharField): The name of the hotel.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
+    place = models.CharField(max_length=256, null=True, blank=True, verbose_name='Place')
+    hotel_name = models.CharField(max_length=256, null=True, blank=True, verbose_name='Hotel Name')
+
+    class Meta:
+        verbose_name = 'Stay Details'
+        verbose_name_plural = 'Stay Details'
+
+
+class Informations(BaseModel):
+    """
+    Model representing information associated with a package, including things to
+    carry and stay details.
+
+    Attributes:
+        package (ForeignKey): The package this information belongs to.
+        things_to_carry (CKEditor5Field): Information about things to carry.
+        stay_details (ManyToManyField): Details about the stay associated with this package.
+
+    Meta:
+        verbose_name (str): Singular name for the model used in the admin interface.
+        verbose_name_plural (str): Plural name for the model used in the admin interface.
+    """
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='informations_package')
+    things_to_carry = CKEditor5Field('Things to carry', config_name='extends', null=True, blank=True,)
+    stay_details = models.ManyToManyField(StayDetails, related_name='informations_stay_details', blank=True)
+
+    class Meta:
+        verbose_name = 'Stay Details'
+        verbose_name_plural = 'Stay Details'
 
 
 class InclusionInformation(BaseModel):

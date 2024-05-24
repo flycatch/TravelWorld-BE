@@ -966,7 +966,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package_uid","rating","object_id")
+    list_display = ("user", "package_uid","rating")
     search_fields = ( "package__title", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')

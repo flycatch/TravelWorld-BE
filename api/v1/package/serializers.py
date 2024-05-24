@@ -405,7 +405,7 @@ class HomePagePackageSerializer(serializers.ModelSerializer):
         fields = ["id","package_uid","title","tour_class", "agent","package_image","min_price",
                   "price", "activities", "suitable_for", "total_reviews","average_review_rating",
                   "duration","duration_day", "duration_night","duration_hour","locations", 
-                  "min_members", "max_members", "deal_type"]
+                  "min_members", "max_members", "deal_type","is_recommended", "is_popular"]
         
     def get_min_price(self, obj):
         pricing_packages = obj.pricing_package.all()
@@ -453,6 +453,8 @@ class PackageImageListSerializer(serializers.Serializer):
 
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
+    package = HomePagePackageSerializer(required=False)
+
     class Meta:
         model = FavoriteProducts
-        fields = ['id', 'user', 'package', 'activity']
+        fields = ['id', 'user', 'package']

@@ -844,7 +844,6 @@ class HomePageCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class FavoriteProductViewSet(viewsets.ModelViewSet):
-    queryset = FavoriteProducts.objects.all()
     serializer_class = FavoriteProductSerializer
     pagination_class = CustomPagination
 
@@ -854,7 +853,7 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
-            user = request.user
+            user = request.user.id
             package_id = request.data.get('package')
             activity_id = request.data.get('activity')
 
@@ -862,7 +861,7 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
                 return Response({"status": "error", "message": "Provide either package id or activity id"},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            existing_favorite = FavoriteProducts.objects.filter(user=user)
+            existing_favorite = FavoriteProducts.objects.filter(user_id=user)
             if package_id:
                 existing_favorite = existing_favorite.filter(package=package_id)
                 item = get_object_or_404(Package, pk=package_id)
@@ -874,8 +873,8 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
                 return Response({"status": "error", "message": "Already Added to Favorites"},
                                 status=status.HTTP_400_BAD_REQUEST)
 
-            favorite_product = FavoriteProducts.objects.create(user=user, package=item) if package_id else \
-                            FavoriteProducts.objects.create(user=user, activity=item)
+            favorite_product = FavoriteProducts.objects.create(user_id=user, package=item) if package_id else \
+                            FavoriteProducts.objects.create(user_id=user, activity=item)
 
             serializer = FavoriteProductSerializer(favorite_product)
 

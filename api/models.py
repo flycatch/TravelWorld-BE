@@ -718,6 +718,8 @@ class StayDetails(BaseModel):
         verbose_name = 'Stay Details'
         verbose_name_plural = 'Stay Details'
 
+    def __str__(self):
+        return self.place
 
 class Informations(BaseModel):
     """
@@ -739,8 +741,8 @@ class Informations(BaseModel):
     stay_details = models.ManyToManyField(StayDetails, related_name='informations_stay_details', blank=True)
 
     class Meta:
-        verbose_name = 'Stay Details'
-        verbose_name_plural = 'Stay Details'
+        verbose_name = 'Information'
+        verbose_name_plural = 'Informations'
 
 
 class InclusionInformation(BaseModel):

@@ -9,6 +9,7 @@ from api.common.models import BaseModel, BaseUser, AuditFields
 from api.utils.choices import *
 from simple_history.models import HistoricalRecords
 from api.utils.functions import compress_image
+from django.utils.safestring import mark_safe
 
 class User(BaseUser):
     user_uid = models.CharField(max_length=256, null=True, blank=True, verbose_name='User UID')
@@ -575,6 +576,13 @@ class PackageImage(BaseModel):
         if self.image:
             self.image = compress_image(self.image)
         super(PackageImage, self).save(*args, **kwargs)
+
+    def thumbnail(self):
+        if self.image:
+            return mark_safe(f'<img src="{self.image.url}" width="50" height="50" />')
+        return "No Image"
+
+    thumbnail.short_description = 'Thumbnail'
 
 
 class Inclusions(BaseModel):

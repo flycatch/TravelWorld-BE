@@ -276,6 +276,40 @@ class ActivityPricingInline(CustomStackedInline):
     get_blackout_dates.short_description = 'Blackout Dates'
 
 
+class AttractionPricingInline(CustomStackedInline):
+    model = Pricing
+    # exclude = ['package','status', 'blackout_dates']
+    # template = 'admin/attraction_pricing_tab.html'
+    verbose_name = 'Pricing'
+    verbose_name_plural = 'Pricing'
+    readonly_fields = ['get_blackout_dates']
+
+    def has_change_permission(self, request, obj=None):
+        return True
+    
+    def has_add_permission(self, request, obj=None):
+        return True
+    
+    def has_delete_permission(self, request, obj=None):
+        return True
+    
+    def get_blackout_dates(self, obj):
+        blackout_data = obj.blackout_dates
+        formatted_blackout_dates = []
+        if blackout_data:
+            if blackout_data.get('weeks'):
+                formatted_blackout_dates.append(f"Weekdays: {', '.join(blackout_data['weeks']).title()}")
+            if blackout_data.get('custom_date'):
+                custom_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['custom_date'])
+                formatted_blackout_dates.append(f"Custom Dates: {custom_dates}")
+            if blackout_data.get('excluded_blackout_dates'):
+                excluded_dates = ', '.join(datetime.strptime(date_str, '%Y-%m-%d').strftime('%d-%m-%Y') for date_str in blackout_data['excluded_blackout_dates'])
+                formatted_blackout_dates.append(f"Excluded Dates: {excluded_dates}")
+        return '\n'.join(formatted_blackout_dates)
+
+    get_blackout_dates.short_description = 'Blackout Dates'
+
+
 class ActivityTourCategoryInline(CustomStackedInline):
     model = ActivityTourCategory
     verbose_name = 'Tour Category'

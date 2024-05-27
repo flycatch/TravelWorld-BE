@@ -227,6 +227,39 @@ class AttractionAdmin(CustomModelAdmin):
     list_filter = ("status",)
     search_fields = ("title",)
     inlines = [AttractionImageInline]
+    # inlines = [AttractionImageInline, AttractionPricingInline]
+
+    readonly_fields = ['pricing_section']
+
+    def get_fieldsets(self, request, obj=None):
+        return (
+                    (None, {
+                        'fields': ('status', 'title', 'overview', 'state', 'city', 'thumb_image', 'cover_img'),
+                    }),
+                    ('Pricing', {
+                        'fields': ('pricing_section',),
+                    }),
+                )
+
+    def pricing_section(self, obj):
+        pricing_details = Pricing.objects.filter(attraction=obj.id)
+        fields = {'start_date': pricing_details.start_date if pricing_details else '',
+                  'end_date': pricing_details.end_date if pricing_details else '',
+                  'pricing_group': pricing_details.pricing_group if pricing_details else '',
+                  'price': pricing_details.price if pricing_details else '',
+                  'adults_rate': pricing_details.adults_rate if pricing_details else '',
+                  'adults_commission': pricing_details.adults_commission if pricing_details else '',
+                  'adults_agent_amount': pricing_details.adults_agent_amount if pricing_details else '',
+                  'child_rate': pricing_details.child_rate if pricing_details else '',
+                  'child_commission': pricing_details.child_commission if pricing_details else '',
+                  'child_agent_amount': pricing_details.child_agent_amount if pricing_details else '',
+                  'infant_rate': pricing_details.infant_rate if pricing_details else '',
+                  'infant_commission': pricing_details.infant_commission if pricing_details else '',
+                  'infant_agent_amount': pricing_details.infant_agent_amount if pricing_details else ''
+                  }
+                
+        pricing_info = render_to_string('admin/attraction_pricing_tab.html', {'fields': fields})
+        return mark_safe(pricing_info)  # Mark the string as safe HTML
 
     def status_colour(self, obj):
         return status_colour(obj.status)

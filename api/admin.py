@@ -71,6 +71,7 @@ class UserAdmin(CustomModelAdmin):
 
     list_display = ("user_uid", "username", "first_name", "last_name", "email", "mobile")
     search_fields = ("user_uid", "username", "first_name", "last_name", "email", "mobile")
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -112,6 +113,7 @@ class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     exclude = ("is_deleted", "package", "activity", "status")
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -130,6 +132,7 @@ class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     exclude = ("package", "activity", "status")
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -328,7 +331,7 @@ class PackageAdmin(CustomModelAdmin):
         return False
 
 class PricingDateFilter(admin.SimpleListFilter):
-    title = _('Pricing Date Range')
+    title = _('Tour Month')
     parameter_name = 'pricing_date_range'
 
     def lookups(self, request, model_admin):
@@ -341,7 +344,7 @@ class PricingDateFilter(admin.SimpleListFilter):
             # return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
 
 class PricingYearFilter(admin.SimpleListFilter):
-    title = _('Pricing Year')
+    title = _('Tour Year')
     parameter_name = 'pricing_year'
 
     def lookups(self, request, model_admin):
@@ -364,6 +367,7 @@ class BookingAdmin(CustomModelAdmin):
                      "package__package_uid", "activity__activity_uid", "package__agent__agent_uid",
                      "activity__agent__agent_uid")
     exclude = ("status",)    
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
@@ -706,36 +710,13 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
     def has_add_permission(self, request, obj=None):
         return False
-    
-    # def calculate_refund_amount(self, obj):
-    #     print("g1")
-    #     if obj.booking and obj.booking.package:
-    #         print("z1")
-    #         booking_date = obj.booking.created_on
-
-    #         print(obj.booking.package.id)
-    #         print(obj.package.id)
-    #         policies = CancellationPolicy.objects.filter(package_id=obj.package.id)
-    #         refund_amount = obj.booking.booking_amount
-
-    #         print(booking_date)
-    #         print(policies)
-    #         for policy in policies:
-    #             if policy.from_day <= (booking_date - obj.created_on).days <= policy.to_day:
-    #                 print("k`1")
-    #                 amount_percent = Decimal(policy.amount_percent)
-    #                 refund_amount = refund_amount - (refund_amount * (amount_percent / Decimal(100)))
-    #                 print(refund_amount)
-    #                 return refund_amount
-                
-    #     return None
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid',"booking_date", 'agent',
                                  'display_created_on', 'package_name','booking_amount','cancellation_policies','user',
                                  'activity_uid', 'activity_name')
         return super().change_view(request, object_id, form_url, extra_context)
-    
+
     def save_model(self, request, obj, form, change):
 
         # Get the original object before saving changes
@@ -1018,6 +999,7 @@ class UserReviewAdmin(CustomModelAdmin):
         )
 
     inlines = [UserReviewImageInline]
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page
@@ -1089,6 +1071,7 @@ class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
     exclude = ('status',)
+    change_form_template = 'admin/change_form_hidden_history.html'
 
 def dashboard_page(request):
 
@@ -1316,8 +1299,9 @@ class CoverPageInputAdmin(CustomModelAdmin):
 
 
 class SendEnquiryAdmin(CustomModelAdmin):
-    list_display = ("id","package_uid", "activity_uid", "name", "email")
+    list_display = ("package_uid", "activity_uid", "name", "email")
     search_fields = ("package__package_uid", "activity__activity_uid", "name", "email")
+    change_form_template = 'admin/change_form_hidden_history.html'
 
     def package_uid(self, obj):
         return obj.package.package_uid if obj.package else None
@@ -1343,11 +1327,13 @@ class SendEnquiryAdmin(CustomModelAdmin):
 class SuitableForAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+    change_form_template = 'admin/change_form_hidden_history.html'
 
 class CurrencyAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
     exclude = ('status',)
+    change_form_template = 'admin/change_form_hidden_history.html'
 
 
 

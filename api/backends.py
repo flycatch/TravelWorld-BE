@@ -18,9 +18,11 @@ class BaseUserModelBackend(ModelBackend):
         if not user and username:
             try:
                 user = UserModel.objects.get(username=username)
-
             except:
-                user = BaseUser.objects.get(unique_username=username)
+                try:
+                    user = BaseUser.objects.get(unique_username=username)
+                except:
+                    pass
 
         if not user and mobile:
             try:

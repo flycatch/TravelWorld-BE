@@ -576,8 +576,8 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("refund_uid", "booking_uid", "user","refund_amount", "package_uid", "activity_uid",
-                     "agent", "agent_uid","refund_status_colour", "display_created_on",)
+    list_display = ("booking_uid", "user", "package_uid", "activity_uid", "agent", "agent_uid",
+                    "refund_uid","refund_amount", "refund_status_colour", "display_created_on",)
     
     list_filter = ("refund_status",)
     search_fields = ("refund_uid", "booking__booking_id", "user__user_uid",
@@ -792,8 +792,8 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
         
-    list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "activity_uid", "agent_uid",
-                    "payment_settlement_status_colour", 'account_verification_status')
+    list_display = ("booking_uid", "booking_type", "package_uid", "activity_uid", "agent_uid",
+                    "transaction_id", "payment_settlement_status_colour", 'account_verification_status')
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "booking_type", "package__title",

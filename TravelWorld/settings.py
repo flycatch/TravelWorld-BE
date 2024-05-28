@@ -231,9 +231,6 @@ ADMIN_REORDER = (
     {'app': 'api', 
      'models': ('api.Country', 'api.State', 'api.City','api.Currency', 'api.AdvanceAmountPercentageSetting',
                 'api.CoverPageInput'
-                'api.Blogs','api.Pricing','api.BlogCategory','api.BlogImage'
-                # 'api.Pricing','api.Itinerary',
-                # 'api.PackageCancellationCategory','api.CancellationPolicy','api.ActivityCancellationCategory','api.ActivityCancellationPolicy',
                 ),
      'label': 'General Settings'},
 

@@ -896,6 +896,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
+    def booking_type(self, obj):
+        return obj.booking.booking_type if obj.booking else None
+    booking_amount.short_description = "Booking type"
+
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
@@ -960,14 +964,14 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
 
 class UserReviewAdmin(CustomModelAdmin):
-    list_display = ("user", "package_uid", "activity_uid", "rating","object_id")
-    search_fields = ( "package__name", "user__username")
+    list_display = ("user", "package_uid","rating")
+    search_fields = ( "package__title", "user__username")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
-    readonly_fields = ("activity_uid", "package_uid","activity_name","package_name")
+    readonly_fields = ("package_uid","activity_name","package_name")
     fieldsets = (
         (None, {
-            'fields': ("user", "package", "activity", "rating", "review",
+            'fields': ("user", "package","rating", "review",
                        "booking", "agent", "agent_comment",)
         }),
         )
@@ -993,7 +997,7 @@ class UserReviewAdmin(CustomModelAdmin):
         else:  # Add page
             return (
         (None, {
-            'fields': ("user", "package", "activity", "rating", "review",
+            'fields': ("user", "package", "rating", "review",
                        "booking", "agent", "agent_comment",)
         }),
             )
@@ -1255,16 +1259,16 @@ class CoverPageInputAdmin(CustomModelAdmin):
    
 
 class SendEnquiryAdmin(CustomModelAdmin):
-    list_display = ("id","package_uid", "activity_uid", "name", )
-    search_fields = ("package_uid", "activity_uid", "name")
+    list_display = ("id","package_uid", "name", )
+    search_fields = ("package__package_uid", "name")
 
     def package_uid(self, obj):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
 
-    def activity_uid(self, obj):
-        return obj.activity.activity_uid if obj.activity else None
-    activity_uid.short_description = "Activity UID"
+    # def activity_uid(self, obj):
+    #     return obj.activity.activity_uid if obj.activity else None
+    # activity_uid.short_description = "Activity UID"
   
 
     def has_add_permission(self, request):

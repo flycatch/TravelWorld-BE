@@ -344,12 +344,26 @@ class PricingDateFilter(admin.SimpleListFilter):
         if self.value() in [str(i) for i in range(1, 13)]:
             return queryset.filter(tour_date__month=int(self.value()))
             # return queryset.filter(package__pricing_package__start_date__month=int(self.value()))
+
+class PricingYearFilter(admin.SimpleListFilter):
+    title = _('Pricing Year')
+    parameter_name = 'pricing_year'
+
+    def lookups(self, request, model_admin):
+        current_year = datetime.now().year
+        years = [(str(year), str(year)) for year in range(current_year, current_year - 10, -1)]
+        return years
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(tour_date__year=self.value())
+        return queryset
         
 
 class BookingAdmin(CustomModelAdmin):
     list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
                     "package_uid", "activity_uid", "agent_id","booking_status_colour",)
-    list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
+    list_filter = ("booking_status",PricingDateFilter, PricingYearFilter)  # Add the custom filter
 
     search_fields = ("booking_id", "user__user_uid",)
     exclude = ("status",)    

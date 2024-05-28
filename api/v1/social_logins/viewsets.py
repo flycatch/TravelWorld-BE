@@ -198,10 +198,6 @@ class GoogleLoginApi(PublicApi):
             error = validated_data.get("error")
             # state = validated_data.get("state")
 
-            print("hi1")
-            print(code)
-            print(error)
-
             if error is not None:
                 return Response({ "message": error,
                                 "status": "error",
@@ -244,17 +240,10 @@ class GoogleLoginApi(PublicApi):
                 google.auth.transport.requests.Request(),
                 settings.GOOGLE_OAUTH2_CLIENT_ID
             )
-            print(idinfo)
-
             # user_info = google_login_flow.get_user_info(google_tokens=code)
-
-            # print(user_info)
 
             user_email = idinfo["email"]
             
-            print("z1")
-            print(user_email)
-
             # Search for the user with email id
             user = User.objects.filter(email=user_email).first()
 
@@ -304,8 +293,6 @@ class FacebookRawLoginFlowService:
 
         query_params = urlencode(params)
         authorization_url = f"{self.FACEBOOK_AUTH_URL}?{query_params}"
-        print(authorization_url)
-
         return authorization_url
 
 
@@ -313,7 +300,6 @@ class FacebookLoginRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
         facebook_login_flow = FacebookRawLoginFlowService()
         authorization_url= facebook_login_flow.get_authorization_url()
-        print("a1")
         return redirect(authorization_url)
     
 

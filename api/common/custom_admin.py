@@ -85,6 +85,10 @@ class PackageImageInline(CustomTabularImageInline):
     model = PackageImage
     verbose_name = 'Image'
     verbose_name_plural = 'Images'
+    readonly_fields = ('thumbnail', 'image',)
+
+    # Display fields
+    fields = ('thumbnail', 'image',)
 
 
 class AttractionImageInline(admin.TabularInline):
@@ -110,7 +114,7 @@ class ItineraryInline(CustomStackedInline):
         return strip_tags(instance.description)
     description_display.short_description = 'Description'
 
-    readonly_fields = ('overview_display', 'description_display', 'important_message')
+    readonly_fields = ('overview_display', 'description_display')
 
 
 class PackageInformationsInline(CustomStackedInline):

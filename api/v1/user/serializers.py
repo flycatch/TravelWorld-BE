@@ -27,12 +27,14 @@ class UserBookingSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'}, required=False)
+    confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'}, required=True)
+
 
     class Meta:
         """Meta info."""
 
         model = User
-        fields = [ "id", "first_name", "last_name",
+        fields = [ "id", "first_name", "last_name","confirm_password",
                   "username", "email","password", "profile_image","user_uid","mobile"]
 
     def validate_first_name(self, value):
@@ -68,13 +70,21 @@ class UserSerializer(serializers.ModelSerializer):
                 "Password should be at least 8 characters and contain one capital letter and symbols.")
         return value
     
+    def validate(self, data):
+        # Ensure password and confirm_password match
+        if data.get('password') != data.get('confirm_password'):
+            raise serializers.ValidationError("Passwords do not match.")
+        return data
+    
     def create(self, validated_data):
+        validated_data.pop('confirm_password')
         validated_data['password'] = make_password(validated_data.get('password'))
         return super(UserSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
         # Hash the password during the update
         if 'password' in validated_data:
+            validated_data.pop('confirm_password')
             validated_data['password'] = make_password(validated_data['password'])
 
         return super(UserSerializer, self).update(instance, validated_data)
@@ -93,7 +103,6 @@ class UserLoginSerializer(serializers.Serializer):
             password = validated_data.get('password')
 
             # Authenticate user using either email or username
-            print("h1")
             user = authenticate(username=None, email=mobile_or_email, password=password, model=User,mobile=mobile_or_email)
          
             if not user:

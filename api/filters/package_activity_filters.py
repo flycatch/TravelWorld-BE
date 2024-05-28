@@ -77,6 +77,7 @@ class PackageFilter(FilterMixin, django_filters.FilterSet):
     """
     stage = django_filters.CharFilter(field_name='stage', lookup_expr='exact')
     tour_class = django_filters.CharFilter(field_name='tour_class', lookup_expr='exact')
+    package_class = django_filters.CharFilter(field_name='package_class', lookup_expr='exact')
     state = django_filters.CharFilter(field_name='locations__state', lookup_expr='exact')
     activities = django_filters.CharFilter(method='filter_by_activities')
     suitable_for = django_filters.CharFilter(field_name='suitable_for', lookup_expr='exact')
@@ -87,7 +88,9 @@ class PackageFilter(FilterMixin, django_filters.FilterSet):
 
     class Meta:
         model = Package
-        fields = ['tour_class', 'stage', 'state', 'activities', 'suitable_for', 'is_popular', 'is_recommended']
+        fields = ['tour_class', 'stage', 'state', 'activities',
+                  'suitable_for', 'is_popular', 'is_recommended',
+                  'package_class']
 
 
 class ActivityFilter(FilterMixin, django_filters.FilterSet):

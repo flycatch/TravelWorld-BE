@@ -706,8 +706,6 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
         # Get the original object before saving changes
         original_obj = self.model.objects.get(pk=obj.pk) if change else None
-        
-        print(original_obj)
         # Save the changes
         super().save_model(request, obj, form, change)
 
@@ -936,16 +934,16 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
         # Get the original object before saving changes
         original_obj = self.model.objects.get(pk=obj.pk) if change else None
-        
-        print(original_obj)
         # Save the changes
         super().save_model(request, obj, form, change)
 
         if change and obj.payment_settlement_status in ['SUCCESSFUL'] and obj.payment_settlement_status != original_obj.payment_settlement_status:
-            print("hi2")
-
             obj.transaction_id = f"EWTRAN-{obj.id}"
             obj.save()
+
+        subject = f"EXPLORE WORLD | TRANSACTION"
+        message = f"Dear {obj.agent.agent_uid},\n\nYour transaction settlement has been {obj.payment_settlement_status}."
+        send_email.delay(subject,message,obj.agent.email)
 
     def payment_settlement_status_colour(self, obj):
         return refund_status_colour(obj.payment_settlement_status)
@@ -1037,6 +1035,15 @@ class UserReviewAdmin(CustomModelAdmin):
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
     list_display = ("id","percentage")
     search_fields = ( "id", "percentage")
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
+    def has_change_permission(self, request, obj=None):
+        return True
 
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
@@ -1223,10 +1230,6 @@ def dashboard_page(request):
 
     # Update the context with the modified context data
     context.update(**context_data)
-
-    print({
-        'cards':cards,
-        'barchart_booking':barchart_booking,})
     return render(request, 'admin/admin_dashboard.html', context=context)
 
 

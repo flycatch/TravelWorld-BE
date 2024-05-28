@@ -64,13 +64,12 @@ class AgentAdmin(CustomModelAdmin):
 class UserAdmin(CustomModelAdmin):
     fieldsets = (
         ('Profile Details', {'fields': ('user_uid', 'username', 'first_name',
-         'last_name', 'mobile', 'email', 'profile_image', 'status')}),
+         'last_name', 'mobile', 'email', 'profile_image')}),
         # ('Permissions', {'fields': ('status', 'user_permissions',)}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
-    list_display = ("user_uid", "username", "first_name", "last_name", "email", "mobile", "status_colour")
-    list_filter = ("status",)
+    list_display = ("user_uid", "username", "first_name", "last_name", "email", "mobile")
     search_fields = ("user_uid", "username", "first_name", "last_name", "email", "mobile")
 
     def has_change_permission(self, request, obj=None):
@@ -106,7 +105,6 @@ class CityAdmin(CustomModelAdmin):
 
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name",)
-    list_filter = ("status",)
     search_fields = ("name",)
     exclude = ("is_deleted", "package", "activity", "status")
 
@@ -339,7 +337,7 @@ class PricingDateFilter(admin.SimpleListFilter):
         
 
 class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
+    list_display = ("booking_id", "display_created_on", "user_uid",
                     "package_uid", "activity_uid", "agent_id","booking_status_colour",)
     list_filter = ("booking_status",PricingDateFilter,)  # Add the custom filter
 
@@ -795,7 +793,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             )
         
     list_display = ("transaction_id", "booking_uid","booking_type", "package_uid", "activity_uid", "agent_uid",
-                    "payment_settlement_date", "payment_settlement_status_colour", 'account_verification_status')
+                    "payment_settlement_status_colour", 'account_verification_status')
     
     list_filter = ("payment_settlement_status","booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "booking_type", "package__title",
@@ -1058,7 +1056,6 @@ class UserReviewAdmin(CustomModelAdmin):
 
 class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
     list_display = ("id","percentage")
-    search_fields = ( "id", "percentage")
 
     def has_add_permission(self, request):
         return False
@@ -1330,6 +1327,7 @@ class SuitableForAdmin(CustomModelAdmin):
 
 class CurrencyAdmin(CustomModelAdmin):
     list_display = ("name",)
+    search_fields = ("name",)
     exclude = ('status',)
 
 

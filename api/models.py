@@ -592,7 +592,6 @@ class PackageImage(BaseModel):
         super(PackageImage, self).save(*args, **kwargs)
 
     def thumbnail(self):
-        print(f"\n>>>>>>>>>>>>>>>>>>>")
         if self.image:
             return mark_safe(f'<img src="{self.image.url}" width="50" height="50" />')
         return "No Image"

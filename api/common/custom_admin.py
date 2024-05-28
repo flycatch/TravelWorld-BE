@@ -85,6 +85,10 @@ class PackageImageInline(CustomTabularImageInline):
     model = PackageImage
     verbose_name = 'Image'
     verbose_name_plural = 'Images'
+    readonly_fields = ('thumbnail', 'image',)
+
+    # Display fields
+    fields = ('thumbnail', 'image',)
 
 
 class AttractionImageInline(admin.TabularInline):

@@ -216,7 +216,7 @@ ADMIN_REORDER = (
     {'app': 'api', 'models': ('api.Agent', 'api.User',),'label': 'Users'},
 
     {'app': 'api', 
-     'models': ('api.Package', 'api.Activity', 'api.Attraction', 'api.Inclusions', 'api.Exclusions',
+     'models': ('api.Package', 'api.Attraction', 'api.Inclusions', 'api.Exclusions',
                 'api.PackageCategory', 'api.SuitableFor'),
                 'label': 'Products'},
 
@@ -231,9 +231,6 @@ ADMIN_REORDER = (
     {'app': 'api', 
      'models': ('api.Country', 'api.State', 'api.City','api.Currency', 'api.AdvanceAmountPercentageSetting',
                 'api.CoverPageInput'
-                'api.Blogs','api.Pricing','api.BlogCategory','api.BlogImage'
-                # 'api.Pricing','api.Itinerary',
-                # 'api.PackageCancellationCategory','api.CancellationPolicy','api.ActivityCancellationCategory','api.ActivityCancellationPolicy',
                 ),
      'label': 'General Settings'},
 

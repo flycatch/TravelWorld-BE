@@ -27,13 +27,13 @@ class AgentAdmin(CustomModelAdmin):
         ('Profile Details', {'fields': ('agent_uid', 
          'agent_name', 'phone', 'email', 'company_id', 'company_name', 
          'company_site', 'message', 'profile_image')}),
-        ('Permissions', {'fields': ('status', 'stage', 'account_verification_status')}),
+        ('Permissions', {'fields': ('stage', 'account_verification_status')}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
     list_display = ("agent_uid", "company_name", "agent_name", "email", "phone",
-                    "status_colour", "stage_colour", "account_verification_status_colour")
-    list_filter = ("status", "stage", "account_verification_status")
+                    "stage_colour", "account_verification_status_colour")
+    list_filter = ("stage", "account_verification_status")
     search_fields = ("agent_uid", "company_name", "agent_name", "email", "phone")
     readonly_fields = ("agent_uid", "company_id", "company_name", "company_site",
                        "message", "agent_name", "email", "phone", "profile_image")
@@ -108,7 +108,7 @@ class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
     list_filter = ("status",)
     search_fields = ("name",)
-    exclude = ("is_deleted", "package", "activity")
+    exclude = ("is_deleted", "package", "activity", "status")
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -125,9 +125,8 @@ class InclusionsAdmin(CustomModelAdmin):
 
 class ExclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
-    list_filter = ("status",)
     search_fields = ("name",)
-    exclude = ("package", "activity")
+    exclude = ("package", "activity", "status")
 
     def status_colour(self, obj):
         return status_colour(obj.status)
@@ -145,8 +144,8 @@ class ExclusionsAdmin(CustomModelAdmin):
 
 class ActivityAdmin(CustomModelAdmin):
     list_display = ("activity_uid", "agent", "truncated_title", "tour_class",
-                    "status_colour", "stage_colour",)
-    list_filter = ("tour_class", "status", "stage")
+                    "stage_colour",)
+    list_filter = ("tour_class", "stage")
     search_fields = ("title", "agent__agent_uid", "tour_class",
                      "activities__name", "activity_uid")
     exclude = ('is_submitted',)
@@ -222,9 +221,9 @@ class ActivityAdmin(CustomModelAdmin):
         return False
 
 class AttractionAdmin(CustomModelAdmin):
-    list_display = ("truncated_title", "status_colour",)
-    list_filter = ("status",)
+    list_display = ("truncated_title",)
     search_fields = ("title",)
+    exclude = ("status",)
     inlines = [AttractionImageInline]
 
     def status_colour(self, obj):
@@ -248,8 +247,8 @@ class AttractionAdmin(CustomModelAdmin):
 
 class PackageAdmin(CustomModelAdmin):
     list_display = ("package_uid", "agent", "truncated_title", "tour_class",
-                    "status_colour", "stage_colour",)
-    list_filter = ("tour_class", "status", "stage")
+                    "stage_colour",)
+    list_filter = ("tour_class", "stage")
     search_fields = ("title", "agent__agent_uid", "agent__first_name",
                      "activities__name", "tour_class", "package_uid")
     exclude = ('is_submitted',)
@@ -357,7 +356,7 @@ class BookingAdmin(CustomModelAdmin):
                         'fields': ('user','booking_id', 'activity_uid', 'activity_name', 
                                 'agent_id','agent','order_id','booking_type','booking_amount','payment_id',
                                 'booking_status','display_created_on','tour_date', 
-                                    'adult', 'child', 'infant', 'refund_amount','object_id')
+                                    'adult', 'child', 'infant', 'refund_amount')
                     }),
             ('Pricing', {
                 'fields': ('pricing_section',),
@@ -921,6 +920,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
+    def booking_type(self, obj):
+        return obj.booking.booking_type if obj.booking else None
+    booking_amount.short_description = "Booking type"
+
     def display_created_on(self, obj):
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
@@ -989,10 +992,10 @@ class UserReviewAdmin(CustomModelAdmin):
     search_fields = ( "package__package_uid", "activity__activity_uid", "user__user_uid")
     list_filter = ("rating",)
     exclude = ('status', 'is_deleted', 'is_active')
-    readonly_fields = ("activity_uid", "package_uid","activity_name","package_name")
+    readonly_fields = ("package_uid","activity_name","package_name")
     fieldsets = (
         (None, {
-            'fields': ("user", "package", "activity", "rating", "review",
+            'fields': ("user", "package","rating", "review",
                        "booking", "agent", "agent_comment",)
         }),
         )
@@ -1018,7 +1021,7 @@ class UserReviewAdmin(CustomModelAdmin):
         else:  # Add page
             return (
         (None, {
-            'fields': ("user", "package", "activity", "rating", "review",
+            'fields': ("user", "package", "rating", "review",
                        "booking", "agent", "agent_comment",)
         }),
             )
@@ -1069,7 +1072,7 @@ class AdvanceAmountPercentageSettingAdmin(CustomModelAdmin):
 class PackageCategoryAdmin(CustomModelAdmin):
     list_display = ("name",)
     search_fields = ( "name",)
-
+    exclude = ('status',)
 
 def dashboard_page(request):
 
@@ -1253,6 +1256,22 @@ def dashboard_page(request):
     context.update(**context_data)
     return render(request, 'admin/admin_dashboard.html', context=context)
 
+from django import forms
+
+class CoverPageInputForm(forms.ModelForm):
+    class Meta:
+        model = CoverPageInput
+        fields = "__all__"
+
+    def clean_satisfaction(self):
+        satisfaction = self.cleaned_data.get('satisfaction')
+        if satisfaction is not None and not (0 <= satisfaction <= 100):
+            raise ValidationError(
+                _('Satisfaction must be a decimal number between 0 and 100.'),
+                code='invalid'
+            )
+        return satisfaction
+
 
 class CoverPageInputAdmin(CustomModelAdmin):
     list_display = ("id", "experience", "clients", "satisfaction")
@@ -1268,6 +1287,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
         #     'fields': ('price_min','price_max')
         # }),
     )
+    form = CoverPageInputForm
 
     def has_add_permission(self, request):
         return False
@@ -1277,7 +1297,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
     
     def has_change_permission(self, request, obj=None):
         return True
-   
+
 
 class SendEnquiryAdmin(CustomModelAdmin):
     list_display = ("id","package_uid", "activity_uid", "name", "email")
@@ -1310,6 +1330,7 @@ class SuitableForAdmin(CustomModelAdmin):
 
 class CurrencyAdmin(CustomModelAdmin):
     list_display = ("name",)
+    exclude = ('status',)
 
 
 
@@ -1348,10 +1369,10 @@ admin.site.register(Itinerary)
 admin.site.register(SuitableFor, SuitableForAdmin)
 admin.site.register(SendEnquiry,SendEnquiryAdmin)
 
-# admin.site.register(Pricing)
-# admin.site.register(BlogCategory)
-# admin.site.register(BlogImage)
-# admin.site.register(Blogs,BlogsAdmin)
+admin.site.register(Pricing)
+admin.site.register(BlogCategory)
+admin.site.register(BlogImage)
+admin.site.register(Blogs,BlogsAdmin)
 
 
 

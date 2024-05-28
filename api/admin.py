@@ -105,7 +105,7 @@ class CityAdmin(CustomModelAdmin):
     exclude = ("status",)
 
 class InclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "status_colour")
+    list_display = ("name",)
     list_filter = ("status",)
     search_fields = ("name",)
     exclude = ("is_deleted", "package", "activity", "status")
@@ -124,7 +124,7 @@ class InclusionsAdmin(CustomModelAdmin):
         return queryset
 
 class ExclusionsAdmin(CustomModelAdmin):
-    list_display = ("name", "status_colour")
+    list_display = ("name",)
     search_fields = ("name",)
     exclude = ("package", "activity", "status")
 

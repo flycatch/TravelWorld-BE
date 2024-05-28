@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect
 from django.urls import path, include, reverse, reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from rest_framework import permissions
 
 from drf_yasg.views import get_schema_view
@@ -23,7 +25,15 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+class CustomAuthenticationForm(AuthenticationForm):
+    error_messages = {
+        'invalid_login': _(
+            "Please enter a correct username and password. Note that both fields may be case-sensitive."
+        ),
+    }
+
 class CustomAdminLoginView(LoginView):
+    authentication_form = CustomAuthenticationForm
     redirect_authenticated_user = True
 
     def get_success_url(self):

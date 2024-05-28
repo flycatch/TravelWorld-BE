@@ -104,6 +104,11 @@ class CityAdmin(CustomModelAdmin):
     search_fields = ("name", "state__name")
     exclude = ("status",)
 
+    readonly_fields = ('thumbnail_preview', 'cover_preview')
+
+    # Display fields
+    fields = ('name', 'state', 'thumb_image', 'cover_img', 'thumbnail_preview', 'cover_preview', 'is_popular')
+
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name", "status_colour")
     list_filter = ("status",)

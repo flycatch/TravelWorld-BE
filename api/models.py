@@ -233,6 +233,20 @@ class City(BaseModel):
             self.cover_img = compress_image(self.cover_img)
         super(City, self).save(*args, **kwargs)
 
+    def thumbnail_preview(self):
+        if self.thumb_image:
+            return mark_safe(f'<img src="{self.thumb_image.url}" width="50" height="50" />')
+        return "No Image"
+
+    thumbnail_preview.short_description = 'Thumb Preview'
+
+    def cover_preview(self):
+        if self.thumb_image:
+            return mark_safe(f'<img src="{self.cover_img.url}" width="50" height="50" />')
+        return "No Image"
+
+    cover_preview.short_description = 'Cover Preview'
+
 
 class PackageCategory(BaseModel):
     name = models.CharField(max_length=255)
@@ -578,6 +592,7 @@ class PackageImage(BaseModel):
         super(PackageImage, self).save(*args, **kwargs)
 
     def thumbnail(self):
+        print(f"\n>>>>>>>>>>>>>>>>>>>")
         if self.image:
             return mark_safe(f'<img src="{self.image.url}" width="50" height="50" />')
         return "No Image"

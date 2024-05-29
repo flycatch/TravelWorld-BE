@@ -200,6 +200,8 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='city_state')
+    country = models.ForeignKey( Country, on_delete=models.CASCADE,
+                                related_name='city_country', null=True, blank=True)
     thumb_image = models.ImageField(
         upload_to='city/thumb_images/',
         null=True, default=None, blank=True, verbose_name="Thumb Image")
@@ -232,6 +234,20 @@ class City(BaseModel):
         if self.cover_img:
             self.cover_img = compress_image(self.cover_img)
         super(City, self).save(*args, **kwargs)
+
+    def thumbnail_preview(self):
+        if self.thumb_image:
+            return mark_safe(f'<img src="{self.thumb_image.url}" width="50" height="50" />')
+        return "No Image"
+
+    thumbnail_preview.short_description = 'Thumb Preview'
+
+    def cover_preview(self):
+        if self.thumb_image:
+            return mark_safe(f'<img src="{self.cover_img.url}" width="50" height="50" />')
+        return "No Image"
+
+    cover_preview.short_description = 'Cover Preview'
 
 
 class PackageCategory(BaseModel):
@@ -1129,6 +1145,8 @@ class UserRefundTransaction(AuditFields):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
     refund_date = models.DateField(null=True, blank=True)
+    transaction_date = models.DateField(verbose_name="Transaction Date",
+                                        null=True, blank=True, )
 
     def __str__(self):
         return self.refund_uid if self.refund_uid else ''

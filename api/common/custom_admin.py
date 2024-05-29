@@ -11,8 +11,8 @@ from django.core.exceptions import ValidationError
 from api.models import (Itinerary, Pricing, UserReviewImage,
                         TourCategory, ActivityTourCategory, AgentBankDetails,
                         PackageFaqQuestionAnswer, ActivityFaqQuestionAnswer,
-                        CancellationPolicy, ActivityCancellationPolicy,
-                        PackageImage, ActivityImage, AttractionImage,
+                        CancellationPolicy, ActivityCancellationPolicy, Informations,
+                        PackageImage, ActivityImage, AttractionImage, InclusionExclusion,
                         PackageInformations,ActivityItinerary, ActivityInformations,BlogImage)
 
 
@@ -102,19 +102,24 @@ class AttractionImageInline(admin.TabularInline):
 
 class ItineraryInline(CustomStackedInline):
     model = Itinerary
-    exclude = ['overview', 'description', 'status']
+    exclude = ['overview', 'status']
 
     def overview_display(self, instance):
         """Custom method to display overview without HTML tags"""
         return strip_tags(instance.overview)
     overview_display.short_description = 'Overview'
 
-    def description_display(self, instance):
-        """Custom method to display description without HTML tags"""
-        return strip_tags(instance.description)
-    description_display.short_description = 'Description'
+    readonly_fields = ['overview_display']
 
-    readonly_fields = ('overview_display', 'description_display')
+
+class InclusionExclusionInline(CustomStackedInline):
+    model = InclusionExclusion
+    exclude = ['status']
+
+
+class InformationsInline(CustomStackedInline):
+    model = Informations
+    exclude = ['status']
 
 
 class PackageInformationsInline(CustomStackedInline):

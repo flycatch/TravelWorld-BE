@@ -724,3 +724,4 @@ class FavoriteProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavoriteProducts
         fields = ['id', 'user', 'package']
+

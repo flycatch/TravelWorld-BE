@@ -200,6 +200,8 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='city_state')
+    country = models.ForeignKey( Country, on_delete=models.CASCADE,
+                                related_name='city_country', null=True, blank=True)
     thumb_image = models.ImageField(
         upload_to='city/thumb_images/',
         null=True, default=None, blank=True, verbose_name="Thumb Image")
@@ -740,6 +742,8 @@ class StayDetails(BaseModel):
         verbose_name = 'Stay Details'
         verbose_name_plural = 'Stay Details'
 
+    def __str__(self):
+        return self.place
 
 class Informations(BaseModel):
     """
@@ -761,8 +765,8 @@ class Informations(BaseModel):
     stay_details = models.ManyToManyField(StayDetails, related_name='informations_stay_details', blank=True)
 
     class Meta:
-        verbose_name = 'Stay Details'
-        verbose_name_plural = 'Stay Details'
+        verbose_name = 'Information'
+        verbose_name_plural = 'Informations'
 
 
 class InclusionInformation(BaseModel):
@@ -1141,6 +1145,8 @@ class UserRefundTransaction(AuditFields):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
     refund_date = models.DateField(null=True, blank=True)
+    transaction_date = models.DateField(verbose_name="Transaction Date",
+                                        null=True, blank=True, )
 
     def __str__(self):
         return self.refund_uid if self.refund_uid else ''
@@ -1224,6 +1230,8 @@ class AdvanceAmountPercentageSetting(AuditFields):
         verbose_name = "Advance Amount Percentage"
         verbose_name_plural = "Advance Amount Percentage"
 
+    def __str__(self):
+        return str(self.percentage)
 
 
 

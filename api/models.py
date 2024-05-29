@@ -200,6 +200,8 @@ class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
         State, on_delete=models.CASCADE, related_name='city_state')
+    country = models.ForeignKey( Country, on_delete=models.CASCADE,
+                                related_name='city_country', null=True, blank=True)
     thumb_image = models.ImageField(
         upload_to='city/thumb_images/',
         null=True, default=None, blank=True, verbose_name="Thumb Image")
@@ -1143,6 +1145,8 @@ class UserRefundTransaction(AuditFields):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='transaction_refund_user',null=True, blank=True)
     refund_date = models.DateField(null=True, blank=True)
+    transaction_date = models.DateField(verbose_name="Transaction Date",
+                                        null=True, blank=True, )
 
     def __str__(self):
         return self.refund_uid if self.refund_uid else ''

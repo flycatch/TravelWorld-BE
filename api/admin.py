@@ -10,9 +10,16 @@ from django.template.defaultfilters import truncatechars
 from django.contrib import messages
 from django.shortcuts import render
 from django.db.models import Count
+from django.http import HttpResponse
+from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
+
+from import_export import resources
+from import_export.admin import ExportMixin
+from import_export.fields import Field
+from import_export.formats.base_formats import XLSX
 
 from rest_framework.authtoken.models import TokenProxy
 
@@ -359,8 +366,25 @@ class PricingYearFilter(admin.SimpleListFilter):
         return queryset
         
 
-class BookingAdmin(CustomModelAdmin):
-    list_display = ("booking_id", "display_created_on", "user_uid",
+class BookingResource(resources.ModelResource):
+    booking_id = Field(attribute='booking_id', column_name='Booking UID')
+    display_created_on = Field(attribute='display_created_on', column_name='Booking date')
+    tour_date = Field(attribute='tour_date', column_name='Tour date')
+    user_uid = Field(attribute='user_uid', column_name='User uid')
+    booking_amount = Field(attribute='booking_amount', column_name='Booking amount')
+    booking_status = Field(attribute='booking_status', column_name='Booking status')
+
+    class Meta:
+        model = Booking
+        fields = (
+            'booking_id', 'display_created_on', 'tour_date', 'user_uid',
+            'booking_amount', 'booking_status'
+        )
+        export_order = fields
+
+
+class BookingAdmin(ExportMixin, CustomModelAdmin):
+    list_display = ("booking_id", "display_created_on", "tour_date", "user_uid",
                     "package_uid", "activity_uid", "agent_id","booking_status_colour",)
     list_filter = ("booking_status",PricingDateFilter, PricingYearFilter)  # Add the custom filter
 
@@ -368,6 +392,58 @@ class BookingAdmin(CustomModelAdmin):
                      "package__package_uid", "activity__activity_uid", "package__agent__agent_uid",
                      "activity__agent__agent_uid")
     exclude = ("status",)    
+    resource_class = BookingResource
+
+    def export_action(self, request, *args, **kwargs):
+        """
+        Export action for skipping the confirmation page.
+        """
+        # Get the export format
+        file_format = XLSX()
+
+        # Get the filtered queryset
+        queryset = self.get_export_queryset(request)
+
+        # Export the filtered queryset
+        dataset = self.resource_class().export(queryset)
+        response = HttpResponse(
+            file_format.export_data(dataset),
+            content_type=file_format.CONTENT_TYPE,
+        )
+        response['Content-Disposition'] = f'attachment; filename="bookings.{file_format.get_extension()}"'
+        return response
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('export/', self.admin_site.admin_view(self.export_action), name='bookings_export')
+        ]
+        return custom_urls + urls
+    
+    def get_export_queryset(self, request):
+        """
+        Get the queryset to export, applying any admin filters.
+        """
+        ChangeList = self.get_changelist(request)
+        cl = ChangeList(
+            request,
+            self.model,
+            self.list_display,
+            self.list_display_links,
+            self.list_filter,
+            self.date_hierarchy,
+            self.search_fields,
+            self.list_select_related,
+            self.list_per_page,
+            self.list_max_show_all,
+            self.list_editable,
+            self,
+            sortable_by=self.sortable_by,
+            search_help_text=self.search_help_text
+        )
+
+        return cl.get_queryset(request)
+
     change_form_template = 'admin/change_form_hidden_history.html'
 
     def get_fieldsets(self, request, obj=None):

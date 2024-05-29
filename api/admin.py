@@ -397,8 +397,13 @@ class BookingAdmin(ExportMixin, CustomModelAdmin):
         """
         Export action for skipping the confirmation page.
         """
+        # Get the export format
         file_format = XLSX()
-        queryset = self.get_queryset(request)
+
+        # Get the filtered queryset
+        queryset = self.get_export_queryset(request)
+
+        # Export the filtered queryset
         dataset = self.resource_class().export(queryset)
         response = HttpResponse(
             file_format.export_data(dataset),
@@ -413,6 +418,31 @@ class BookingAdmin(ExportMixin, CustomModelAdmin):
             path('export/', self.admin_site.admin_view(self.export_action), name='bookings_export')
         ]
         return custom_urls + urls
+    
+    def get_export_queryset(self, request):
+        """
+        Get the queryset to export, applying any admin filters.
+        """
+        ChangeList = self.get_changelist(request)
+        cl = ChangeList(
+            request,
+            self.model,
+            self.list_display,
+            self.list_display_links,
+            self.list_filter,
+            self.date_hierarchy,
+            self.search_fields,
+            self.list_select_related,
+            self.list_per_page,
+            self.list_max_show_all,
+            self.list_editable,
+            self,
+            sortable_by=self.sortable_by,
+            search_help_text=self.search_help_text
+        )
+
+        return cl.get_queryset(request)
+
 
     def get_fieldsets(self, request, obj=None):
         if obj:  # Detail page

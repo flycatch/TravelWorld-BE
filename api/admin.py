@@ -107,7 +107,8 @@ class CityAdmin(CustomModelAdmin):
     readonly_fields = ('thumbnail_preview', 'cover_preview')
 
     # Display fields
-    fields = ('name', 'state', 'thumb_image', 'cover_img', 'thumbnail_preview', 'cover_preview', 'is_popular')
+    fields = ('name', 'country', 'state', 'thumb_image', 'cover_img', 'thumbnail_preview', 'cover_preview', 'is_popular')
+
 
 class InclusionsAdmin(CustomModelAdmin):
     list_display = ("name",)
@@ -463,16 +464,16 @@ class BookingAdmin(CustomModelAdmin):
         return booking_status_colour(obj.booking_status)
 
     booking_status_colour.short_description = 'Booking Status'  # Set a custom column header
-    booking_status_colour.admin_order_field = 'Booking Status'  # Enable sorting by stage
+    booking_status_colour.admin_order_field = 'booking_status'  # Enable sorting by stage
 
     agent.admin_order_field = 'package__agent__username' 
     agent_id.admin_order_field = 'package__agent__agent_uid'  
     agent_id.short_description = 'Agent UID'  # Set a custom column header
     display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
-    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
-    user_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
-    package_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
-    activity_uid.admin_order_field = 'User UID'  # Enable sorting by user_uid
+    package_name.admin_order_field = 'package__title'  # Enable sorting by stage
+    user_uid.admin_order_field = 'user__user_uid'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by user_uid
+    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by user_uid
 
     def has_change_permission(self, request, obj=None):
         return False
@@ -574,7 +575,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                 return (
                     (None, {
                         'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'activity_uid', 'activity_name', 'agent', 'agent_uid', 'display_created_on',
+                                'activity_uid', 'activity_name', 'agent', 'agent_uid', 'transaction_date',
                                     'refund_status', 'refund_amount')
                     }),
                     ('Cancellation policy', {
@@ -585,7 +586,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
                 return (
                     (None, {
                         'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'package_uid', 'package_name', 'agent', 'agent_uid', 'display_created_on',
+                                'package_uid', 'package_name', 'agent', 'agent_uid', 'transaction_date',
                                     'refund_status', 'refund_amount')
                     }),
                     ('Cancellation policy', {
@@ -600,7 +601,7 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             )
         
     list_display = ("booking_uid", "user", "package_uid", "activity_uid", "agent", "agent_uid",
-                    "refund_uid","refund_amount", "refund_status_colour", "display_created_on",)
+                    "refund_uid","refund_amount", "refund_status_colour", "display_transaction_date",)
     
     list_filter = ("refund_status",)
     search_fields = ("refund_uid", "booking__booking_id", "user__user_uid",
@@ -704,16 +705,16 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         return obj.created_on.strftime("%Y-%m-%d") if obj.booking else None
     booking_date.short_description = "Booking date"
 
-    def display_created_on(self, obj):
-        return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
-    display_created_on.short_description = "Transaction Date"
+    def display_transaction_date(self, obj):
+        return obj.transaction_date.strftime("%Y-%m-%d")  # Customize the date format as needed
+    display_transaction_date.short_description = "Transaction Date"
 
     def has_add_permission(self, request, obj=None):
         return False
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         self.readonly_fields += ('refund_uid', 'agent_uid', 'package_uid', 'booking_uid',"booking_date", 'agent',
-                                 'display_created_on', 'package_name','booking_amount','cancellation_policies','user',
+                                 'package_name','booking_amount','cancellation_policies','user',
                                  'activity_uid', 'activity_name')
         return super().change_view(request, object_id, form_url, extra_context)
 
@@ -741,16 +742,16 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         return refund_status_colour(obj.refund_status)
 
     refund_status_colour.short_description = 'Refund Status'  # Set a custom column header
-    refund_status_colour.admin_order_field = 'Refund Status'  # Enable sorting by stage
+    refund_status_colour.admin_order_field = 'refund_status'  # Enable sorting by stage
 
-    booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
-    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
-    package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
-    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by stage
+    booking_uid.admin_order_field = 'booking__booking_id'  # Enable sorting by stage
+    package_name.admin_order_field = 'package__title'  # Enable sorting by stage
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by stage
+    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by stage
     agent.admin_order_field = 'Agent'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
     agent_uid.short_description = 'Agent UID'  # Set a custom column header
-    display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
+    display_transaction_date.admin_order_field = 'transaction_date'  # Enable sorting by stage
 
 
 class AgentTransactionSettlementAdmin(CustomModelAdmin):
@@ -804,7 +805,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     def account_verification_status(self, obj):
         return account_verification_status_colour(obj.agent.account_verification_status if obj.agent else None)
     account_verification_status.short_description = "Account Status"
-    account_verification_status.admin_order_field = "Account Status"
+    account_verification_status.admin_order_field = "agent__account_verification_status"
 
     def pricing_section(self, obj):
         pricing_obj = obj.booking.pricing
@@ -971,15 +972,15 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return refund_status_colour(obj.payment_settlement_status)
 
     payment_settlement_status_colour.short_description = 'Payment settlement status'  # Set a custom column header
-    payment_settlement_status_colour.admin_order_field = 'Payment settlement status'  # Enable sorting by stage
+    payment_settlement_status_colour.admin_order_field = 'payment_settlement_status'  # Enable sorting by stage
 
-    booking_uid.admin_order_field = 'Booking UID'  # Enable sorting by stage
-    package_name.admin_order_field = 'Package Name'  # Enable sorting by stage
-    package_uid.admin_order_field = 'Package UID'  # Enable sorting by stage
-    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by stage
+    booking_uid.admin_order_field = 'booking__booking_id'  # Enable sorting by stage
+    package_name.admin_order_field = 'package__title'  # Enable sorting by stage
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by stage
+    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by stage
     agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
     agent_uid.short_description = 'Agent UID'  # Set a custom column header
-    display_created_on.admin_order_field = 'Transaction Date'  # Enable sorting by stage
+    display_created_on.admin_order_field = 'created_on'  # Enable sorting by stage
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -1041,8 +1042,8 @@ class UserReviewAdmin(CustomModelAdmin):
         return truncatechars(obj.activity.title if obj.activity else None, 35)
     activity_name.short_description = "Activity Name"
 
-    activity_uid.admin_order_field = 'Activity UID'  # Enable sorting by user_uid
-    package_uid.admin_order_field = 'Package UID'  # Enable sorting by user_uid
+    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by user_uid
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by user_uid
 
 
     def has_add_permission(self, request, obj=None):
@@ -1306,12 +1307,12 @@ class SendEnquiryAdmin(CustomModelAdmin):
     def package_uid(self, obj):
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
-    package_uid.admin_order_field = 'Package UID'  # Enable sorting by package_uid
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by package_uid
 
     def activity_uid(self, obj):
         return obj.activity.activity_uid if obj.activity else None
     activity_uid.short_description = "Activity UID"
-    # activity_uid.admin_order_field = "Activity UID"  # Enable sorting by activity_uid
+    activity_uid.admin_order_field = "activity__activity_uid"  # Enable sorting by activity_uid
 
 
     def has_add_permission(self, request):

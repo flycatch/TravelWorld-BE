@@ -706,7 +706,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     booking_date.short_description = "Booking date"
 
     def display_transaction_date(self, obj):
-        return obj.transaction_date.strftime("%Y-%m-%d")  # Customize the date format as needed
+        if obj.transaction_date:
+            return obj.transaction_date.strftime("%Y-%m-%d")  # Customize the date format as needed
+        else:
+            return "-"  # Or any other placeholder text
     display_transaction_date.short_description = "Transaction Date"
 
     def has_add_permission(self, request, obj=None):

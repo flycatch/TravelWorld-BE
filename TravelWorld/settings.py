@@ -33,6 +33,7 @@ ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default=[], cast=lambda v: [s.str
 INSTALLED_APPS = [
     'admin_reorder',
     'jazzmin',
+    'import_export',
     
     'django.contrib.admin',
     'django.contrib.auth',

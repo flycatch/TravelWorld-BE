@@ -369,9 +369,9 @@ class PricingYearFilter(admin.SimpleListFilter):
 
 class BookingResource(resources.ModelResource):
     booking_id = Field(attribute='booking_id', column_name='Booking UID')
-    display_created_on = Field(attribute='display_created_on', column_name='Booking date')
+    display_created_on = Field(attribute='created_on', column_name='Booking date')
     tour_date = Field(attribute='tour_date', column_name='Tour date')
-    user_uid = Field(attribute='user_uid', column_name='User uid')
+    user_uid = Field(attribute='user__user_uid', column_name='User uid')
     booking_amount = Field(attribute='booking_amount', column_name='Booking amount')
     booking_status = Field(attribute='booking_status', column_name='Booking status')
 
@@ -382,6 +382,9 @@ class BookingResource(resources.ModelResource):
             'booking_amount', 'booking_status'
         )
         export_order = fields
+
+    def dehydrate_display_created_on(self, booking):
+        return booking.created_on.strftime('%Y-%m-%d')
 
 
 class BookingAdmin(ExportMixin, CustomModelAdmin):

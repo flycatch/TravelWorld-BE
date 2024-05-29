@@ -523,7 +523,7 @@ class PricingSerializer(serializers.ModelSerializer):
 class PackageCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageCategory
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'is_popular']
 
 
 class SuitableForSerializer(serializers.ModelSerializer):

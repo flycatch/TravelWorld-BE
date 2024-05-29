@@ -76,13 +76,13 @@ class AttractionSerializer(serializers.ModelSerializer):
 class HomePageDestinationSerializer(serializers.ModelSerializer):
     class Meta:
         model = City
-        fields = ['id', 'name', 'thumb_image', 'cover_img']
+        fields = ['id', 'name', 'thumb_image', 'cover_img', 'is_popular']
 
 
 class HomePageStateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
-        fields = ['id', 'name', 'thumb_image', 'cover_img']
+        fields = ['id', 'name', 'thumb_image', 'cover_img', 'is_popular']
 
 
 class SendEnquirySerializer(serializers.ModelSerializer):

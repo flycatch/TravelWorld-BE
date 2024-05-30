@@ -691,15 +691,40 @@ class PricingNewView(APIView):
                 "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
             }
             return Response(response_data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
 
 class PackageCategoryViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for managing PackageCategory objects.
+
+    This viewset allows CRUD operations on PackageCategory objects with custom permissions
+    and filters based on various criteria.
+
+    Attributes:
+        queryset(QuerySet): The base queryset of PackageCategory objects.
+        serializer_class (Serializer): The serializer class for transforming package category data.
+        permission_classes(list): The list of permission classes required for accessing the viewset.
+        authentication_classes(list): List of authentication classes used for authenticating users.
+        filter_backends(list): The filter backends used for filtering and searching.
+        filterset_class(FilterSet): The filter set class used for filtering package category data.
+    """
     queryset = PackageCategory.objects.all()
     serializer_class = PackageCategorySerializer
     permission_classes = [IsAuthenticated]
     authentication_classes = [TokenAuthentication]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = PackageCategoryFilter
 
     def get_permissions(self):
+        """
+        Returns the list of permissions that the view requires.
+
+        If the action is 'list' or 'retrieve', no permissions are required.
+        For other actions, the default permissions are applied.
+
+        Returns:
+            list: The list of permission classes.
+        """
         if self.action in ['list', 'retrieve']:
             return []
         else:

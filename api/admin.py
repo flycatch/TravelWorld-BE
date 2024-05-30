@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import date
 
 from django.contrib import admin
+from django.urls import reverse
 from django.contrib.auth.models import Group
 from django.contrib.admin import AdminSite
 from django.contrib.admin.sites import site
@@ -15,6 +16,7 @@ from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
+from django.http import HttpResponseRedirect
 
 from import_export import resources
 from import_export.admin import ExportMixin
@@ -28,6 +30,7 @@ from api.models import *
 from api.tasks import *
 from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
                              refund_status_colour, account_verification_status_colour)
+
 
 class AgentAdmin(CustomModelAdmin):
     fieldsets = (
@@ -785,7 +788,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
     booking_date.short_description = "Booking date"
 
     def display_transaction_date(self, obj):
-        return obj.transaction_date.strftime("%Y-%m-%d")  # Customize the date format as needed
+        if obj.transaction_date:
+            return obj.transaction_date.strftime("%Y-%m-%d")  # Customize the date format as needed
+        else:
+            return "-"  # Or any other placeholder text
     display_transaction_date.short_description = "Transaction Date"
 
     def has_add_permission(self, request, obj=None):
@@ -1416,9 +1422,38 @@ class CurrencyAdmin(CustomModelAdmin):
     change_form_template = 'admin/change_form_hidden_history.html'
 
 
+class BaseUserAdmin(CustomModelAdmin):
+    """
+    Custom Admin for managing BaseUser model.
+
+    This admin class provides a custom interface for managing BaseUser instances,
+    used for changing admin basic details on "see more" option.
+    It includes specified fields and disables the delete permission.
+    After saving changes, it redirects to the admin dashboard.
+
+    Attributes:
+        fields (tuple): The fields to be included in the admin interface.
+        change_form_template (str): The template used for rendering the change form.
+    """
+    fields = ('unique_username', 'first_name', 'last_name', 'phone')  # Included fields
+    change_form_template = 'admin/change_form_hidden_history.html'
+
+    def has_delete_permission(self, request, obj=None):
+        """
+        Determine whether the user has delete permission.
+        """
+        return False
+
+    def response_change(self, request, obj):
+        """
+        Handle the response after saving changes.
+        Redirects the user to the admin dashboard.
+        """
+        # Redirect to the admin dashboard
+        return HttpResponseRedirect(reverse('admin:index'))
+
 
 class BlogsAdmin(admin.ModelAdmin):
-    ...
     inlines = [BlogImageInline]
 
 
@@ -1458,12 +1493,7 @@ admin.site.register(BlogImage)
 admin.site.register(Blogs,BlogsAdmin)
 
 
-
-
-
-
 admin.site.register(AdvanceAmountPercentageSetting,AdvanceAmountPercentageSettingAdmin)
-
-
 admin.site.register(AgentTransactionSettlement,AgentTransactionSettlementAdmin)
 admin.site.register(UserRefundTransaction,UserRefundTransactionAdmin)
+admin.site.register(BaseUser, BaseUserAdmin)

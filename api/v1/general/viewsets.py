@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets,status
+from rest_framework.filters import SearchFilter
 
 from api.models import (Country, State, City, CoverPageInput,Attraction, Location,Package,
                         Activity, Currency)
@@ -126,15 +127,45 @@ class AttractionView(ListAPIView):
 
 
 class HomePageDestinationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only viewset for fetching active cities for the home page.
+
+    This viewset provides a list of active cities with support for pagination
+    and filtering based on various criteria.
+
+    Attributes:
+        queryset (QuerySet): The base queryset of active cities.
+        serializer_class (Serializer): The serializer class for transforming city data.
+        pagination_class (Pagination): The pagination class used for paginating results.
+        filter_backends (list): The filter backends used for filtering and searching.
+        filterset_class (FilterSet): The filter set class used for filtering city data.
+    """
     queryset = City.objects.filter(status='active')
     serializer_class = HomePageDestinationSerializer
     pagination_class = CustomPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = CityFilter
+
 
 class HomePageStateViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Read-only viewset for fetching active states for the home page.
+
+    This viewset provides a list of active states with support for pagination
+    and filtering based on various criteria.
+
+    Attributes:
+        queryset (QuerySet): The base queryset of active states.
+        serializer_class (Serializer): The serializer class for transforming state data.
+        pagination_class (Pagination): The pagination class used for paginating results.
+        filter_backends (list): The filter backends used for filtering and searching.
+        filterset_class (FilterSet): The filter set class used for filtering state data.
+    """
     queryset = State.objects.filter(status='active')
     serializer_class = HomePageStateSerializer
     pagination_class = CustomPagination
-
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = StateFilter
 
 
 class SendEnquiryView(APIView):

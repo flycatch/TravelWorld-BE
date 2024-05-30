@@ -1,9 +1,26 @@
+"""
+Admin configuration for managing models in the Django admin interface.
+
+This module contains custom admin classes for managing various models in the Django admin interface.
+It includes customizations such as defining fieldsets, list displays, search fields, read-only
+fields, and other functionalities to enhance the usability of the admin interface.
+
+Additionally, this module imports necessary modules and utilities for admin customization,
+such as Django admin modules, template rendering, model resources for import-export functionality,
+and color utilities for status indication.
+
+Contents:
+    - Django Admin Configurations: CustomModelAdmin, AdminSite
+    - Import-Export Functionality: resources, ExportMixin, Field, XLSX
+    - Utility Functions: stage_colour, status_colour, booking_status_colour,
+        refund_status_colour, account_verification_status_colour
+"""
 import calendar
 from datetime import datetime
 from datetime import date
 
 from django.contrib import admin
-from django.urls import reverse
+from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.admin import AdminSite
 from django.contrib.admin.sites import site
@@ -16,7 +33,6 @@ from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
-from django.http import HttpResponseRedirect
 
 from import_export import resources
 from import_export.admin import ExportMixin
@@ -33,11 +49,40 @@ from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
 
 
 class AgentAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing Agent model instances.
+
+    This class provides various functionalities for the admin interface, including:
+        - Fieldsets organization for profile details and permissions.
+        - Custom display logic for specific fields like `stage_colour` and
+            `account_verification_status_colour`.
+        - Setting custom column headers and enabling sorting for specific fields.
+        - Disabling the "add" permission for this model in the admin interface.
+
+    Attributes:
+        fieldsets (tuple): Sets of fields grouped into sections for display in the admin interface.
+        list_display (tuple): Fields to be displayed in the list view of the admin interface.
+        list_filter (tuple): Fields used for filtering displayed records in the admin interface.
+        search_fields (tuple): Fields used for searching records in the admin interface.
+        readonly_fields (tuple): Fields that are read-only in the admin interface.
+        inlines (list): Inline classes to be displayed in the admin interface.
+
+    Methods:
+        stage_colour: Custom method to display the stage with a specific color.
+        account_verification_status_colour: Custom method to display the account verification
+            status with a specific color.
+        has_add_permission: Determines whether the user has permission to add a new model instance.
+    """
     fieldsets = (
-        ('Profile Details', {'fields': ('agent_uid', 
-         'agent_name', 'phone', 'email', 'company_id', 'company_name', 
-         'company_site', 'message', 'profile_image')}),
-        ('Permissions', {'fields': ('stage', 'account_verification_status')}),
+        ('Profile Details', {
+            'fields': (
+                'agent_uid', 'agent_name', 'phone', 'email', 'company_id',
+                'company_name', 'company_site', 'message', 'profile_image'
+                )}),
+        ('Permissions', {
+            'fields': (
+                'stage', 'account_verification_status'
+                )}),
         # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
@@ -51,32 +96,48 @@ class AgentAdmin(CustomModelAdmin):
     inlines = [AgentBankDetailsInline]
 
     def stage_colour(self, obj):
+        """
+        Custom method to display the agent's stage with a specific color.
+        Returns:
+            str: HTML representation of the stage with a specific color.
+        """
         return stage_colour(obj.stage)
-
-    def account_verification_status_colour(self, obj):
-        return stage_colour(obj.account_verification_status)
-
-    def status_colour(self, obj):
-        return status_colour(obj.status)
-
     stage_colour.short_description = 'stage'  # Set a custom column header
     stage_colour.admin_order_field = 'stage'  # Enable sorting by stage
-    account_verification_status_colour.short_description = 'Account Status'  # Set a custom column header
-    account_verification_status_colour.admin_order_field = 'account_verification_status'  # Enable sorting by stage
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
-    # agent_uid.short_description = 'Agent UID'  # Enable sorting by stage
+
+    def account_verification_status_colour(self, obj):
+        """
+        Custom method to display the agent's account verification status with a specific color.
+        Returns:
+            str: HTML representation of the account verification status with a specific color.
+        """
+        return stage_colour(obj.account_verification_status)
+    # Set a custom column header
+    account_verification_status_colour.short_description = 'Account Status'
+    # Enable sorting by account_verification_status
+    account_verification_status_colour.admin_order_field = 'account_verification_status'
 
     def has_add_permission(self, request):
         return False
 
 
 class UserAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing User model instances.
+
+    Attributes:
+        fieldsets (tuple): Sets of fields grouped into sections for display in the admin interface.
+        list_display (tuple): Fields to be displayed in the list view of the admin interface.
+        search_fields (tuple): Fields used for searching records in the admin interface.
+        change_form_template (str): Path to the custom change form template.
+
+    Methods:
+        has_change_permission: Determines whether the user has permission to change a User instance.
+        has_add_permission: Determines whether the user has permission to add a new User instance.
+    """
     fieldsets = (
         ('Profile Details', {'fields': ('user_uid', 'username', 'first_name',
          'last_name', 'mobile', 'email', 'profile_image')}),
-        # ('Permissions', {'fields': ('status', 'user_permissions',)}),
-        # ('Activity History', {'fields': ('date_joined', 'last_login')}),
     )
 
     list_display = ("user_uid", "username", "first_name", "last_name", "email", "mobile")
@@ -84,40 +145,76 @@ class UserAdmin(CustomModelAdmin):
     change_form_template = 'admin/change_form_hidden_history.html'
 
     def has_change_permission(self, request, obj=None):
+        """
+        Remove change permission for user interface
+        """
         return False
 
     def has_add_permission(self, request, obj=None):
+        """
+        Remove add permission for user interface
+        """
         return False
-
-    def status_colour(self, obj):
-        return status_colour(obj.status)
-
-    status_colour.short_description = 'Status'  # Set a custom column header
-    status_colour.admin_order_field = 'Status'  # Enable sorting by stage
 
 
 class CountryAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing Country model instances.
+
+    This class provides a basic configuration for the Country model in the
+    admin interface, including:
+        - List display: Only the "name" field is displayed in the list view.
+        - Search fields: Searching is enabled for the "name" field.
+        - Excluded fields: "status" and "image" fields are excluded from the admin interface.
+        - Add permission: Users have permission to add new Country instances.
+    """
     list_display = ("name",)
     search_fields = ("name",)
     exclude = ("status", "image",)
 
     def has_add_permission(self, request):
+        """
+        Add permission for user interface
+        """
         return True
 
+
 class StateAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing State model instances.
+
+    This class configures the State model in the admin interface, including:
+        - List display: "name" and the related "country" are displayed in the list view.
+        - Search fields: Searching is enabled for "name" and "country__name" 
+            (searches by country name).
+        - Excluded fields: "status" field is excluded from the admin interface.
+    """
     list_display = ("name", "country",)
     search_fields = ("name", "country__name")
     exclude = ("status",)
 
+
 class CityAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing City model instances.
+
+    This class provides functionalities for managing City models in the admin interface:
+        - List display: "name" and the related "state" are displayed in the list view.
+        - Search fields: Searching is enabled for "name" and "state__name" (searches by state name).
+        - Excluded fields: "status" field is excluded from the admin interface.
+        - Read-only fields: "thumbnail_preview" and "cover_preview" are displayed as read-only.
+        - Display fields: Defines the order of fields displayed in the change view,
+            including thumbnail/cover image upload fields and their respective preview
+            fields, and an "is_popular" boolean field.
+    """
     list_display = ("name", "state",)
     search_fields = ("name", "state__name")
     exclude = ("status",)
-
     readonly_fields = ('thumbnail_preview', 'cover_preview')
-
     # Display fields
-    fields = ('name', 'country', 'state', 'thumb_image', 'cover_img', 'thumbnail_preview', 'cover_preview', 'is_popular')
+    fields = (
+        'name', 'country', 'state', 'thumb_image', 'cover_img',
+        'thumbnail_preview', 'cover_preview', 'is_popular')
 
 
 class InclusionsAdmin(CustomModelAdmin):
@@ -570,84 +667,6 @@ class BookingAdmin(ExportMixin, CustomModelAdmin):
         queryset = super().get_queryset(request)
         queryset = queryset.exclude(booking_status='PENDING').order_by('-tour_date')
         return queryset
-    
-    
-
-
-# class TransactionAdmin(CustomModelAdmin):
-#     def get_fieldsets(self, request, obj=None):
-#         if obj:  # Detail page
-#             return (
-#                 (None, {
-#                     'fields': ('transaction_uid','booking_uid', 'user', 'package_name',
-#                                'package_uid', 'agent', 'agent_uid', 'display_created_on',
-#                                 'refund_status', 'refund_amount',)
-#                 }),
-#             )
-#         else:  # Add page
-#             return (
-#                 (None, {
-#                     'fields': ('package', 'booking', 'refund_status', 'refund_amount', 'user',)
-#                 }),
-#             )
-        
-#     list_display = ("transaction_uid", "booking_uid", "user","package_name", "package_uid",
-#                      "agent", "agent_uid","refund_status", "display_created_on",)
-#     list_filter = ("refund_status",)
-#     search_fields = ("refund_status","transaction_uid","user")
-#     exclude = ('status',)
-
-#     def agent(self, obj):
-#         return obj.package.agent.username if obj.package else None
-    
-#     def agent_uid(self, obj):
-#         return obj.package.agent.agent_uid if obj.package else None
-
-#     def package_uid(self, obj):
-#         return obj.package.package_uid if obj.package else None
-#     package_uid.short_description = "Package UID"
-
-#     def package_name(self, obj):
-#         return obj.package.title if obj.package else None
-#     package_name.short_description = "Package Name"
-
-#     def booking_uid(self, obj):
-#         return obj.booking.booking_id if obj.booking else None
-#     booking_uid.short_description = "Booking UID"
-
-#     def display_created_on(self, obj):
-#         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
-#     display_created_on.short_description = "Transaction date"
-
-#     def has_add_permission(self, request, obj=None):
-#         return True
-
-#     def change_view(self, request, object_id, form_url='', extra_context=None):
-#         self.readonly_fields += ('transaction_uid', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-#                                  'display_created_on', 'package_name')
-#         return super().change_view(request, object_id, form_url, extra_context)
-    
-#     def save_model(self, request, obj, form, change):
-
-#         # Get the original object before saving changes
-#         original_obj = self.model.objects.get(pk=obj.pk) if change else None
-        
-#         print(original_obj)
-#         # Save the changes
-#         super().save_model(request, obj, form, change)
-
-#         # Check if refund_status has changed and the new status is either "CANCELLED" or "REFUNDED"
-#         if change and obj.refund_status in ['CANCELLED', 'REFUNDED'] and obj.refund_status != original_obj.refund_status:
-#             print("hi2")
-#             if obj.refund_status == 'REFUNDED':
-#                 Booking.objects.filter(id=obj.booking_id).update(booking_status=obj.refund_status)
-#             elif obj.refund_status == 'CANCELLED':
-#                 Booking.objects.filter(id=obj.booking_id).update(booking_status='FAILED')
-
-
-#             subject = f"REFUND STATUS"
-#             message = f"Dear {obj.user.username},\n\nYour Booking has been {obj.refund_status}."
-#             send_email.delay(subject,message,obj.user.email)
 
 
 class UserRefundTransactionAdmin(CustomModelAdmin):
@@ -1460,7 +1479,6 @@ def dashboard_page(request):
     context.update(**context_data)
     return render(request, 'admin/admin_dashboard.html', context=context)
 
-from django import forms
 
 class CoverPageInputForm(forms.ModelForm):
     class Meta:
@@ -1554,22 +1572,36 @@ class BaseUserAdmin(CustomModelAdmin):
         fields (tuple): The fields to be included in the admin interface.
         change_form_template (str): The template used for rendering the change form.
     """
-    fields = ('unique_username', 'first_name', 'last_name', 'phone')  # Included fields
+    # Included fields
+    fields = ('unique_username', 'first_name', 'last_name', 'phone')
+    list_display = ('unique_username', 'first_name', 'last_name', 'phone')
     change_form_template = 'admin/change_form_hidden_history.html'
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Return the readonly fields based on the current user.
+
+        If the logged-in user is not the same as the user being edited, make all fields readonly.
+        """
+        if obj is not None and obj == request.user:
+            return ()
+        else:
+            return self.fields
+
+    def get_queryset(self, request):
+        """
+        Return the queryset for this admin.
+
+        Limit the queryset to only include BaseUser instances where is_superuser is True.
+        """
+        queryset = super().get_queryset(request)
+        return queryset.filter(is_superuser=True)
 
     def has_delete_permission(self, request, obj=None):
         """
         Determine whether the user has delete permission.
         """
         return False
-
-    def response_change(self, request, obj):
-        """
-        Handle the response after saving changes.
-        Redirects the user to the admin dashboard.
-        """
-        # Redirect to the admin dashboard
-        return HttpResponseRedirect(reverse('admin:index'))
 
 
 class BlogsAdmin(admin.ModelAdmin):

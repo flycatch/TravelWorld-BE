@@ -30,7 +30,7 @@
         </div>
     {% endif %}
     <div class="form-group">
-        <a href="{% url opts|admin_urlname:'changelist' %}" class="btn {{ jazzmin_ui.button_classes.danger }} form-control">{% trans 'Close' %}</a>
+        <a href="{% url opts|admin_urlname:'changelist' %}" class="btn {{ jazzmin_ui.button_classes.info }} form-control">{% trans 'Close' %}</a>
     </div>
 
     {% block extra-actions %}{% endblock %}

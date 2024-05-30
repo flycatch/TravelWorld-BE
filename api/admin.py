@@ -376,17 +376,28 @@ class BookingResource(resources.ModelResource):
     user_uid = Field(attribute='user__user_uid', column_name='User uid')
     booking_amount = Field(attribute='booking_amount', column_name='Booking amount')
     booking_status = Field(attribute='booking_status', column_name='Booking status')
+    package_uid = Field(attribute='package__package_uid', column_name='Package UID')
+    activity_uid = Field(attribute='activity__activity_uid', column_name='Activity UID')
+    agent_uid = Field(column_name='Agent UID')
 
     class Meta:
         model = Booking
         fields = (
             'booking_id', 'display_created_on', 'tour_date', 'user_uid',
-            'booking_amount', 'booking_status'
+            'booking_amount', 'booking_status', 'package_uid', 'activity_uid',
+            'agent_uid'
         )
         export_order = fields
 
     def dehydrate_display_created_on(self, booking):
         return booking.created_on.strftime('%Y-%m-%d')
+    
+    def dehydrate_agent_uid(self, booking):
+        if booking.package and booking.package.agent:
+            return booking.package.agent.agent_uid
+        elif booking.activity and booking.activity.agent:
+            return booking.activity.agent.agent_uid
+        return None
 
 
 class BookingAdmin(ExportMixin, CustomModelAdmin):

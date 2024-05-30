@@ -840,14 +840,42 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
 
 
 class AgentTransactionSettlementAdmin(CustomModelAdmin):
+    """
+    A custom admin class for managing AgentTransactionSettlement model instances.
+
+    This class provides various functionalities for the admin interface, including:
+        - Conditional fieldsets for displaying relevant fields on detail pages based
+            on activity or package existence.
+        - Custom display logic for specific fields like `account_verification_status`,
+            `pricing_section`, and `cancellation_policies`.
+        - Overriding the `change_view` method to make certain fields read-only under
+            specific conditions and display error messages.
+        - Custom logic in `save_model` to handle transaction ID generation, email notifications,
+            and basic validation.
+        - Disabling the "add" permission for this model in the admin interface.
+    """
     def get_fieldsets(self, request, obj=None):
+        """
+        Defines fieldsets to be displayed in the admin interface depending on the object
+        and page (detail or add).
+
+        Args:
+            request (HttpRequest): The current request object.
+            obj (AgentTransactionSettlement): The current object being edited (None for add page).
+
+        Returns:
+            tuple: A tuple of fieldsets for the admin interface.
+        """
         if obj:  # Detail page
             if obj.activity:
                 return (
                     (None, {
-                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                                "booking_type", 'activity_uid', 'activity_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date',)
+                        'fields': (
+                            'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
+                            'booking_type', 'activity_uid', 'activity_name', 'display_created_on',
+                            'payment_settlement_status', 'payment_settlement_amount',
+                            'payment_settlement_date',
+                            )
                     }),
                     ('Pricing', {
                         'fields': ('pricing_section',),
@@ -859,9 +887,12 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
             else:
                 return (
                     (None, {
-                        'fields': ('agent_uid','transaction_id','booking_uid', "booking_amount",
-                                "booking_type", 'package_uid', 'package_name', 'payment_settlement_status',
-                                'payment_settlement_amount','payment_settlement_date',)
+                        'fields': (
+                            'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
+                            'booking_type', 'package_uid', 'package_name', 'display_created_on',
+                            'payment_settlement_status', 'payment_settlement_amount',
+                            'payment_settlement_date',
+                            )
                     }),
                     ('Pricing', {
                         'fields': ('pricing_section',),
@@ -873,44 +904,68 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'activity', 'booking', 'payment_settlement_status',
-                                'payment_settlement_amount', 'agent','payment_settlement_date')
+                    'fields': (
+                        'package', 'activity', 'booking', 'payment_settlement_status',
+                        'payment_settlement_amount', 'agent', 'payment_settlement_date'
+                        )
                 }),
             )
-        
+
     list_display = ("booking_uid", "booking_type", "package_uid", "activity_uid", "agent_uid",
-                    "transaction_id", "payment_settlement_status_colour", 'account_verification_status')
-    
-    list_filter = ("payment_settlement_status","booking_type")
+                    "transaction_id", "display_created_on", "payment_settlement_status_colour",
+                    "account_verification_status")
+    list_filter = ("payment_settlement_status", "booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "booking_type", "package__title",
                      "package__package_uid", "activity__activity_uid", "agent__agent_uid",
-                     "agent__username", "payment_settlement_date")
+                     "agent__username", "payment_settlement_date", "created_on")
     exclude = ('status',)
 
     def account_verification_status(self, obj):
-        return account_verification_status_colour(obj.agent.account_verification_status if obj.agent else None)
+        """
+        Retrieves and displays the account verification status of the related agent.
+
+        Args:
+            obj (AgentTransactionSettlement): The current object being edited.
+
+        Returns:
+            str: The account verification status of the related agent
+                (or None if no agent is related).
+        """
+        return account_verification_status_colour(
+            obj.agent.account_verification_status if obj.agent else None)
+
     account_verification_status.short_description = "Account Status"
     account_verification_status.admin_order_field = "agent__account_verification_status"
 
     def pricing_section(self, obj):
+        """
+        Generates and displays the pricing information related to the booking.
+
+        Args:
+            obj (AgentTransactionSettlement): The current object being edited.
+
+        Returns:
+            str: The HTML content for displaying the pricing information or a message
+                 indicating no pricing information is available.
+        """
         pricing_obj = obj.booking.pricing
         if pricing_obj:
             if obj.booking.adults_rate:
-                pricing_dict = {'Tour Date': obj.booking.tour_date, 
-                                'Adult Count':obj.booking.adult,
+                pricing_dict = {'Tour Date': obj.booking.tour_date,
+                                'Adult Count': obj.booking.adult,
                                 'Adult Rate': obj.booking.adults_rate,
                                 'Adult Commission': obj.booking.adults_commission,
-                                'Child Count':obj.booking.child,
+                                'Child Count': obj.booking.child,
                                 'Child Rate': obj.booking.child_rate,
                                 'Child Commission': obj.booking.child_commission, 
-                                'Infant Count':obj.booking.infant,
+                                'Infant Count': obj.booking.infant,
                                 'Infant Rate': obj.booking.infant_rate,
                                 'Infant Commission': obj.booking.infant_commission,
                                 }
-            
 
             # Render the HTML template with pricing_list
-            pricing_info = render_to_string('admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
+            pricing_info = render_to_string(
+                'admin/pricing_table_template.html', {'pricing_dict': pricing_dict})
             return mark_safe(pricing_info)  # Mark the string as safe HTML
         else:
             return "No pricing information available."
@@ -918,11 +973,20 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     pricing_section.short_description = ""
 
     def cancellation_policies(self, obj):
+        """
+        Generates and displays the cancellation policies related to the package or activity.
+
+        Args:
+            obj (AgentTransactionSettlement): The current object being edited.
+
+        Returns:
+            str: The HTML content for displaying the cancellation policies or a message
+                 indicating no cancellation policies are available.
+        """
         cancellation_categories = []
-        
+
         if obj.package:
             policies = CancellationPolicy.objects.filter(package=obj.package)
-            formatted_policies = ""
             for policy in policies:
                 categories = policy.category.all()
                 for category in categories:
@@ -942,7 +1006,6 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
         if obj.activity:
             policies = ActivityCancellationPolicy.objects.filter(activity=obj.activity)
-            formatted_policies = ""
             for policy in policies:
                 categories = policy.category.all()
                 cancellation_categories = []
@@ -963,54 +1026,108 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
         if not cancellation_categories:
             return "No cancellation policies available."
-        
+
         # Render the HTML template with pricing_list
-        cancellation_info = render_to_string('admin/cancellation_table_template.html', {'cancellation_category': cancellation_categories})
+        cancellation_info = render_to_string(
+            'admin/cancellation_table_template.html',
+            {'cancellation_category': cancellation_categories})
         return mark_safe(cancellation_info)  # Mark the string as safe HTML
 
     cancellation_policies.short_description = ''
+
     def agent(self, obj):
+        """
+        Retrieves the username of the related agent.
+        """
         return obj.package.agent.username if obj.package else None
-    
+
     def agent_uid(self, obj):
+        """
+        Retrieves the agent UID of the related agent.
+        """
         if obj.package:
             return obj.package.agent.agent_uid
         elif obj.activity:
             return obj.activity.agent.agent_uid
         else:
             return None
+    agent_uid.short_description = 'Agent UID'  # Set a custom column header
+    agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by agent_uid
 
     def package_uid(self, obj):
+        """
+        Retrieves the package UID of the related package.
+        """
         return obj.package.package_uid if obj.package else None
     package_uid.short_description = "Package UID"
+    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by package__package_uid
 
     def activity_uid(self, obj):
+        """
+        Retrieves the activity UID of the related activity.
+        """
         return obj.activity.activity_uid if obj.activity else None
     activity_uid.short_description = "Activity UID"
+    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by activity_uid
 
     def package_name(self, obj):
+        """
+        Retrieves the truncated package name of the related package.
+        """
         return truncatechars(obj.package.title if obj.package else None, 35)
     package_name.short_description = "Package Name"
+    package_name.admin_order_field = 'package__title'  # Enable sorting by package__title
 
     def activity_name(self, obj):
+        """
+        Retrieves the truncated activity name of the related activity.
+        """
         return truncatechars(obj.activity.title if obj.activity else None, 35)
     activity_name.short_description = "Activity Name"
 
     def booking_uid(self, obj):
+        """
+        Retrieves the booking UID of the related booking.
+        """
         return obj.booking.booking_id if obj.booking else None
     booking_uid.short_description = "Booking UID"
+    booking_uid.admin_order_field = 'booking__booking_id'  # Enable sorting by booking_id
 
     def booking_amount(self, obj):
+        """
+        Retrieves the booking Amount of the related booking.
+        """
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
     def booking_type(self, obj):
+        """
+        Retrieves the booking type of the related booking.
+        """
         return obj.booking.booking_type if obj.booking else None
     booking_amount.short_description = "Booking type"
 
     def display_created_on(self, obj):
+        """
+        Retrieves the formatted transaction date for display.
+        Returns:
+            str: The formatted transaction date.
+        """
         return obj.created_on.strftime("%Y-%m-%d")  # Customize the date format as needed
     display_created_on.short_description = "Transaction date"
+    display_created_on.admin_order_field = 'created_on'  # Enable sorting by created_on
+
+    def payment_settlement_status_colour(self, obj):
+        """
+        Retrieves the color representation of the payment settlement status.
+        Returns:
+            str: The color representation of the payment settlement status.
+        """
+        return refund_status_colour(obj.payment_settlement_status)
+    # Set a custom column header
+    payment_settlement_status_colour.short_description = 'Payment settlement status'
+    # Enable sorting by payment_settlement_status
+    payment_settlement_status_colour.admin_order_field = 'payment_settlement_status'
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         """
@@ -1020,11 +1137,12 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         """
         # Get the object based on the object_id
         obj = self.get_object(request, object_id)
-        
+
         # Define the initial set of read-only fields
-        self.readonly_fields = ['transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-                                'display_created_on', 'package_name','booking_amount', 'booking_type',
-                                'cancellation_policies','pricing_section', 'activity_uid', 'activity_name']
+        self.readonly_fields = [
+            'transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
+            'display_created_on', 'package_name', 'booking_amount', 'booking_type',
+            'cancellation_policies', 'pricing_section', 'activity_uid', 'activity_name']
 
         # Check if the object exists and if the agent's account verification status is not approved
         if obj and obj.agent and obj.agent.account_verification_status != 'approved':
@@ -1039,6 +1157,18 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return super().change_view(request, object_id, form_url, extra_context)
 
     def save_model(self, request, obj, form, change):
+        """
+        Overrides the default `save_model` behavior to perform additional 
+        actions before saving changes to the model instance.
+
+        Args:
+            request (HttpRequest): The current request object.
+            obj (AgentTransactionSettlement): The object being saved.
+            form (ModelForm): The model form used for data collection.
+            change (bool): Whether the object is being created (False) or updated (True).
+        """
+        # Call the model's clean method to perform validation
+        obj.full_clean()
 
         # Get the original object before saving changes
         original_obj = self.model.objects.get(pk=obj.pk) if change else None
@@ -1051,23 +1181,12 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
 
         subject = f"EXPLORE WORLD | TRANSACTION"
         message = f"Dear {obj.agent.agent_uid},\n\nYour transaction settlement has been {obj.payment_settlement_status}."
-        send_email.delay(subject,message,obj.agent.email)
-
-    def payment_settlement_status_colour(self, obj):
-        return refund_status_colour(obj.payment_settlement_status)
-
-    payment_settlement_status_colour.short_description = 'Payment settlement status'  # Set a custom column header
-    payment_settlement_status_colour.admin_order_field = 'payment_settlement_status'  # Enable sorting by stage
-
-    booking_uid.admin_order_field = 'booking__booking_id'  # Enable sorting by stage
-    package_name.admin_order_field = 'package__title'  # Enable sorting by stage
-    package_uid.admin_order_field = 'package__package_uid'  # Enable sorting by stage
-    activity_uid.admin_order_field = 'activity__activity_uid'  # Enable sorting by stage
-    agent_uid.admin_order_field = 'Agent UID'  # Enable sorting by stage
-    agent_uid.short_description = 'Agent UID'  # Set a custom column header
-    display_created_on.admin_order_field = 'created_on'  # Enable sorting by stage
+        send_email.delay(subject, message, obj.agent.email)
 
     def has_add_permission(self, request, obj=None):
+        """
+        Remove add permission for admin interface
+        """
         return False
 
 

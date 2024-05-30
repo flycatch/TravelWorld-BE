@@ -1182,13 +1182,21 @@ class AgentTransactionSettlement(AuditFields):
     booking_type  =  models.CharField(choices = BOOKING_TYPE, max_length=50,
                                       blank=True,null=True, verbose_name='Booking Type')
 
-
     def __str__(self):
         return self.transaction_id if self.transaction_id else self.booking.booking_id
 
     class Meta:
         verbose_name = 'Agent Transaction'
         verbose_name_plural = 'Agent Transaction'
+
+    def clean(self):
+        # Ensure both dates are of the same type for comparison
+        if self.payment_settlement_date and self.created_on:
+            if self.payment_settlement_date < self.created_on.date():
+                raise ValidationError({
+                    'payment_settlement_date': _(
+                        'Payment settlement date should be after Booking date')
+                })
 
 
 class SendEnquiry(AuditFields):

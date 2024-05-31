@@ -1,8 +1,15 @@
+import json
 from api.models import *
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models.signals import post_save,post_delete
+from django.contrib.admin.models import LogEntry, CHANGE
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.signals import post_save,post_delete, pre_save
 from django.dispatch import receiver
+from django.utils.html import escape
+from django.utils.functional import Promise
+
+from .middleware import get_current_request
 
 
 @receiver(post_save, sender=Agent)
@@ -173,3 +180,50 @@ def update_package_min_price_on_delete(sender, instance, **kwargs):
     if instance.activity:
         instance.activity.update_min_price()
 
+
+def log_change(instance, user, message):
+    LogEntry.objects.log_action(
+        user_id=user.pk,
+        content_type_id=ContentType.objects.get_for_model(instance).pk,
+        object_id=instance.pk,
+        object_repr=str(instance),
+        action_flag=CHANGE,
+        change_message=message
+    )
+
+def get_changes(old_instance, new_instance):
+    changes = []
+    for field in new_instance._meta.fields:
+        field_name = field.name
+        old_value = getattr(old_instance, field_name)
+        new_value = getattr(new_instance, field_name)
+        if old_value != new_value:
+            field_verbose_name = field.verbose_name
+            if isinstance(field_verbose_name, Promise):
+                field_verbose_name = str(field_verbose_name)
+            changes.append({
+                'action': 'Changed',
+                'fields': field_verbose_name,
+                'old_value': escape(str(old_value)),
+                'new_value': escape(str(new_value))
+            })
+    return changes
+
+@receiver(pre_save)
+def log_model_changes(sender, instance, **kwargs):
+    if instance.pk:
+        try:
+            old_instance = sender.objects.get(pk=instance.pk)
+        except:
+            old_instance = None
+
+        if old_instance:
+            changes = get_changes(old_instance, instance)
+            if changes:
+                change_message = json.dumps(changes)
+                request = get_current_request()
+                if request and hasattr(request, 'user') and request.path.startswith('/admin/'):
+                    # Skip logging here, it is handled in the admin save_model method
+                    return
+                if request and hasattr(request, 'user'):
+                    log_change(instance, request.user, change_message)

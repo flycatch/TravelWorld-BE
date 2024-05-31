@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from django.db import models
@@ -14,6 +15,7 @@ from api.models import (Itinerary, Pricing, UserReviewImage,
                         CancellationPolicy, ActivityCancellationPolicy, Informations,
                         PackageImage, ActivityImage, AttractionImage, InclusionExclusion,
                         PackageInformations,ActivityItinerary, ActivityInformations,BlogImage)
+from api.signals import log_change, get_changes
 
 
 admin.site.site_header = 'Explore World'
@@ -49,6 +51,18 @@ class CustomModelAdmin(admin.ModelAdmin):
             formfield.widget.can_add_related = False
 
         return formfield
+    
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_obj = self.model.objects.get(pk=obj.pk)
+            changes = get_changes(old_obj, obj)
+            if changes:
+                change_message = json.dumps(changes)
+                log_change(obj, request.user, change_message)
+        super().save_model(request, obj, form, change)
+    
+    def log_change(self, request, object, message):
+        pass
 
 
 class CustomStackedInline(admin.StackedInline):

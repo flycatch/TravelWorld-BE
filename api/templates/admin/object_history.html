@@ -43,7 +43,29 @@
                                               {{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}
                                           </a> -->
                                           {{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}
-                                          {{ action_message.msg|style_bold_first_word }}
+                                          <script>
+                                            try {
+                                                var changeData = JSON.parse('{{ action_message.msg|safe }}')[0];
+                                                var actionFlag = {{ action.action_flag }};
+                                                var actionLabel = '';
+                                                
+                                                // Check the action flag
+                                                if (actionFlag === 1) {
+                                                    actionLabel = '<b>Added</b>';
+                                                } else if (actionFlag === 2) {
+                                                    actionLabel = '<b>Changed</b>';
+                                                }
+                                                
+                                                // Construct the message based on the action label
+                                                var message = actionLabel + ' ' + changeData.fields + ' from ' + changeData.old_value + ' to ' + changeData.new_value;
+                                                
+                                                // Write the message to the document
+                                                document.write(message);
+                                            }
+                                            catch {
+                                                document.write('{{ action_message.msg|style_bold_first_word }}');
+                                            }
+                                          </script>
                                       </h3>
                                     </div>
                                   </div>

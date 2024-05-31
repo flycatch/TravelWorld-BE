@@ -686,9 +686,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             if obj.activity:
                 return (
                     (None, {
-                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'activity_uid', 'activity_name', 'agent', 'agent_uid', 'transaction_date',
-                                    'refund_status', 'refund_amount')
+                        'fields': (
+                            'user', 'refund_uid', 'booking_uid', "booking_amount",
+                            'activity_uid', 'activity_name', 'agent', 'agent_uid',
+                            "booking_date", 'refund_status', 'refund_amount', 'transaction_date')
                     }),
                     ('Cancellation policy', {
                         'fields': ('cancellation_policies',)
@@ -697,9 +698,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             else:
                 return (
                     (None, {
-                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'package_uid', 'package_name', 'agent', 'agent_uid', 'transaction_date',
-                                    'refund_status', 'refund_amount')
+                        'fields': (
+                            'user', 'refund_uid', 'booking_uid', "booking_amount",
+                            'package_uid', 'package_name', 'agent', 'agent_uid',
+                            "booking_date", 'refund_status', 'refund_amount', 'transaction_date')
                     }),
                     ('Cancellation policy', {
                         'fields': ('cancellation_policies',)
@@ -708,12 +710,13 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'activity', 'booking', 'refund_status', 'refund_amount', 'user',)
+                    'fields': (
+                        'package', 'activity', 'booking', 'refund_status', 'refund_amount', 'user',)
                 }),
             )
         
     list_display = ("booking_uid", "user", "package_uid", "activity_uid", "agent", "agent_uid",
-                    "refund_uid","refund_amount", "refund_status_colour", "display_transaction_date",)
+                    "refund_uid","refund_amount", "refund_status_colour", "display_transaction_date")
     
     list_filter = ("refund_status",)
     search_fields = ("refund_uid", "booking__booking_id", "user__user_uid",

@@ -48,6 +48,7 @@ from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
                              refund_status_colour, account_verification_status_colour)
 
 
+
 class AgentAdmin(CustomModelAdmin):
     """
     A custom admin class for managing Agent model instances.
@@ -119,6 +120,7 @@ class AgentAdmin(CustomModelAdmin):
 
     def has_add_permission(self, request):
         return False
+    
 
 
 class UserAdmin(CustomModelAdmin):
@@ -1313,7 +1315,7 @@ def dashboard_page(request):
     total_user_count = User.objects.count()
 
     #Booking
-    total_bookings_count = Booking.objects.count()
+    total_bookings_count = Booking.objects.exclude(booking_status='PENDING').count()
     successful_bookings = Booking.objects.filter(booking_status='SUCCESSFUL').count()
     failed_bookings = Booking.objects.filter(booking_status='FAILED').count()
     refunded_bookings = Booking.objects.filter(booking_status='REFUNDED').count()
@@ -1613,6 +1615,7 @@ class BaseUserAdmin(CustomModelAdmin):
         Determine whether the user has delete permission.
         """
         return False
+
 
 
 class BlogsAdmin(admin.ModelAdmin):

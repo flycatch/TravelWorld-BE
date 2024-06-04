@@ -36,9 +36,13 @@ def validate_file_size(file):
 
 
 class CustomJSONEncoder(json.JSONEncoder):
+    # This is a custom JSON encoder class that overrides the default method.
     def default(self, obj):
+        # This method is called for each object in the JSON data. It checks if the object is a Promise (a type of asynchronous operation).
         if isinstance(obj, Promise):
+            # If it is a Promise, it converts it to a string using the force_str function.
             return force_str(obj)
+        # If it is not a Promise, it calls the default method of the parent class.
         return super().default(obj)
     
 

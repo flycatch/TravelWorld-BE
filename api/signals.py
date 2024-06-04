@@ -1,8 +1,13 @@
+import json
 from api.models import *
 from django.conf import settings
 from django.core.mail import send_mail
-from django.db.models.signals import post_save,post_delete
+from django.contrib.admin.models import LogEntry, CHANGE, ADDITION
+from django.contrib.contenttypes.models import ContentType
+from django.db.models.fields.files import FileField
+from django.db.models.signals import post_save,post_delete, pre_save
 from django.dispatch import receiver
+from django.utils.html import escape
 
 
 @receiver(post_save, sender=Agent)
@@ -173,3 +178,36 @@ def update_package_min_price_on_delete(sender, instance, **kwargs):
     if instance.activity:
         instance.activity.update_min_price()
 
+
+def log_change(instance, user, message):
+    LogEntry.objects.log_action(
+        user_id=user.pk,
+        content_type_id=ContentType.objects.get_for_model(instance).pk,
+        object_id=instance.pk,
+        object_repr=str(instance),
+        action_flag=CHANGE,
+        change_message=message
+    )
+
+
+def get_changes(old_instance, new_instance):
+    changes = []
+    for field in new_instance._meta.fields:
+        field_name = field.name
+        old_value = getattr(old_instance, field_name, None)
+        new_value = getattr(new_instance, field_name, None)
+
+        if isinstance(field, FileField):
+            pass
+        else:
+            if old_value != new_value:
+                field_verbose_name = field.verbose_name
+                if isinstance(field_verbose_name, str):
+                    field_verbose_name = str(field_verbose_name)
+                changes.append({
+                    'fields': field_verbose_name,
+                    'old_value': escape(str(old_value)),
+                    'new_value': escape(str(new_value))
+                })
+
+    return changes

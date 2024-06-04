@@ -39,31 +39,41 @@
                                     <i class="fas fa-{{ action_message.icon }} bg-{{ action_message.colour }}"></i>
                                     <div class="timeline-item">
                                       <h3 class="timeline-header no-border">
-                                          <!-- <a href="{% jazzy_admin_url action.user request.current_app|default:"admin" %}" target="_blank">
-                                              {{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}
-                                          </a> -->
-                                          {{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}
                                           <script>
-                                            try {
-                                                var changeData = JSON.parse('{{ action_message.msg|safe }}')[0];
-                                                var actionFlag = {{ action.action_flag }};
-                                                var actionLabel = '';
-                                                
-                                                // Check the action flag
-                                                if (actionFlag === 1) {
-                                                    actionLabel = '<b>Added</b>';
-                                                } else if (actionFlag === 2) {
-                                                    actionLabel = '<b>Changed</b>';
-                                                }
-                                                
+                                            try{
+                                              var changeData = JSON.parse('{{ action_message.msg|safe }}');
+                                            }
+                                            catch {
+                                              var changeData = [];
+                                            }                                            
+                                            var actionFlag = {{ action.action_flag }};
+                                            console.log('actionFlag: ',actionFlag);
+                                            var actionLabel = '';
+
+                                            // Check the action flag
+                                            if (actionFlag === 1) {
+                                                actionLabel = 'Added';
+                                            } else if (actionFlag === 2) {
+                                                actionLabel = 'Changed';
+                                            }
+                                        
+                                            var user = `{{ action.user.get_username }}{% if action.user.get_full_name %} ({{ action.user.get_full_name }}){% endif %}`;
+
+                                            if (changeData.length != 0) {
+                                              for (let [key, value] of Object.entries(changeData)) {
                                                 // Construct the message based on the action label
-                                                var message = actionLabel + ' ' + changeData.fields + ' from ' + changeData.old_value + ' to ' + changeData.new_value;
+                                                var message = `${user} <b>${actionLabel}</b> ${value.fields} from ${value.old_value} to ${value.new_value}.<br>`;
                                                 
                                                 // Write the message to the document
                                                 document.write(message);
+                                              }
                                             }
-                                            catch {
-                                                document.write('{{ action_message.msg|style_bold_first_word }}');
+                                            else {
+                                              // Construct the message based on the action label
+                                              var message = `${user} <b>${actionLabel}</b>.`;
+                                                
+                                              // Write the message to the document
+                                              document.write(message);
                                             }
                                           </script>
                                       </h3>

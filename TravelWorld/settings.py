@@ -72,7 +72,6 @@ MIDDLEWARE = [
     'admin_reorder.middleware.ModelAdminReorder',
     'api.middleware.ModelAdminReorderWithNav',
     'simple_history.middleware.HistoryRequestMiddleware',
-    'api.middleware.ThreadLocalMiddleware',
 ]
 SIMPLE_HISTORY_HISTORY_ID_USE_UUID = True
 

@@ -47,6 +47,11 @@ from api.tasks import *
 from api.utils.admin import (stage_colour, status_colour, booking_status_colour,
                              refund_status_colour, account_verification_status_colour)
 
+from django.contrib import admin
+from django.contrib.admin.models import CHANGE
+from django.contrib.contenttypes.models import ContentType
+import json
+from django.contrib.admin.models import LogEntry,CHANGE
 
 class AgentAdmin(CustomModelAdmin):
     """
@@ -119,6 +124,32 @@ class AgentAdmin(CustomModelAdmin):
 
     def has_add_permission(self, request):
         return False
+    
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            # Calculate the detailed changes
+            changes = {}
+            for field in form.changed_data:
+                old_value = form.initial[field]
+                new_value = form.cleaned_data[field]
+                changes[field] = {'from': old_value, 'to': new_value}
+            
+            # Save the object
+            super().save_model(request, obj, form, change)
+            
+            # Log the detailed changes
+            log_entry = LogEntry.objects.create(
+                user_id=request.user.pk,
+                content_type_id=ContentType.objects.get_for_model(obj).pk,
+                object_id=obj.pk,
+                object_repr=str(obj),
+                action_flag=CHANGE,
+                change_message='Changed fields',
+                # change_details=json.dumps(changes),
+            )
+        else:
+            super().save_model(request, obj, form, change)
 
 
 class UserAdmin(CustomModelAdmin):
@@ -1313,7 +1344,7 @@ def dashboard_page(request):
     total_user_count = User.objects.count()
 
     #Booking
-    total_bookings_count = Booking.objects.count()
+    total_bookings_count = Booking.objects.exclude(booking_status='PENDING').count()
     successful_bookings = Booking.objects.filter(booking_status='SUCCESSFUL').count()
     failed_bookings = Booking.objects.filter(booking_status='FAILED').count()
     refunded_bookings = Booking.objects.filter(booking_status='REFUNDED').count()
@@ -1613,6 +1644,7 @@ class BaseUserAdmin(CustomModelAdmin):
         Determine whether the user has delete permission.
         """
         return False
+
 
 
 class BlogsAdmin(admin.ModelAdmin):

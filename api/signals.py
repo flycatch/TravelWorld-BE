@@ -1,4 +1,5 @@
 import json
+import imagehash
 from api.models import *
 from django.conf import settings
 from django.core.mail import send_mail
@@ -8,6 +9,7 @@ from django.db.models.fields.files import FileField
 from django.db.models.signals import post_save,post_delete, pre_save
 from django.dispatch import receiver
 from django.utils.html import escape
+from PIL import Image
 
 
 @receiver(post_save, sender=Agent)
@@ -198,7 +200,27 @@ def get_changes(old_instance, new_instance):
         new_value = getattr(new_instance, field_name, None)
 
         if isinstance(field, FileField):
-            pass
+            field_verbose_name = field.verbose_name
+            if isinstance(field_verbose_name, str):
+                field_verbose_name = str(field_verbose_name)
+
+            if new_value and not old_value:
+                changes.append({
+                    'action': 'Added',
+                    'fields': field_verbose_name
+                })
+            elif new_value and old_value:
+                old_image = Image.open(old_value)
+                new_image = Image.open(new_value)
+
+                old_image_hash = imagehash.average_hash(old_image)
+                new_image_hash = imagehash.average_hash(new_image)
+
+                if old_image_hash != new_image_hash:
+                    changes.append({
+                        'action': 'Changed',
+                        'fields': field_verbose_name
+                    })
         else:
             if old_value != new_value:
                 field_verbose_name = field.verbose_name

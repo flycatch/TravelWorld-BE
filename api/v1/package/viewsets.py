@@ -376,7 +376,6 @@ class InclusionExclusionViewSet(viewsets.ModelViewSet):
         Returns:
             Response: Response containing status and message.
         """
-        print(request.data)
         instance = self.get_object()
         serializer = self.serializer_class(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -935,7 +934,7 @@ class PackageImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'status': 'success', 'message': 'Image deleted successfully'},
-                        status=status.HTTP_204_NO_CONTENT)
+                        status=status.HTTP_200_OK)
 
 from django.db.models import Min, Q, F
 
@@ -1172,8 +1171,8 @@ class FavoriteProductViewSet(viewsets.ModelViewSet):
             instance = self.get_object()
             self.perform_destroy(instance)
             return Response({'status': 'success', 'message': 'Favorite product deleted successfully',
-                             'statusCode': status.HTTP_204_NO_CONTENT},
-                            status=status.HTTP_204_NO_CONTENT)
+                             'statusCode': status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'status': 'error', 'message': 'An error occurred while deleting favorite product',
                              'error': str(e), 'statusCode': status.HTTP_500_INTERNAL_SERVER_ERROR},

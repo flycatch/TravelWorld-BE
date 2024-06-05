@@ -5,6 +5,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import Avg
 
 from api.models import (Package, Itinerary, PackageInformations, Pricing, SuitableFor,
                         TourCategory,CancellationPolicy, PackageFaqCategory, PackageFaqQuestionAnswer,
@@ -14,7 +15,7 @@ from api.models import (Package, Itinerary, PackageInformations, Pricing, Suitab
 from api.v1.agent.serializers import BookingAgentSerializer
 from api.v1.general.serializers import *
 from api.v1.general.serializers import LocationSerializer
-from django.db.models import Avg
+from api.v1.activity.serializers import HomePageActivitySerializer
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -720,8 +721,9 @@ class PackageImageListSerializer(serializers.Serializer):
 
 class FavoriteProductSerializer(serializers.ModelSerializer):
     package = HomePagePackageSerializer(required=False)
+    activity = HomePageActivitySerializer(required=False)
 
     class Meta:
         model = FavoriteProducts
-        fields = ['id', 'user', 'package']
+        fields = ['id', 'user', 'package', 'activity']
 

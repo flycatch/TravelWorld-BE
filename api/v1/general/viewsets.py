@@ -68,8 +68,8 @@ class LocationViewSet(viewsets.ModelViewSet):
             self.perform_destroy(instance)
             return Response({
                 'message': 'Location deleted successfully', 'status': 'success', 
-                'statusCode': status.HTTP_204_NO_CONTENT},
-                status=status.HTTP_204_NO_CONTENT)
+                'statusCode': status.HTTP_200_OK},
+                status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'message': str(e), 'status': 'error'}, 
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)

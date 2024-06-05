@@ -65,7 +65,7 @@
                                                   var message = `${user} ${value.action} <b>${value.fields}</b>.<br>`;
                                                 }
                                                 else {
-                                                  if(value.old_value == null) {
+                                                  if(value.old_value != 'None') {
                                                     // Construct the message based on the action label
                                                     var message = `${user} ${actionLabel} ${value.fields} from <b>${value.old_value}</b> to <b>${value.new_value}</b>.<br>`;
                                                   }

@@ -949,7 +949,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
     list_display = ("booking_uid", "agent_transaction_booking_type", "package_uid", "activity_uid", "agent_uid",
                     "transaction_id", "display_created_on", "payment_settlement_status_colour",
                     "account_verification_status")
-    list_filter = ("payment_settlement_status", "booking_type")
+    list_filter = ("payment_settlement_status", "booking__booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "booking_type", "package__title",
                      "package__package_uid", "activity__activity_uid", "agent__agent_uid",
                      "agent__username", "payment_settlement_date", "created_on")

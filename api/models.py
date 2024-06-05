@@ -1148,12 +1148,39 @@ class UserRefundTransaction(AuditFields):
     transaction_date = models.DateField(verbose_name="Transaction Date",
                                         null=True, blank=True, )
 
-    def __str__(self):
-        return self.refund_uid if self.refund_uid else ''
-
     class Meta:
         verbose_name = 'User Transaction'
         verbose_name_plural = 'User Transaction'
+
+    def __str__(self):
+        return self.refund_uid if self.refund_uid else ''
+
+    def clean(self):
+        """
+        Ensure both dates are of the same type for comparison and validate dates.
+
+        Validations:
+            - Transaction date should be after the booking date.
+            - Transaction date should not be in the future.
+
+        Raises:
+            ValidationError: If any validation fails.
+        """
+        # Ensure both dates are of the same type for comparison
+        if self.transaction_date and self.created_on:
+            if self.transaction_date < self.created_on.date():
+                raise ValidationError({
+                    'transaction_date': _(
+                        'Transaction date should be after the booking date')
+                })
+
+        # Ensure transaction date is not in the future
+        if self.transaction_date and self.transaction_date > date.today():
+            raise ValidationError({
+                'transaction_date': _(
+                    'Transaction date cannot be in the future')
+            })
+
 
 
 class AgentTransactionSettlement(AuditFields):
@@ -1191,6 +1218,16 @@ class AgentTransactionSettlement(AuditFields):
         verbose_name_plural = 'Agent Transaction'
 
     def clean(self):
+        """
+        Ensure both dates are of the same type for comparison and validate dates.
+
+        Validations:
+            - payment_settlement_date date should be after the booking date.
+            - payment_settlement_date date should not be in the future.
+
+        Raises:
+            ValidationError: If any validation fails.
+        """
         # Ensure both dates are of the same type for comparison
         if self.payment_settlement_date and self.created_on:
             if self.payment_settlement_date < self.created_on.date():
@@ -1198,6 +1235,13 @@ class AgentTransactionSettlement(AuditFields):
                     'payment_settlement_date': _(
                         'Payment settlement date should be after Booking date')
                 })
+
+        # Ensure Payment settlement date is not in the future
+        if self.payment_settlement_date and self.payment_settlement_date > date.today():
+            raise ValidationError({
+                'payment_settlement_date': _(
+                    'Payment settlement date cannot be in the future')
+            })
 
 
 class SendEnquiry(AuditFields):

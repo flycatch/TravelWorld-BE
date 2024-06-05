@@ -45,7 +45,7 @@
                                             }
                                             catch {
                                               var changeData = [];
-                                            }      
+                                            }
                                             
                                             var actionFlag = {{ action.action_flag }};
                                             var actionLabel = '';
@@ -65,15 +65,14 @@
                                                   var message = `${user} ${value.action} <b>${value.fields}</b>.<br>`;
                                                 }
                                                 else {
-                                                  if(value.old_value == null) {
+                                                  if(value.old_value == 'None' || !value.old_value) {
                                                     // Construct the message based on the action label
-                                                    var message = `${user} ${actionLabel} ${value.fields} from <b>${value.old_value}</b> to <b>${value.new_value}</b>.<br>`;
-                                                  }
-                                                  else {
                                                     var message = `${user} Added ${value.fields} <b>${value.new_value}</b>.<br>`;
                                                   }
+                                                  else {
+                                                    var message = `${user} ${actionLabel} ${value.fields} from <b>${value.old_value}</b> to <b>${value.new_value}</b>.<br>`;
+                                                  }
                                                 }
-                                                
                                                 
                                                 // Write the message to the document
                                                 document.write(message);

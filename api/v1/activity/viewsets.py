@@ -459,7 +459,7 @@ class ActivityImageUploadView(generics.CreateAPIView, generics.ListAPIView,
         instance = self.get_object()
         self.perform_destroy(instance)
         return Response({'status': 'success', 'message': 'Image deleted successfully'},
-                        status=status.HTTP_204_NO_CONTENT)
+                        status=status.HTTP_200_OK)
 
 
 

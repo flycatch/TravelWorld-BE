@@ -1,5 +1,4 @@
 from admin_reorder.middleware import ModelAdminReorder
-
 class ModelAdminReorderWithNav(ModelAdminReorder):
     def process_template_response(self, request, response):
         if response.context_data is not None:

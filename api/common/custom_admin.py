@@ -1,9 +1,12 @@
+import json
 from datetime import datetime
 
 from django.db import models
 from django.contrib import admin
+from django.utils.functional import Promise
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.contrib.admin.widgets import RelatedFieldWidgetWrapper
 from django.core.exceptions import ValidationError
@@ -14,6 +17,8 @@ from api.models import (Itinerary, Pricing, UserReviewImage,
                         CancellationPolicy, ActivityCancellationPolicy, Informations,
                         PackageImage, ActivityImage, AttractionImage, InclusionExclusion,
                         PackageInformations,ActivityItinerary, ActivityInformations,BlogImage)
+from api.signals import log_change, get_changes
+
 
 
 admin.site.site_header = 'Explore World'
@@ -29,6 +34,17 @@ def validate_file_size(file):
         raise ValidationError('Image should be less than 15MB.',
                               params={'file_name': file.name, 'max_size': max_size / (1024 * 1024)})
 
+
+class CustomJSONEncoder(json.JSONEncoder):
+    # This is a custom JSON encoder class that overrides the default method.
+    def default(self, obj):
+        # This method is called for each object in the JSON data. It checks if the object is a Promise (a type of asynchronous operation).
+        if isinstance(obj, Promise):
+            # If it is a Promise, it converts it to a string using the force_str function.
+            return force_str(obj)
+        # If it is not a Promise, it calls the default method of the parent class.
+        return super().default(obj)
+    
 
 class CustomModelAdmin(admin.ModelAdmin):
     list_per_page = 10
@@ -49,6 +65,18 @@ class CustomModelAdmin(admin.ModelAdmin):
             formfield.widget.can_add_related = False
 
         return formfield
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_obj = self.model.objects.get(pk=obj.pk)
+            changes = get_changes(old_obj, obj)
+            if changes:
+                change_message = json.dumps(changes, cls=CustomJSONEncoder)
+                log_change(obj, request.user, change_message)
+        super().save_model(request, obj, form, change)
+
+    def log_change(self, request, object, message):
+        pass
 
 
 class CustomStackedInline(admin.StackedInline):

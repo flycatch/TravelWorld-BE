@@ -946,7 +946,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
 
-    list_display = ("booking_uid", "package_uid", "activity_uid", "agent_uid",
+    list_display = ("booking_uid", "agent_transaction_booking_type", "package_uid", "activity_uid", "agent_uid",
                     "transaction_id", "display_created_on", "payment_settlement_status_colour",
                     "account_verification_status")
     list_filter = ("payment_settlement_status", "booking_type")
@@ -1141,6 +1141,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         """
         return obj.booking.booking_type if obj.booking else None
     agent_transaction_booking_type.short_description = "Booking type"
+    agent_transaction_booking_type.admin_order_field = "booking_type"
 
     def display_created_on(self, obj):
         """

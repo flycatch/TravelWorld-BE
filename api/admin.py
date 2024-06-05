@@ -907,7 +907,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': (
                             'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
-                            'booking_type', 'activity_uid', 'activity_name', 'display_created_on',
+                            'agent_transaction_booking_type', 'activity_uid', 'activity_name', 'display_created_on',
                             'payment_settlement_status', 'payment_settlement_amount',
                             'payment_settlement_date',
                             )
@@ -924,7 +924,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': (
                             'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
-                            'booking_type', 'package_uid', 'package_name', 'display_created_on',
+                            'agent_transaction_booking_type', 'package_uid', 'package_name', 'display_created_on',
                             'payment_settlement_status', 'payment_settlement_amount',
                             'payment_settlement_date',
                             )
@@ -946,7 +946,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
 
-    list_display = ("booking_uid", "booking_type", "package_uid", "activity_uid", "agent_uid",
+    list_display = ("booking_uid", "package_uid", "activity_uid", "agent_uid",
                     "transaction_id", "display_created_on", "payment_settlement_status_colour",
                     "account_verification_status")
     list_filter = ("payment_settlement_status", "booking_type")
@@ -1135,12 +1135,12 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
-    def booking_type(self, obj):
+    def agent_transaction_booking_type(self, obj):
         """
         Retrieves the booking type of the related booking.
         """
         return obj.booking.booking_type if obj.booking else None
-    booking_amount.short_description = "Booking type"
+    agent_transaction_booking_type.short_description = "Booking type"
 
     def display_created_on(self, obj):
         """
@@ -1176,7 +1176,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         # Define the initial set of read-only fields
         self.readonly_fields = [
             'transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-            'display_created_on', 'package_name', 'booking_amount', 'booking_type',
+            'display_created_on', 'package_name', 'booking_amount', 'agent_transaction_booking_type',
             'cancellation_policies', 'pricing_section', 'activity_uid', 'activity_name']
 
         # Check if the object exists and if the agent's account verification status is not approved
@@ -1538,7 +1538,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
 
 
 class SendEnquiryAdmin(CustomModelAdmin):
-    list_display = ("package_uid", "activity_uid", "name", "email")
+    list_display = ("name", "email", "package_uid", "activity_uid")
     search_fields = ("package__package_uid", "activity__activity_uid", "name", "email")
     change_form_template = 'admin/change_form_hidden_history.html'
 
@@ -1612,12 +1612,6 @@ class BaseUserAdmin(CustomModelAdmin):
         """
         queryset = super().get_queryset(request)
         return queryset.filter(is_superuser=True)
-
-    def has_delete_permission(self, request, obj=None):
-        """
-        Determine whether the user has delete permission.
-        """
-        return False
 
 
 

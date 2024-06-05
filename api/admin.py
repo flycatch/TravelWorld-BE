@@ -1317,6 +1317,7 @@ def dashboard_page(request):
     successful_bookings = Booking.objects.filter(booking_status='SUCCESSFUL').count()
     failed_bookings = Booking.objects.filter(booking_status='FAILED').count()
     refunded_bookings = Booking.objects.filter(booking_status='REFUNDED').count()
+    refund_requested = Booking.objects.filter(booking_status='REFUNDED REQUESTED').count()
 
     #Agents
     total_agent_count = Agent.objects.count()
@@ -1343,6 +1344,7 @@ def dashboard_page(request):
         'successful_bookings':successful_bookings,
         'failed_bookings':failed_bookings,
         'refunded_bookings':refunded_bookings,
+        'refund_requested': refund_requested,
         'pending_agents':pending_agents,
         'approved_agents':approved_agents,
         'rejected_agents':rejected_agents,

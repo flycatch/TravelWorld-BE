@@ -1182,6 +1182,7 @@ class AgentTransactionSettlement(AuditFields):
     booking_type  =  models.CharField(choices = BOOKING_TYPE, max_length=50,
                                       blank=True,null=True, verbose_name='Booking Type')
 
+
     def __str__(self):
         return self.transaction_id if self.transaction_id else self.booking.booking_id
 

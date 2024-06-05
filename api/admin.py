@@ -688,9 +688,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             if obj.activity:
                 return (
                     (None, {
-                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'activity_uid', 'activity_name', 'agent', 'agent_uid', 'transaction_date',
-                                    'refund_status', 'refund_amount')
+                        'fields': (
+                            'user', 'refund_uid', 'booking_uid', "booking_amount",
+                            'activity_uid', 'activity_name', 'agent', 'agent_uid',
+                            "booking_date", 'refund_status', 'refund_amount', 'transaction_date')
                     }),
                     ('Cancellation policy', {
                         'fields': ('cancellation_policies',)
@@ -699,9 +700,10 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
             else:
                 return (
                     (None, {
-                        'fields': ('user', 'refund_uid','booking_uid', "booking_amount","booking_date",
-                                'package_uid', 'package_name', 'agent', 'agent_uid', 'transaction_date',
-                                    'refund_status', 'refund_amount')
+                        'fields': (
+                            'user', 'refund_uid', 'booking_uid', "booking_amount",
+                            'package_uid', 'package_name', 'agent', 'agent_uid',
+                            "booking_date", 'refund_status', 'refund_amount', 'transaction_date')
                     }),
                     ('Cancellation policy', {
                         'fields': ('cancellation_policies',)
@@ -710,12 +712,13 @@ class UserRefundTransactionAdmin(CustomModelAdmin):
         else:  # Add page
             return (
                 (None, {
-                    'fields': ('package', 'activity', 'booking', 'refund_status', 'refund_amount', 'user',)
+                    'fields': (
+                        'package', 'activity', 'booking', 'refund_status', 'refund_amount', 'user',)
                 }),
             )
         
     list_display = ("booking_uid", "user", "package_uid", "activity_uid", "agent", "agent_uid",
-                    "refund_uid","refund_amount", "refund_status_colour", "display_transaction_date",)
+                    "refund_uid","refund_amount", "refund_status_colour", "display_transaction_date")
     
     list_filter = ("refund_status",)
     search_fields = ("refund_uid", "booking__booking_id", "user__user_uid",
@@ -904,7 +907,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': (
                             'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
-                            'booking_type', 'activity_uid', 'activity_name', 'display_created_on',
+                            'agent_transaction_booking_type', 'activity_uid', 'activity_name', 'display_created_on',
                             'payment_settlement_status', 'payment_settlement_amount',
                             'payment_settlement_date',
                             )
@@ -921,7 +924,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                     (None, {
                         'fields': (
                             'agent_uid', 'transaction_id', 'booking_uid', 'booking_amount',
-                            'booking_type', 'package_uid', 'package_name', 'display_created_on',
+                            'agent_transaction_booking_type', 'package_uid', 'package_name', 'display_created_on',
                             'payment_settlement_status', 'payment_settlement_amount',
                             'payment_settlement_date',
                             )
@@ -943,10 +946,10 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
                 }),
             )
 
-    list_display = ("booking_uid", "booking_type", "package_uid", "activity_uid", "agent_uid",
+    list_display = ("booking_uid", "agent_transaction_booking_type", "package_uid", "activity_uid", "agent_uid",
                     "transaction_id", "display_created_on", "payment_settlement_status_colour",
                     "account_verification_status")
-    list_filter = ("payment_settlement_status", "booking_type")
+    list_filter = ("payment_settlement_status", "booking__booking_type")
     search_fields = ("transaction_id", "booking__booking_id", "booking_type", "package__title",
                      "package__package_uid", "activity__activity_uid", "agent__agent_uid",
                      "agent__username", "payment_settlement_date", "created_on")
@@ -1132,12 +1135,13 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         return obj.booking.booking_amount if obj.booking else None
     booking_amount.short_description = "Booking amount"
 
-    def booking_type(self, obj):
+    def agent_transaction_booking_type(self, obj):
         """
         Retrieves the booking type of the related booking.
         """
         return obj.booking.booking_type if obj.booking else None
-    booking_amount.short_description = "Booking type"
+    agent_transaction_booking_type.short_description = "Booking type"
+    agent_transaction_booking_type.admin_order_field = "booking_type"
 
     def display_created_on(self, obj):
         """
@@ -1173,7 +1177,7 @@ class AgentTransactionSettlementAdmin(CustomModelAdmin):
         # Define the initial set of read-only fields
         self.readonly_fields = [
             'transaction_id', 'agent_uid', 'package_uid', 'booking_uid', 'agent',
-            'display_created_on', 'package_name', 'booking_amount', 'booking_type',
+            'display_created_on', 'package_name', 'booking_amount', 'agent_transaction_booking_type',
             'cancellation_policies', 'pricing_section', 'activity_uid', 'activity_name']
 
         # Check if the object exists and if the agent's account verification status is not approved
@@ -1535,7 +1539,7 @@ class CoverPageInputAdmin(CustomModelAdmin):
 
 
 class SendEnquiryAdmin(CustomModelAdmin):
-    list_display = ("package_uid", "activity_uid", "name", "email")
+    list_display = ("name", "email", "package_uid", "activity_uid")
     search_fields = ("package__package_uid", "activity__activity_uid", "name", "email")
     change_form_template = 'admin/change_form_hidden_history.html'
 
@@ -1609,12 +1613,6 @@ class BaseUserAdmin(CustomModelAdmin):
         """
         queryset = super().get_queryset(request)
         return queryset.filter(is_superuser=True)
-
-    def has_delete_permission(self, request, obj=None):
-        """
-        Determine whether the user has delete permission.
-        """
-        return False
 
 
 

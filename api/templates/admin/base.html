@@ -302,7 +302,7 @@
                         {% block messages %}
                             {% for message in messages %}
                                 {% if message.tags == 'success' %}
-                                    <div class="alert alert-success alert-dismissible">
+                                    <div class="alert alert-dismissible" style="background-color: #3fe855;">
                                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×
                                         </button>
                                         <i class="icon fa fa-check"></i>{{ message|capfirst }}

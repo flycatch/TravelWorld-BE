@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from django.db import models
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.functional import Promise
 from django.utils.html import strip_tags
 from django.template.loader import render_to_string
@@ -77,6 +77,18 @@ class CustomModelAdmin(admin.ModelAdmin):
 
     def log_change(self, request, object, message):
         pass
+
+    def response_change(self, request, obj):
+        response = super().response_change(request, obj)
+        # Clear default success messages
+        storage = messages.get_messages(request)
+        list(storage)  # Consume and clear all messages
+
+        # Get the model name
+        model_name = obj._meta.verbose_name
+
+        messages.success(request, mark_safe(f'</i> The {model_name} <a style="color: #d11730;" href="{request.path}">{obj}</a> was changed successfully.'))
+        return response
 
 
 class CustomStackedInline(admin.StackedInline):

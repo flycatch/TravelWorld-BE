@@ -24,15 +24,15 @@ from api.signals import log_change, get_changes
 admin.site.site_header = 'Explore World'
 
 
-def validate_file_size(file):
-    """
-    Custom validator to check if the file size is less than 3MB.
-    """
-    file_size = file.size
-    max_size = 15 * 1024 * 1024  # 3MB in bytes
-    if file_size > max_size:
-        raise ValidationError('Image should be less than 15MB.',
-                              params={'file_name': file.name, 'max_size': max_size / (1024 * 1024)})
+# def validate_file_size(file):
+#     """
+#     Custom validator to check if the file size is less than 3MB.
+#     """
+#     file_size = file.size
+#     max_size = 15 * 1024 * 1024  # 3MB in bytes
+#     if file_size > max_size:
+#         raise ValidationError('Image should be less than 15MB.',
+#                               params={'file_name': file.name, 'max_size': max_size / (1024 * 1024)})
 
 
 class CustomJSONEncoder(json.JSONEncoder):
@@ -124,9 +124,9 @@ class AttractionImageInline(admin.TabularInline):
     extra = 3
     verbose_name = 'Image'
     verbose_name_plural = 'Images'
-    formfield_overrides = {
-        models.ImageField: {'validators': [validate_file_size]},
-    }
+    # formfield_overrides = {
+    #     models.ImageField: {'validators': [validate_file_size]},
+    # }
 
 class ItineraryInline(CustomStackedInline):
     model = Itinerary
@@ -150,21 +150,21 @@ class InformationsInline(CustomStackedInline):
     exclude = ['status']
 
 
-class PackageInformationsInline(CustomStackedInline):
-    model = PackageInformations
-    exclude = ['exclusiondetails', 'status']
-    verbose_name = 'Information'
-    verbose_name_plural = 'Information'
-    template = 'admin/information_tab.html'
+# class PackageInformationsInline(CustomStackedInline):
+#     model = PackageInformations
+#     exclude = ['exclusiondetails', 'status']
+#     verbose_name = 'Information'
+#     verbose_name_plural = 'Information'
+#     template = 'admin/information_tab.html'
 
-    def has_change_permission(self, request, obj=None):
-        return False
+#     def has_change_permission(self, request, obj=None):
+#         return False
     
-    def has_add_permission(self, request, obj=None):
-        return False
+#     def has_add_permission(self, request, obj=None):
+#         return False
     
-    def has_delete_permission(self, request, obj=None):
-        return False
+#     def has_delete_permission(self, request, obj=None):
+#         return False
 
   
 class PricingInline(CustomStackedInline):
@@ -200,10 +200,10 @@ class PricingInline(CustomStackedInline):
     get_blackout_dates.short_description = 'Blackout Dates'
 
 
-class TourCategoryInline(CustomStackedInline):
-    model = TourCategory
-    verbose_name = 'Tour Category'
-    verbose_name_plural = 'Tour Category'
+# class TourCategoryInline(CustomStackedInline):
+#     model = TourCategory
+#     verbose_name = 'Tour Category'
+#     verbose_name_plural = 'Tour Category'
 
 
 class CancellationPolicyInline(CustomStackedInline):
@@ -295,7 +295,7 @@ class ActivityPricingInline(CustomStackedInline):
     
     def has_delete_permission(self, request, obj=None):
         return False
-    
+
     def get_blackout_dates(self, obj):
         blackout_data = obj.blackout_dates
         formatted_blackout_dates = []
@@ -311,12 +311,6 @@ class ActivityPricingInline(CustomStackedInline):
         return '\n'.join(formatted_blackout_dates)
 
     get_blackout_dates.short_description = 'Blackout Dates'
-
-
-class ActivityTourCategoryInline(CustomStackedInline):
-    model = ActivityTourCategory
-    verbose_name = 'Tour Category'
-    verbose_name_plural = 'Tour Category'
 
 
 class ActivityFaqQuestionAnswerInline(CustomStackedInline):

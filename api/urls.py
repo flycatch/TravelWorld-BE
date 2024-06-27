@@ -3,7 +3,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
-                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet)
+                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet,
+                                     StateElasticSearch, StateDocumentViewSet)
 from api.v1.agent.viewsets import (AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,
                                    CustomPasswordResetConfirmView,AgentBankDetailsAPIView)
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
@@ -114,12 +115,14 @@ router.register(r'activity/cancellation', ActivityCancellationPolicyViewSet,
                 basename='activitycancellation')
 
 router.register(r'activity/faq', ActivityFaqQuestionAnswerViewSet, basename='activity_faq')
+router.register(r'search', StateDocumentViewSet, basename='StateDocument')
 
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
     path('v1/', include(router.urls)),
-    
+    path("v1/state_search/<str:query>/", StateElasticSearch.as_view()),
+
     # User booking
     path('v1/pay/', start_payment, name="payment"),
     path('v1/<int:user_id>/customer-list-bookings/', CustomerBookingListView.as_view(), name='customer-list-bookings'),

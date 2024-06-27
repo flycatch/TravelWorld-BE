@@ -1,20 +1,70 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import transaction
+from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
+
 from rest_framework import viewsets,status
 from rest_framework.filters import SearchFilter
-
-from api.models import (Country, State, City, CoverPageInput,Attraction, Location,Package,
-                        Activity, Currency)
-from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer, 
-                                        AttractionSerializer,CoverPageInputSerializer,
-                                        HomePageDestinationSerializer, HomePageStateSerializer,
-                                        LocationSerializer, SendEnquirySerializer, CurrencySerializer)
-from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter, AttractionFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
+from rest_framework import filters
+
+from elasticsearch_dsl.query import MultiMatch
+from elasticsearch_dsl import Q
+
+from api.models import (Country, State, City, CoverPageInput, Attraction, Location, Package,
+                        Activity, Currency)
+from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer, 
+                                        AttractionSerializer, CoverPageInputSerializer,
+                                        HomePageDestinationSerializer, HomePageStateSerializer,
+                                        LocationSerializer, SendEnquirySerializer,
+                                        CurrencySerializer)
+from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter, AttractionFilter
 from api.utils.paginator import CustomPagination
-from django.db import transaction
 from api.tasks import *
+from api.documents import StateDocument
+from .serializers import StateDocumentSerializer
+
+
+class StateElasticSearch(APIView):
+    document_class = StateDocument
+    serializer_class = StateSerializer
+
+    def generate_q_expression(self, query):
+        return MultiMatch(query=query, fields=['name'], type='phrase_prefix')
+
+    def get(self, request, query):
+        q = self.generate_q_expression(query)
+        search = self.document_class.search().query(q)
+        response = search.execute()
+
+        # Use State model serializer to serialize the response
+        states = State.objects.filter(id__in=[hit.meta.id for hit in response])
+        serializer = self.serializer_class(states, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class StateDocumentViewSet(DocumentViewSet):
+    document = StateDocument
+    serializer_class = StateSerializer
+    pagination_class = CustomPagination
+
+    def get_queryset(self):
+        name_query = self.request.GET.get('name')
+        id_query = self.request.GET.get('id')
+        search_obj = self.document.search()
+
+        if name_query and id_query:
+            search_obj = search_obj.query('bool', must=[
+                {'match': {'name': name_query}},
+                {'match': {'id': id_query}},
+            ])
+        elif name_query:
+            search_obj = search_obj.query('match', name=name_query)
+        elif id_query:
+            search_obj = search_obj.query('match', id=id_query)
+
+        return search_obj
 
 
 class CountryViewSet(viewsets.ModelViewSet):

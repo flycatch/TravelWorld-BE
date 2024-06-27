@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+
     'django_ckeditor_5',
     'drf_yasg',
     'rest_framework',
@@ -75,6 +78,11 @@ MIDDLEWARE = [
 ]
 SIMPLE_HISTORY_HISTORY_ID_USE_UUID = True
 
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'http://localhost:9200'
+    },
+}
 
 ROOT_URLCONF = 'TravelWorld.urls'
 

@@ -1,19 +1,34 @@
+# books/serializers.py
 from rest_framework import serializers
+
+from django.db.models import Max
+from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
+
+from api.documents import StateDocument
 from api.models import (Country, City, State, Location, CoverPageInput, Attraction,
                         Pricing, SendEnquiry, PackageCategory, SuitableFor, Currency)
-from django.db.models import Max
+
+
+class StateDocumentSerializer(DocumentSerializer):
+    class Meta:
+        document = StateDocument
+        fields = [
+            'id',
+            'name',
+            'country',
+        ]
 
 
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
-        fields = ['id','name']
+        fields = ['id', 'name']
 
 
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
-        fields = ['id','name']
+        fields = ['id', 'name']
 
 
 class CitySerializer(serializers.ModelSerializer):

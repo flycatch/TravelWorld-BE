@@ -10,6 +10,8 @@ services:
     volumes:
       - user_static-volume:/app/static
       - user_media-volume:/app/media  
+    env_file:
+      - ./.env
     depends_on:
       - db
 
@@ -23,6 +25,8 @@ services:
     volumes:
       - booking_static-volume:/app/static
       - booking_media-volume:/app/media  
+    env_file:
+      - ./.env
     depends_on:
       - db
 
@@ -35,7 +39,9 @@ services:
       - "8012:8000"
     volumes:
       - explore_world_static-volume:/app/static
-      - explore_world_media-volume:/app/media  
+      - explore_world_media-volume:/app/media 
+    env_file:
+      - ./.env 
     depends_on:
       - db
 

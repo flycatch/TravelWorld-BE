@@ -1,13 +1,41 @@
 version: '3.8'
 services:
-  backend:
+  user_management:
     build:
-      context: .
+      context: User_Management
       dockerfile: Dockerfile
-    command: gunicorn TravelWorld.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn User_Management.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8010:8000"
     volumes:
-      - static-volume:/app/static
-      - media-volume:/app/media  
+      - user_static-volume:/app/static
+      - user_media-volume:/app/media  
+    depends_on:
+      - db
+
+  booking_management:
+    build:
+      context: Booking_Management
+      dockerfile: Dockerfile
+    command: gunicorn Booking_Management.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8011:8000"
+    volumes:
+      - booking_static-volume:/app/static
+      - booking_media-volume:/app/media  
+    depends_on:
+      - db
+
+  explore_world:
+    build:
+      context: Explore_World
+      dockerfile: Dockerfile
+    command: gunicorn Explore_World.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8012:8000"
+    volumes:
+      - explore_world_static-volume:/app/static
+      - explore_world_media-volume:/app/media  
     depends_on:
       - db
 
@@ -32,17 +60,23 @@ services:
     env_file:
       - ./.env.db
 
-  nginx:
-    build: ./nginx
-    volumes:
-      - static-volume:/app/static  
-      - media-volume:/app/media  
-    ports:
-      - 5007:80
-    depends_on:
-      - backend
+  # nginx:
+  #   build: ./nginx
+  #   volumes:
+  #     - static-volume:/app/static  
+  #     - media-volume:/app/media  
+  #   ports:
+  #     - 5007:80
+  #   depends_on:
+  #     - backend
 
 volumes:
   postgres_data:
-  static-volume:  
-  media-volume:
+  # static-volume:  
+  # media-volume:
+  user_static-volume:
+  user_media-volume:
+  booking_static-volume:
+  booking_media-volume:
+  explore_world_static-volume:
+  explore_world_media-volume:

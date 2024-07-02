@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: gunicorn User_Management.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static-volume:/app/static
+      - media-volume:/app/media  
+    depends_on:
+      - db
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    command: 'celery -A User_Management worker -l info'
+
+  redis:
+    image: redis:latest
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.db
+
+  nginx:
+    build: ./nginx
+    volumes:
+      - static-volume:/app/static  
+      - media-volume:/app/media  
+    ports:
+      - 5007:80
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  static-volume:  
+  media-volume:

@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 
 # Copy the requirements file into the container at /app/
-ADD ../requirements.txt .
+COPY ../requirements.txt .
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --upgrade pip

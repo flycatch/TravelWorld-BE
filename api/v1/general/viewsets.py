@@ -72,11 +72,27 @@ class CityViewSet(viewsets.ModelViewSet):
 
         Parameters:
         - serializer (CitySerializer): The serializer instance containing the validated data.
+
+        Returns:
+        - Response: A JSON response indicating success or failure.
         """
         name = serializer.validated_data['name']
         lat, lng = self.get_coordinates_from_google(name)
-        print(lat)
+
+        if lat is None or lng is None:
+            return Response({
+                "message": "Failed to fetch coordinates from Google Maps API.",
+                "status": "error",
+                "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         serializer.save(latitude=lat, longitude=lng)
+
+        return Response({
+            "message": "City created successfully.",
+            "status": "success",
+            "statusCode": status.HTTP_201_CREATED
+        }, status=status.HTTP_201_CREATED)
 
     def get_coordinates_from_google(self, city_name):
         """
@@ -99,16 +115,16 @@ class CityViewSet(viewsets.ModelViewSet):
         base_url = 'https://maps.googleapis.com/maps/api/geocode/json'
         params = {'address': city_name, 'key': api_key}
         response = requests.get(base_url, params=params)
-        if response.status_code != 200:
-            return Response({'error': 'Error fetching data from Google Maps API.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if response.status_code == 200:
-            results = response.json().get('results')
-            if results:
-                location = results[0]['geometry']['location']
-                return location['lat'], location['lng']
-        return None
+        if response.status_code != 200:
+            return None, None
+
+        results = response.json().get('results')
+        if results:
+            location = results[0]['geometry']['location']
+            return location['lat'], location['lng']
+
+        return None, None
 
 
 class CityByCoordinatesView(APIView):
@@ -132,14 +148,26 @@ class CityByCoordinatesView(APIView):
         lat = request.query_params.get('latitude')
         lng = request.query_params.get('longitude')
         if not lat or not lng:
-            return Response({'error': 'Please provide both latitude and longitude.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "message": "Please provide both latitude and longitude.",
+                "status": "error",
+                "statusCode": status.HTTP_400_BAD_REQUEST
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         city = self.get_city_from_coordinates(lat, lng)
         if city:
-            return Response({'city': city}, status=status.HTTP_200_OK)
+            return Response({
+                "message": "City found successfully.",
+                "status": "success",
+                "statusCode": status.HTTP_200_OK,
+                "data": {"city": city}
+            }, status=status.HTTP_200_OK)
 
-        return Response({'error': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({
+            "message": "City not found.",
+            "status": "error",
+            "statusCode": status.HTTP_404_NOT_FOUND
+        }, status=status.HTTP_404_NOT_FOUND)
 
     def get_city_from_coordinates(self, lat, lng):
         """
@@ -178,7 +206,7 @@ class NearestCitiesAPIView(APIView):
     """
     API endpoint to get nearest cities based on latitude and longitude.
     """
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         """
         Handle GET requests to fetch nearest cities based on latitude and longitude.
 
@@ -196,31 +224,45 @@ class NearestCitiesAPIView(APIView):
         """
         latitude = request.query_params.get('latitude')
         longitude = request.query_params.get('longitude')
-        max_distance = request.query_params.get('max_distance', 100)  # Default max distance is 100 km
+        max_distance = request.query_params.get('max_distance', 100)  # Default distance is 100km
 
         if not latitude or not longitude:
-            return Response({'error': 'Please provide both latitude and longitude.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "message": "Please provide both latitude and longitude.",
+                "status": "error",
+                "statusCode": status.HTTP_400_BAD_REQUEST
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             latitude = float(latitude)
             longitude = float(longitude)
             max_distance = float(max_distance)
         except ValueError:
-            return Response({'error': 'Invalid latitude, longitude, or max_distance values.'},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                "message": "Invalid latitude, longitude, or max_distance values.",
+                "status": "error",
+                "statusCode": status.HTTP_400_BAD_REQUEST
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Get nearest cities based on coordinates
         nearest_cities = self.get_nearest_cities(latitude, longitude, max_distance)
 
         if not nearest_cities:
-            return Response({'message': 'No cities found within the specified distance.'},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response({
+                "message": "No cities found within the specified distance.",
+                "status": "error",
+                "statusCode": status.HTTP_404_NOT_FOUND
+            }, status=status.HTTP_404_NOT_FOUND)
 
         # Extract city names from queryset
         city_names = [city.name for city in nearest_cities]
 
-        return Response({'nearest_cities': city_names}, status=status.HTTP_200_OK)
+        return Response({
+            "message": "Nearest cities found successfully.",
+            "status": "success",
+            "statusCode": status.HTTP_200_OK,
+            "data": city_names
+        }, status=status.HTTP_200_OK)
 
     def get_nearest_cities(self, latitude, longitude, max_distance=100):
         """

@@ -1,22 +1,23 @@
 import requests
-from math import radians, sin, cos, sqrt, atan2
+from geopy.distance import geodesic
 
 from django.conf import settings
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
+from django_filters.rest_framework import DjangoFilterBackend
 
-from rest_framework import viewsets,status
+from rest_framework import viewsets, status
 from rest_framework.filters import SearchFilter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
 
-from api.models import (Country, State, City, CoverPageInput,Attraction, Location,Package,
+from api.models import (Country, State, City, CoverPageInput, Attraction, Location, Package,
                         Activity, Currency)
-from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer, 
-                                        AttractionSerializer,CoverPageInputSerializer,
+from api.v1.general.serializers import (CountrySerializer, StateSerializer, CitySerializer,
+                                        AttractionSerializer, CoverPageInputSerializer,
                                         HomePageDestinationSerializer, HomePageStateSerializer,
-                                        LocationSerializer, SendEnquirySerializer, CurrencySerializer)
+                                        LocationSerializer, SendEnquirySerializer,
+                                        CurrencySerializer)
 from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter, AttractionFilter
 from api.utils.paginator import CustomPagination
 from api.tasks import *
@@ -62,17 +63,42 @@ class CityViewSet(viewsets.ModelViewSet):
     filterset_class = CityFilter
 
     def perform_create(self, serializer):
+        """
+        Save a new city instance after fetching its coordinates from Google Maps API.
+
+        This method overrides the default perform_create method to include fetching
+        the city's latitude and longitude from the Google Maps API based on the city name.
+        The fetched coordinates are then saved with the city instance.
+
+        Parameters:
+        - serializer (CitySerializer): The serializer instance containing the validated data.
+        """
         name = serializer.validated_data['name']
         lat, lng = self.get_coordinates_from_google(name)
         print(lat)
         serializer.save(latitude=lat, longitude=lng)
 
     def get_coordinates_from_google(self, city_name):
+        """
+        Fetch the latitude and longitude of a city using the Google Maps API.
+
+        This method makes a request to the Google Maps Geocoding API to get the coordinates
+        of a city based on its name.
+
+        Parameters:
+        - city_name (str): The name of the city to fetch coordinates for.
+
+        Returns:
+        - tuple: A tuple containing the latitude and longitude of the city.
+        - None: If the API request fails or the city is not found, returns None.
+
+        Raises:
+        - Response: Returns an error response if there is an issue with the API request.
+        """
         api_key = settings.GOOGLE_MAPS_API_KEY
         base_url = 'https://maps.googleapis.com/maps/api/geocode/json'
         params = {'address': city_name, 'key': api_key}
         response = requests.get(base_url, params=params)
-        # response = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={city_name}&key={settings.GOOGLE_MAPS_API_KEY}')
         if response.status_code != 200:
             return Response({'error': 'Error fetching data from Google Maps API.'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -90,6 +116,19 @@ class CityByCoordinatesView(APIView):
     API endpoint to get the city name using latitude and longitude.
     """
     def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to fetch the city name based on latitude and longitude.
+
+        This method checks if both latitude and longitude are provided in the request.
+        If both parameters are present, it calls the `get_city_from_coordinates` method
+        to fetch the city name from the Google Maps API.
+
+        Parameters:
+        - request (Request): The request object containing query parameters.
+
+        Returns:
+        - Response: A JSON response containing the city name if found, or an error message.
+        """
         lat = request.query_params.get('latitude')
         lng = request.query_params.get('longitude')
         if not lat or not lng:
@@ -103,6 +142,23 @@ class CityByCoordinatesView(APIView):
         return Response({'error': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     def get_city_from_coordinates(self, lat, lng):
+        """
+        Fetch the city name from the Google Maps API using latitude and longitude.
+
+        This method makes a request to the Google Maps Geocoding API to get the city
+        name based on the provided latitude and longitude.
+
+        Parameters:
+        - lat (str): The latitude of the location.
+        - lng (str): The longitude of the location.
+
+        Returns:
+        - str: The name of the city if found.
+        - None: If the city is not found or the API request fails.
+
+        Raises:
+        - Response: Returns an error response if there is an issue with the API request.
+        """
         api_key = settings.GOOGLE_MAPS_API_KEY
         base_url = 'https://maps.googleapis.com/maps/api/geocode/json'
         params = {'latlng': f'{lat},{lng}', 'key': api_key}
@@ -116,6 +172,88 @@ class CityByCoordinatesView(APIView):
                     if 'locality' in component.get('types'):
                         return component.get('long_name')
         return None
+
+
+class NearestCitiesAPIView(APIView):
+    """
+    API endpoint to get nearest cities based on latitude and longitude.
+    """
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests to fetch nearest cities based on latitude and longitude.
+
+        This method checks if both latitude and longitude are provided in the request.
+        It also takes an optional `max_distance` parameter to limit the search radius.
+        If the parameters are valid, it calls the `get_nearest_cities` method to get
+        the nearest cities.
+
+        Parameters:
+        - request (Request): The request object containing query parameters.
+
+        Returns:
+        - Response: A JSON response containing the list of nearest city names if found,
+                    or an error message.
+        """
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        max_distance = request.query_params.get('max_distance', 100)  # Default max distance is 100 km
+
+        if not latitude or not longitude:
+            return Response({'error': 'Please provide both latitude and longitude.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            max_distance = float(max_distance)
+        except ValueError:
+            return Response({'error': 'Invalid latitude, longitude, or max_distance values.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Get nearest cities based on coordinates
+        nearest_cities = self.get_nearest_cities(latitude, longitude, max_distance)
+
+        if not nearest_cities:
+            return Response({'message': 'No cities found within the specified distance.'},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        # Extract city names from queryset
+        city_names = [city.name for city in nearest_cities]
+
+        return Response({'nearest_cities': city_names}, status=status.HTTP_200_OK)
+
+    def get_nearest_cities(self, latitude, longitude, max_distance=100):
+        """
+        Retrieve nearest cities based on given latitude and longitude.
+
+        This method calculates the distance between the given coordinates and the
+        coordinates of each city in the database. It filters the cities within the
+        specified maximum distance and returns them sorted by distance.
+
+        Parameters:
+        - latitude (float): Latitude of the reference point (in degrees).
+        - longitude (float): Longitude of the reference point (in degrees).
+        - max_distance (float): Maximum distance (in kilometers) to search for cities.
+
+        Returns:
+        - list: A list of City objects ordered by distance.
+        """
+        origin = (latitude, longitude)
+        cities = City.objects.all()
+
+        nearby_cities = []
+        for city in cities:
+            if city.latitude is not None and city.longitude is not None:
+                destination = (city.latitude, city.longitude)
+                distance = geodesic(origin, destination).km
+                if distance <= max_distance:
+                    city.distance = distance
+                    nearby_cities.append(city)
+
+        # Sort cities by distance
+        nearby_cities.sort(key=lambda city: city.distance)
+        return nearby_cities
+
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()

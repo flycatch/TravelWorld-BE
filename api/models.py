@@ -196,6 +196,7 @@ class State(BaseModel):
             raise ValidationError(
                 {'name': _('State name should contain only alphabetic characters and "&".')})
 
+
 class City(BaseModel):
     name = models.CharField(max_length=255)
     state = models.ForeignKey(
@@ -209,6 +210,8 @@ class City(BaseModel):
         upload_to='city/cover_image/', 
         null=True, default=None, blank=True, verbose_name="Cover Image")
     is_popular = models.BooleanField(default=False, verbose_name="Popular")
+    latitude = models.FloatField(blank=True, null=True)  # Allow blank and null
+    longitude = models.FloatField(blank=True, null=True)
 
     class Meta:
         verbose_name = 'Destination'

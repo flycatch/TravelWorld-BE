@@ -1,6 +1,15 @@
+import requests
+from math import radians, sin, cos, sqrt, atan2
+
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import transaction
+
 from rest_framework import viewsets,status
 from rest_framework.filters import SearchFilter
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 
 from api.models import (Country, State, City, CoverPageInput,Attraction, Location,Package,
                         Activity, Currency)
@@ -9,11 +18,7 @@ from api.v1.general.serializers import (CountrySerializer, StateSerializer, City
                                         HomePageDestinationSerializer, HomePageStateSerializer,
                                         LocationSerializer, SendEnquirySerializer, CurrencySerializer)
 from api.filters.general_filters import CityFilter, CurrencyFilter, StateFilter, AttractionFilter
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
 from api.utils.paginator import CustomPagination
-from django.db import transaction
 from api.tasks import *
 
 
@@ -56,6 +61,61 @@ class CityViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = CityFilter
 
+    def perform_create(self, serializer):
+        name = serializer.validated_data['name']
+        lat, lng = self.get_coordinates_from_google(name)
+        print(lat)
+        serializer.save(latitude=lat, longitude=lng)
+
+    def get_coordinates_from_google(self, city_name):
+        api_key = settings.GOOGLE_MAPS_API_KEY
+        base_url = 'https://maps.googleapis.com/maps/api/geocode/json'
+        params = {'address': city_name, 'key': api_key}
+        response = requests.get(base_url, params=params)
+        # response = requests.get(f'https://maps.googleapis.com/maps/api/geocode/json?address={city_name}&key={settings.GOOGLE_MAPS_API_KEY}')
+        if response.status_code != 200:
+            return Response({'error': 'Error fetching data from Google Maps API.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if response.status_code == 200:
+            results = response.json().get('results')
+            if results:
+                location = results[0]['geometry']['location']
+                return location['lat'], location['lng']
+        return None
+
+
+class CityByCoordinatesView(APIView):
+    """
+    API endpoint to get the city name using latitude and longitude.
+    """
+    def get(self, request, *args, **kwargs):
+        lat = request.query_params.get('latitude')
+        lng = request.query_params.get('longitude')
+        if not lat or not lng:
+            return Response({'error': 'Please provide both latitude and longitude.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        city = self.get_city_from_coordinates(lat, lng)
+        if city:
+            return Response({'city': city}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'City not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    def get_city_from_coordinates(self, lat, lng):
+        api_key = settings.GOOGLE_MAPS_API_KEY
+        base_url = 'https://maps.googleapis.com/maps/api/geocode/json'
+        params = {'latlng': f'{lat},{lng}', 'key': api_key}
+        response = requests.get(base_url, params=params)
+
+        if response.status_code == 200:
+            results = response.json().get('results')
+            if results:
+                address_components = results[0].get('address_components')
+                for component in address_components:
+                    if 'locality' in component.get('types'):
+                        return component.get('long_name')
+        return None
 
 class LocationViewSet(viewsets.ModelViewSet):
     queryset = Location.objects.all()

@@ -291,6 +291,8 @@ FACEBOOK_SECRET_ID= config("FACEBOOK_SECRET_ID", default="")
 
 DJANGO_BASE_BACKEND_URL = config("DJANGO_BASE_BACKEND_URL", default="http://127.0.0.1:8000")
 
+GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY_VALUE', default="")
+
 #Richtext editor
 customColorPalette = [
         {

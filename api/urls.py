@@ -3,7 +3,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
 from api.v1.general.viewsets import (CityViewSet, StateViewSet, CountryViewSet, CoverPageView, AttractionView,LocationViewSet,
-                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet)
+                                     HomePageDestinationViewSet, HomePageStateViewSet,SendEnquiryView, CurrencyViewSet,
+                                     CityByCoordinatesView)
 from api.v1.agent.viewsets import (AgentViewSet, RegisterViewSet, LoginViewSet,ForgotPassword,
                                    CustomPasswordResetConfirmView,AgentBankDetailsAPIView)
 from api.v1.package.viewsets import (PackageViewSet, PackageGetViewSet, ItineraryViewSet, SuitableForViewSet,
@@ -207,6 +208,7 @@ urlpatterns = [
     path('v1/package/itinerary-day/<int:pk>/', ItineraryDayDeleteView.as_view(), name='itinerary-day-delete'),
 
 
+    path('v1/get-city-by-coordinates/', CityByCoordinatesView.as_view(), name='get_city_by_coordinates'),
 
 
 
